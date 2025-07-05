@@ -1,3 +1,113 @@
+/* Sistema de Temas - Claro e Escuro */
+:root {
+  /* Tema Escuro (padrão) */
+  --color-primary: #3C342F;
+  --color-secondary: #1E1E1E;
+  
+  /* Cores de destaque (mantidas em ambos os temas) */
+  --color-accent: #FFD600;
+  --color-accent-dark: #CBA135;
+  --color-accent-hover: #cba035e2;
+  
+  /* Cores de texto - Tema Escuro */
+  --color-text-primary: #F5F5F5;
+  --color-text-secondary: #8f8f8f;
+  --color-text-muted: #909090;
+  --color-text-placeholder: #aaa;
+  
+  /* Cores de fundo - Tema Escuro */
+  --color-bg-primary: #3C342F;
+  --color-bg-secondary: #1E1E1E;
+  --color-bg-input: #2a2a2a;
+  --color-bg-card: #2d2d2d;
+  
+  /* Cores de borda - Tema Escuro */
+  --color-border: #404040;
+  --color-border-focus: #FFD600;
+  
+  /* Cores de estado - Tema Escuro */
+  --color-disabled: rgba(255, 255, 255, 0.7);
+  --color-shadow: rgba(255, 214, 0, 0.08);
+  --color-shadow-focus: rgba(255, 214, 0, 0.12);
+  --color-shadow-card: rgba(0, 0, 0, 0.3);
+  
+  /* Cores de sucesso, erro e aviso */
+  --color-success: #10b981;
+  --color-error: #ef4444;
+  --color-warning: #f59e0b;
+  --color-info: #3b82f6;
+}
+
+/* Tema Claro */
+[data-theme="light"] {
+  /* Cores principais - Tema Claro */
+  --color-primary: #f8fafc;
+  --color-secondary: #ffffff;
+  
+  /* Cores de texto - Tema Claro */
+  --color-text-primary: #1a1a1a;
+  --color-text-secondary: #4a5568;
+  --color-text-muted: #718096;
+  --color-text-placeholder: #a0aec0;
+  
+  /* Cores de fundo - Tema Claro */
+  --color-bg-primary: #f8fafc;
+  --color-bg-secondary: #ffffff;
+  --color-bg-input: #ffffff;
+  --color-bg-card: #ffffff;
+  
+  /* Cores de borda - Tema Claro */
+  --color-border: #e2e8f0;
+  --color-border-focus: #FFD600;
+  
+  /* Cores de estado - Tema Claro */
+  --color-disabled: rgba(0, 0, 0, 0.5);
+  --color-shadow: rgba(255, 214, 0, 0.15);
+  --color-shadow-focus: rgba(255, 214, 0, 0.25);
+  --color-shadow-card: rgba(0, 0, 0, 0.1);
+  
+  /* Cores de sucesso, erro e aviso - Tema Claro */
+  --color-success: #059669;
+  --color-error: #dc2626;
+  --color-warning: #d97706;
+  --color-info: #2563eb;
+}
+
+/* Tema Escuro (explicito) */
+[data-theme="dark"] {
+  /* Cores principais */
+  --color-primary: #3C342F;
+  --color-secondary: #1E1E1E;
+  
+  /* Cores de texto */
+  --color-text-primary: #F5F5F5;
+  --color-text-secondary: #8f8f8f;
+  --color-text-muted: #909090;
+  --color-text-placeholder: #aaa;
+  
+  /* Cores de fundo */
+  --color-bg-primary: #3C342F;
+  --color-bg-secondary: #1E1E1E;
+  --color-bg-input: #2a2a2a;
+  --color-bg-card: #2d2d2d;
+  
+  /* Cores de borda */
+  --color-border: #404040;
+  --color-border-focus: #FFD600;
+  
+  /* Cores de estado */
+  --color-disabled: rgba(255, 255, 255, 0.7);
+  --color-shadow: rgba(255, 214, 0, 0.08);
+  --color-shadow-focus: rgba(255, 214, 0, 0.12);
+  --color-shadow-card: rgba(0, 0, 0, 0.3);
+  
+  /* Cores de sucesso, erro e aviso */
+  --color-success: #10b981;
+  --color-error: #ef4444;
+  --color-warning: #f59e0b;
+  --color-info: #3b82f6;
+}
+
 /* Reset CSS básico */
 * {
   margin: 0;
@@ -12,8 +122,33 @@ html, body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 #root {
   height: 100%;
+}
+
+/* Classes utilitárias para temas */
+.theme-toggle {
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  transition: all 0.3s ease;
+}
+
+.theme-toggle:hover {
+  background-color: var(--color-accent);
+  color: var(--color-primary);
+  border-color: var(--color-accent);
+}
+
+/* Transições suaves para mudança de tema */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
