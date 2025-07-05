@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, User, Lock, Mail } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import '../styles/Login.css';
+import logo from '../assets/logo.png';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -22,12 +23,9 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    // Simular uma requisição de login
     try {
       await new Promise(resolve => setTimeout(resolve, 1500));
       console.log('Login attempt:', formData);
-      // Aqui você implementaria a lógica real de autenticação
     } catch (error) {
       console.error('Erro no login:', error);
     } finally {
@@ -36,22 +34,25 @@ const Login = () => {
   };
 
   const handleForgotPassword = () => {
-    // Implementar lógica para recuperação de senha
     console.log('Esqueceu a senha clicado');
   };
 
   return (
-    <div className="login-container">
-      <div className="login-body"></div>
+    <div className="login-main-container">
+      <div className="login-left">
+        <div className="login-logo-row">
+          <img src={logo} alt="Logo" className="login-logo-img" />
+          <h1 className="login-company-name" >Roupa de Gala</h1>
+        </div>
+        <h1 className="login-title">Bem-vindo de volta</h1>
+        <h2 className="login-highlight">Faça login para continuar</h2>
+        <p className="login-desc">Lorem ipsum dolor sit amet consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+      </div>
       <div className="login-card">
         <div className="login-header">
-          <div className="logo">
-            <User size={40} />
-          </div>
-          <h1>Bem-vindo de volta</h1>
+          <h1>Login</h1>
           <p>Entre com suas credenciais para acessar sua conta</p>
         </div>
-
         <form onSubmit={handleSubmit} className="login-form">
           <div className="input-group">
             <div className="input-wrapper">
@@ -67,7 +68,6 @@ const Login = () => {
               />
             </div>
           </div>
-
           <div className="input-group">
             <div className="input-wrapper">
               <Lock size={20} className="input-icon" />
@@ -89,7 +89,6 @@ const Login = () => {
               </button>
             </div>
           </div>
-
           <div className="form-options">
             <label className="checkbox-container">
               <input
@@ -102,7 +101,6 @@ const Login = () => {
               <span className="checkmark"></span>
               Manter logado
             </label>
-            
             <button
               type="button"
               onClick={handleForgotPassword}
@@ -111,7 +109,6 @@ const Login = () => {
               Esqueceu a senha?
             </button>
           </div>
-
           <button
             type="submit"
             disabled={isLoading}
@@ -124,15 +121,6 @@ const Login = () => {
             )}
           </button>
         </form>
-
-        <div className="login-footer">
-          <p>
-            Não tem uma conta?{' '}
-            <a href="#" className="signup-link">
-              Cadastre-se
-            </a>
-          </p>
-        </div>
       </div>
     </div>
   );
