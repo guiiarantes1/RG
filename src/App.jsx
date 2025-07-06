@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { useDispatch, useSelector } from 'react-redux'
 import Login from './pages/Login'
 import Home from './pages/Home'
+import Funcionarios from './pages/Funcionarios'
 import Sidebar from './components/Sidebar'
 import { useTheme } from './hooks/useTheme'
 import { useNavigate } from 'react-router-dom'
@@ -34,6 +35,7 @@ function AppContent() {
           <Route path="/" element={<Home />} />
           <Route path="/dashboard" element={<Home />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/funcionarios" element={<Funcionarios />} />
         </Routes>
       </main>
     </div>
