@@ -4,17 +4,26 @@ import Login from './pages/Login'
 import Home from './pages/Home'
 import Sidebar from './components/Sidebar'
 import { useTheme } from './hooks/useTheme'
+import { useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
 import { setSidebarState } from './store/slices/sidebarSlice'
 import './App.css'
 
 function AppContent() {
   const { theme } = useTheme();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const isSidebarCollapsed = useSelector((state) => state.sidebar.isSidebarCollapsed);
   const location = useLocation();
   
   // Verifica se está na rota de login
   const isLoginPage = location.pathname === '/login';
+
+  useEffect(() => {
+    if (['/'].includes(location.pathname)) {
+      navigate('/dashboard');
+    }
+  }, [location.pathname]);
 
   return (
     <div className="App">

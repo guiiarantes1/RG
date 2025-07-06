@@ -197,7 +197,6 @@
 }
 
 .dropdown-menu.show:hover {
-    background-color: #242323 !important;
     transform: translateX(5px);
     transition: all 0.2s ease-in-out !important
 }
