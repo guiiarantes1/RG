@@ -22,7 +22,7 @@ function AppContent() {
       <main className={`main-content ${isSidebarCollapsed && !isLoginPage ? 'collapsed' : ''} ${isLoginPage ? 'no-sidebar' : ''}`} id='main'>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/home" element={<Home />} />
+          <Route path="/dashboard" element={<Home />} />
           <Route path="/login" element={<Login />} />
         </Routes>
       </main>

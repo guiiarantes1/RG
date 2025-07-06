@@ -78,6 +78,16 @@
     margin-top: auto !important;
 }
 
+.toggle-sidebar {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.toggle-sidebar.collapsed {
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .toggle-btn {
     cursor: pointer;
     display: flex;
@@ -218,14 +228,3 @@
     }
 }
 
-
-@media screen and (max-width: 999px) {
-    .sidebar.collapsed {
-        display: none !important;
-    }
-
-    .sidebar {
-        display: none !important;
-    }
-
-}
