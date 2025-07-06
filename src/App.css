@@ -107,7 +107,9 @@ select:focus {
 }
 
 
-
+.bi-eye, .bi-eye-slash{
+  color: var(--color-text-primary) !important;
+}
 
 
 div,
