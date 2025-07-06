@@ -209,7 +209,7 @@
 }
 
 .dropdown-item:hover {
-    background-color: #1e1c1c !important;
+    background-color: var(--color-accent-hover) !important;
     padding-left: 12px !important;
     cursor: pointer;
     transition: all 0.3s ease-in-out !important;

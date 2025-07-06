@@ -29,7 +29,118 @@
   transition: all 0.3s ease-in-out !important;
 }
 
+input {
+  border-color: #dee2e6;
+  border-radius: 8px;
+  color: var(--color-text-primary) !important;
+}
+
 input:focus {
-  border-color: var(--color-accent);
+  border-color: var(--color-accent) !important;
   box-shadow: none !important;
+  outline: none !important;
+}
+
+select {
+  border-color: var(--color-border) !important;
+  border-radius: 8px;
+  color: var(--color-text-primary) !important;
+}
+
+select:focus {
+  border-color: var(--color-accent) !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.PhoneInput {
+  background-color: var(--background-inputs) !important;
+  border: 1px solid var(--color-border) !important;
+  padding: .375rem .75rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  border-radius: 8px;
+  color: var(--color-text-primary) !important;
+}
+
+.PhoneInputInput {
+  border: none !important;
+  background-color: var(--background-inputs) !important;
+  color: var(--color-text-primary) !important;
+}
+
+.PhoneInput--focus input {
+  outline: none !important;
+}
+
+.form-control {
+  border-color: var(--color-border) !important;
+  background-color: var(--background-inputs) !important;
+  border-radius: 8px;
+}
+
+.react-datepicker__input-container {
+  width: 100% !important;
+}
+
+.react-datepicker-wrapper {
+  width: 100% !important;
+}
+
+.react-datepicker-wrapper div input {
+  width: 100% !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: 8px !important;
+  background-color: var(--background-inputs) !important;
+}
+
+.form-control[readonly],
+.form-control:disabled,
+.form-control[readonly],
+.react-datepicker__input-container input[readonly],
+.react-datepicker__input-container input:disabled {
+  background-color: var(--background-inputs-disabled) !important;
+  border-color: var(--color-border) !important;
+  opacity: 1 !important;
+  color: var(--font-color-disabled) !important;
+}
+
+
+
+
+
+div,
+.main-content,
+.form-control,
+.react-datepicker__input-container input,
+textarea,
+select,
+option,
+button {
+  transition: background-color 0.3s ease-out !important;
+}
+
+p,
+span,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+label,
+i,
+svg,
+input {
+  transition: color 0.3s ease-out !important;
+}
+
+input,
+textarea,
+select,
+option,
+.form-control,
+.react-datepicker__input-container input {
+  transition: border 0s !important;
 }

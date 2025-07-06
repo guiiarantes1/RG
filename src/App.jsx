@@ -7,6 +7,7 @@ import { useTheme } from './hooks/useTheme'
 import { useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import { setSidebarState } from './store/slices/sidebarSlice'
+import 'react-phone-number-input/style.css';
 import './App.css'
 
 function AppContent() {

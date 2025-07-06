@@ -53,6 +53,7 @@
   --color-text-secondary: #4a5568;
   --color-text-muted: #718096;
   --color-text-placeholder: #a0aec0;
+  --font-color-disabled: #686868;
   
   /* Cores de fundo - Tema Claro */
   --color-bg-primary: #f8fafc;
@@ -62,12 +63,15 @@
   --color-bg-card: #ffffff;
   --background-modal: #ffffff;
   --backgroundTheme: #aac2e5;
+  --background-inputs-disabled: #e9ecef;
+  --background-inputs: #ffffff;
   
   /* Cores de borda - Tema Claro */
   --color-border: #e2e8f0;
   --color-border-focus: #FFD600;
   --color-border-header: #e2e8f0;
   --border-color-modal: #e6e6e6;
+
   
   /* Cores de estado - Tema Claro */
   --color-disabled: rgba(0, 0, 0, 0.5);
@@ -93,6 +97,7 @@
   --color-text-secondary: #8f8f8f;
   --color-text-muted: #909090;
   --color-text-placeholder: #aaa;
+  --font-color-disabled: #6e6e6e;
   
   /* Cores de fundo */
   --color-bg-primary: #3C342F;
@@ -101,9 +106,11 @@
   --color-bg-card: #2d2d2d;
   --background-modal: #282828;
   --backgroundTheme: #1d1d25;
+  --background-inputs-disabled: #202024;
+  --background-inputs: #1d1d20;
   
   /* Cores de borda */
-  --color-border: #404040;
+  --color-border: #29292d;
   --color-border-focus: #FFD600;
   --border-color-modal: #5c5c5c;
   --color-border-header: #28211c;

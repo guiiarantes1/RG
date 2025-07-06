@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Modal from './Modal';
 import ChangePassword from './ChangePassword';
+import EditingProfile from './EditingProfile';
 
 import '../styles/Sidebar.css';
 
@@ -93,6 +94,12 @@ const Sidebar = ({ setSideOpen }) => {
           </div>
 
           <ul className="dropdown-menu">
+
+            <li className='dropdown-item' onClick={() => setShowModal(true)} style={{ borderTop: '1px solid #ccdc' }}>
+              <span className='edit-profile'>
+                <i className="bi bi-pencil-square"></i> Editar perfil
+              </span>
+            </li>
             <li className='dropdown-item' onClick={() => setShowModalPassword(true)} style={{ borderTop: '1px solid #ccdc' }}>
               <span className="sair" style={{ padding: '0px 5px' }}>
                 <i className="bi bi-key"></i> Alterar senha
@@ -119,6 +126,14 @@ const Sidebar = ({ setSideOpen }) => {
           </div>
         </div>
       </nav>
+      {/* modal de edição de perfil */}
+      <Modal
+        show={showModal}
+        onClose={handleCloseModal}
+        onCloseX={handleCloseModal}
+        title="Editar Perfil"
+        bodyContent={<EditingProfile handleCloseModal={handleCloseModal} />}
+      />
       {/* modal de alteração de senha */}
       <Modal
         show={showModalPassword}
