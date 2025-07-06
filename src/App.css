@@ -54,7 +54,7 @@ select:focus {
 }
 
 .PhoneInput {
-  background-color: var(--background-inputs) !important;
+  background-color: var(--background-inputs);
   border: 1px solid var(--color-border) !important;
   padding: .375rem .75rem;
   font-size: 1rem;
@@ -62,6 +62,11 @@ select:focus {
   line-height: 1.5;
   border-radius: 8px;
   color: var(--color-text-primary) !important;
+  transition: all 0s ease-in-out !important;
+}
+
+.PhoneInput input{
+  transition: all 0s ease-in-out !important;
 }
 
 .PhoneInputInput {
