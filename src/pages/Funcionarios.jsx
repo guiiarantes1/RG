@@ -331,10 +331,6 @@ const Funcionarios = () => {
                     <i className="bi bi-envelope"></i>
                     <span>{funcionario.email}</span>
                   </div>
-                  <div className="detail-item">
-                    <i className="bi bi-calendar"></i>
-                    <span>Cadastrado em: {funcionario.dataCadastro}</span>
-                  </div>
                 </div>
               </div>
             ))

@@ -10,6 +10,7 @@ import { useEffect } from 'react'
 import { setSidebarState } from './store/slices/sidebarSlice'
 import 'react-phone-number-input/style.css';
 import './App.css'
+import Triagem from './pages/Triagem'
 
 function AppContent() {
   const { theme } = useTheme();
@@ -36,6 +37,7 @@ function AppContent() {
           <Route path="/dashboard" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/funcionarios" element={<Funcionarios />} />
+          <Route path="/triagem" element={<Triagem />} />
         </Routes>
       </main>
     </div>

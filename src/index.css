@@ -57,14 +57,14 @@
   
   /* Cores de fundo - Tema Claro */
   --color-bg-primary: #f8fafc;
-  --color-bg-secondary: #ffffff;
+  --color-bg-secondary: #fdfdfd;
   --color-bg-input: #ffffff;
   --color-bg-header: #ffffff;
   --color-bg-card: #ffffff;
   --background-modal: #ffffff;
   --backgroundTheme: #aac2e5;
   --background-inputs-disabled: #e9ecef;
-  --background-inputs: #ffffff;
+  --background-inputs: #fafafa;
   
   /* Cores de borda - Tema Claro */
   --color-border: #e2e8f0;

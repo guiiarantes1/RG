@@ -57,7 +57,7 @@ const Sidebar = ({ setSideOpen }) => {
     <>
       <nav className={`sidebar d-flex flex-column position-fixed ${isCollapsed ? 'collapsed' : ''}`} id="sidebar">
         <button
-          className={`btn btn-secondary toggle-sidebar ${isCollapsed ? 'collapsed' : ''}`}
+          className={`btn toggle-sidebar ${isCollapsed ? 'collapsed' : ''}`}
           style={{ background: 'none', fontSize: '28px', alignSelf: 'flex-end', border: 'none', color: 'white' }}
           onClick={toggleSidebar}
         >
@@ -77,18 +77,10 @@ const Sidebar = ({ setSideOpen }) => {
             aria-expanded="false"
             style={{ height: '45px', cursor: 'pointer' }}
           >
-            <div className='profile-image-container' style={{ width: '45px', height: '45px' }}>
-              <img
-                src="/src/assets/user-default.png"
-                className="rounded-circle"
-                alt="Perfil"
-                id="profile-image"
-                style={{ width: '100%', height: '45px', objectFit: 'cover' }}
-              />
-            </div>
+
             <div className="ms-3 profile-info" style={{ width: '100%' }}>
               <h6 className="text-white mb-0" style={{ whiteSpace: 'normal' }}>
-                {displayName}
+                Olá, {displayName}.
               </h6>
             </div>
           </div>

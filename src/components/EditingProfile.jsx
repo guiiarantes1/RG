@@ -108,29 +108,6 @@ const EditingProfile = ({ handleCloseModal }) => {
     return (
         <div className="container-editar-profile">
             <form onSubmit={handleSubmit} className="form-editar-profile p-4">
-                <div className="profile-picture-container mb-4" style={{ position: 'relative', width: '150px', height: '150px' }}>
-                    <img
-                        src={
-                            imagePreview
-                                ? imagePreview
-                                : loading
-                                    ? "/src/assets/user-default.png"
-                                    : formData.profile_picture || "/src/assets/user-default.png"
-                        }
-                        className="rounded-circle"
-                        alt="Foto de perfil"
-                        style={{ width: '150px', height: '150px', objectFit: 'cover', boxShadow: '0 0 10px rgb(85, 85, 85)', border: '1px solid var(--border-color-modal)' }}
-                    />
-                    <span
-                        className="editarFotoPerfil"
-                        onClick={() => document.getElementById('profilePicInput').click()}
-                        style={{ cursor: 'pointer' }}
-                    >
-                        <PencilSimple size={18} />
-                    </span>
-                    <input type="file" id="profilePicInput" style={{ display: 'none' }} onChange={handleFileChange} accept="image/*" />
-                </div>
-
                 <div className="dados-pessoais-section mb-4">
                     <div className="d-flex justify-content-between mb-3">
                         <h5 className="mb-0" style={{ fontSize: '20px', color: 'var(--font-color)' }}>Dados Pessoais</h5>
