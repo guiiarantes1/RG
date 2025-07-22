@@ -1,13 +1,19 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import '../styles/Login.css';
 import logo from '../assets/logo.png';
 import { login as loginService } from '../services/authService';
 import { mascaraCPF } from '../utils/Mascaras';
 import PhoneInput from 'react-phone-number-input';
 import ptBR from 'react-phone-number-input/locale/pt-BR';
+import { useAuth } from '../hooks/useAuth';
+import LoginRedirectMessage from '../components/LoginRedirectMessage';
 
 const Login = () => {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -15,6 +21,7 @@ const Login = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [showRegister, setShowRegister] = useState(false);
   const [registerData, setRegisterData] = useState({
     username: '',
@@ -34,6 +41,10 @@ const Login = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
+    // Limpa a mensagem de erro quando o usuário começa a digitar
+    if (errorMessage) {
+      setErrorMessage('');
+    }
   };
 
   const handleRegisterChange = (e) => {
@@ -54,14 +65,23 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setErrorMessage(''); // Limpa mensagens de erro anteriores
+
     try {
       // Remove a máscara do CPF antes de enviar
       const usernameSemMascara = formData.username.replace(/\D/g, '');
       const data = await loginService(usernameSemMascara, formData.password);
       console.log('Login realizado com sucesso:', data);
-      // Aqui você pode redirecionar ou salvar o token, etc.
+
+      // Salva as informações do usuário no Redux e os tokens no localStorage
+      login(data.user, data.access, data.refresh);
+
+      // Redireciona para a página desejada ou dashboard
+      const redirectTo = searchParams.get('redirect') || '/dashboard';
+      navigate(redirectTo, { replace: true });
+
     } catch (error) {
-      alert('Falha no login: ' + (error?.detail || 'Verifique suas credenciais.'));
+      setErrorMessage(error?.detail || 'Verifique suas credenciais e tente novamente.');
     } finally {
       setIsLoading(false);
     }
@@ -106,6 +126,7 @@ const Login = () => {
         <p className="login-desc">Lorem ipsum dolor sit amet consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
       </div>
       <div className="login-card">
+        <LoginRedirectMessage />
         <div className="login-header">
           <h1>Login</h1>
           <p>Entre com suas credenciais para acessar sua conta</p>
@@ -154,6 +175,7 @@ const Login = () => {
           </div>
 
 
+
           <div className='login-button-container w-100 mb-2 mt-3' style={{ display: 'flex', justifyContent: 'flex-end' }}>
             <button
               type="submit"
@@ -170,7 +192,11 @@ const Login = () => {
           {/* <div className='login-button-cadastrar w-100 text-center mt-3'>
             <span style={{ textAlign: 'center', marginTop: 10, fontSize: 13 }}>Ainda não tem uma conta? <span type="button" className="register-toggle" onClick={() => setShowRegister(true)} style={{ fontSize: 13, textDecoration: 'underline', cursor: 'pointer', color: '#FFD600' }}>Cadastre-se</span></span>
           </div> */}
-
+          {errorMessage && (
+            <div className="error-message-login">
+              {errorMessage}
+            </div>
+          )}
         </form>
 
         <form onSubmit={handleRegister} className="register-form" style={{ display: showRegister ? 'block' : 'none' }}>
@@ -240,7 +266,7 @@ const Login = () => {
             </div>
           </fieldset>
           <div className='d-flex align-items-center justify-content-between'>
-            <span onClick={() => setShowRegister(false)} style={{ textAlign: 'center',fontSize: 13, cursor: 'pointer', marginRight: 15, marginLeft: 'auto' }}>Voltar para login</span>
+            <span onClick={() => setShowRegister(false)} style={{ textAlign: 'center', fontSize: 13, cursor: 'pointer', marginRight: 15, marginLeft: 'auto' }}>Voltar para login</span>
             <button type="submit" disabled={registerLoading} className="login-button">
               {registerLoading ? <div className="loading-spinner"></div> : 'Cadastrar'}
             </button>

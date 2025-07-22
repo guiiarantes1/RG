@@ -1,16 +1,42 @@
 // src/services/authService.js
-import axios from 'axios';
+import api from './api';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
+// Função para fazer login
 export const login = async (username, password) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/api/v1/auth/login/`, {
+    const response = await api.post('/api/v1/auth/login/', {
       username,
       password
     });
     return response.data;
   } catch (error) {
     throw error.response?.data || error;
+  }
+};
+
+// Função para renovar tokens
+export const refreshTokens = async (refreshToken) => {
+  try {
+    const response = await api.post('/auth/refresh/', {
+      refresh: refreshToken
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};
+
+// Função para fazer logout
+export const logout = async () => {
+  try {
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (refreshToken) {
+      await api.post('/auth/logout/', {
+        refresh: refreshToken
+      });
+    }
+  } catch (error) {
+    // Mesmo se falhar, continua com o logout local
+    console.error('Erro ao fazer logout no servidor:', error);
   }
 }; 

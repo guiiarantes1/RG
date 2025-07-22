@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { funcionariosMock } from '../mock/funcionarios';
 import { mascaraCPF, mascaraTelefone, removerMascara } from '../utils/Mascaras';
 import { capitalizeText } from '../utils/capitalizeText';
 import PhoneInput from 'react-phone-number-input';
@@ -8,23 +7,39 @@ import Swal from 'sweetalert2';
 import '../styles/Funcionarios.css';
 import Header from '../components/Header';
 import Button from '../components/Button';
+import { registerEmployee, getEmployees, updateEmployee } from '../services/employeeService';
 
 const Funcionarios = () => {
   const [funcionarios, setFuncionarios] = useState([]);
   const [formData, setFormData] = useState({
-    nome: '',
+    name: '',
     cpf: '',
-    telefone: '',
+    phone: '',
     email: '',
-    cargo: ''
+    role: ''
   });
   const [editingId, setEditingId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    // Carregar dados mock
-    setFuncionarios(funcionariosMock);
+    // Carregar dados da API
+    loadEmployees();
   }, []);
+
+  const loadEmployees = async () => {
+    try {
+      const data = await getEmployees();
+      setFuncionarios(data);
+    } catch (error) {
+      console.error('Erro ao carregar funcionários:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro ao carregar funcionários',
+        text: 'Não foi possível carregar a lista de funcionários.',
+        confirmButtonColor: '#ef4444'
+      });
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -44,15 +59,15 @@ const Funcionarios = () => {
   const handlePhoneChange = (value) => {
     setFormData(prev => ({
       ...prev,
-      telefone: value,
+      phone: value,
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     // Validação básica
-    if (!formData.nome || !formData.cpf || !formData.telefone || !formData.email || !formData.cargo) {
+    if (!formData.name || !formData.cpf || !formData.phone || !formData.email || !formData.role) {
       Swal.fire({
         icon: 'error',
         title: 'Campos obrigatórios',
@@ -62,46 +77,50 @@ const Funcionarios = () => {
       return;
     }
     
-    if (editingId) {
-      // Editar funcionário existente
-      setFuncionarios(prev => prev.map(func => 
-        func.id === editingId 
-          ? { ...formData, id: editingId, dataCadastro: func.dataCadastro }
-          : func
-      ));
-      setEditingId(null);
+    try {
+      if (editingId) {
+        // Editar funcionário existente
+        await updateEmployee(editingId, formData);
+        setEditingId(null);
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Funcionário atualizado!',
+          text: 'Os dados do funcionário foram atualizados com sucesso.',
+          confirmButtonColor: '#10b981'
+        });
+      } else {
+        // Adicionar novo funcionário
+        await registerEmployee(formData);
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Funcionário cadastrado!',
+          text: 'O funcionário foi cadastrado com sucesso.',
+          confirmButtonColor: '#10b981'
+        });
+      }
       
-      Swal.fire({
-        icon: 'success',
-        title: 'Funcionário atualizado!',
-        text: 'Os dados do funcionário foram atualizados com sucesso.',
-        confirmButtonColor: '#10b981'
+      // Recarregar lista de funcionários
+      await loadEmployees();
+      
+      // Limpar formulário
+      setFormData({
+        name: '',
+        cpf: '',
+        phone: '',
+        email: '',
+        role: ''
       });
-    } else {
-      // Adicionar novo funcionário
-      const novoFuncionario = {
-        ...formData,
-        id: Date.now(),
-        dataCadastro: new Date().toISOString().split('T')[0]
-      };
-      setFuncionarios(prev => [...prev, novoFuncionario]);
-      
+    } catch (error) {
+      console.error('Erro ao salvar funcionário:', error);
       Swal.fire({
-        icon: 'success',
-        title: 'Funcionário cadastrado!',
-        text: 'O funcionário foi cadastrado com sucesso.',
-        confirmButtonColor: '#10b981'
+        icon: 'error',
+        title: 'Erro ao salvar funcionário',
+        text: error.message || 'Ocorreu um erro ao salvar o funcionário.',
+        confirmButtonColor: '#ef4444'
       });
     }
-    
-    // Limpar formulário
-    setFormData({
-      nome: '',
-      cpf: '',
-      telefone: '',
-      email: '',
-      cargo: ''
-    });
   };
 
   const handleEdit = (funcionario) => {
@@ -110,51 +129,27 @@ const Funcionarios = () => {
     setEditingId(funcionario.id);
   };
 
-  const handleDelete = (id) => {
-    const funcionario = funcionarios.find(func => func.id === id);
-    
-    Swal.fire({
-      title: 'Tem certeza?',
-      text: `Deseja excluir o funcionário ${capitalizeText(funcionario.nome)}?`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#ef4444',
-      cancelButtonColor: '#6b7280',
-      confirmButtonText: 'Sim, excluir!',
-      cancelButtonText: 'Cancelar',
-      reverseButtons: true
-    }).then((result) => {
-      if (result.isConfirmed) {
-        setFuncionarios(prev => prev.filter(func => func.id !== id));
-        
-        Swal.fire(
-          'Excluído!',
-          'O funcionário foi excluído com sucesso.',
-          'success'
-        );
-      }
-    });
-  };
+  
 
   const handleCancelEdit = () => {
     setEditingId(null);
     setFormData({
-      nome: '',
+      name: '',
       cpf: '',
-      telefone: '',
+      phone: '',
       email: '',
-      cargo: ''
+      role: ''
     });
   };
 
   const filteredFuncionarios = funcionarios.filter(funcionario =>
-    funcionario.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    funcionario.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     funcionario.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    funcionario.cargo.toLowerCase().includes(searchTerm.toLowerCase())
+    funcionario.role.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const getCargoColor = (cargo) => {
-    switch (cargo) {
+  const getCargoColor = (role) => {
+    switch (role) {
       case 'ADMINISTRADOR':
         return '#ef4444';
       case 'ATENDENTE':
@@ -172,17 +167,17 @@ const Funcionarios = () => {
     <div className="funcionarios-container">
 
       {/* Formulário de Cadastro */}
-      <div className="form-section" style={{ backgroundColor: 'var(--color-bg-card)' }}>
+      <div className="form-section mb-4" style={{ backgroundColor: 'var(--color-bg-card)' }}>
         <h2 style={{ fontSize: '18px' }}>{editingId ? 'Editar Funcionário' : 'Cadastrar Novo Funcionário'}</h2>
         <form onSubmit={handleSubmit} className="funcionario-form">
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="nome">Nome Completo *</label>
+              <label htmlFor="name">Nome Completo *</label>
               <input
                 type="text"
-                id="nome"
-                name="nome"
-                value={capitalizeText(formData.nome)}
+                id="name"
+                name="name"
+                value={capitalizeText(formData.name)}
                 onChange={handleInputChange}
                 required
                 placeholder="Digite o nome completo"
@@ -210,7 +205,7 @@ const Funcionarios = () => {
               <PhoneInput
                 international
                 defaultCountry="BR"
-                value={formData.telefone}
+                value={formData.phone}
                 onChange={handlePhoneChange}
                 placeholder="(00) 00000-0000"
                 labels={ptBR}
@@ -236,9 +231,9 @@ const Funcionarios = () => {
             <div className="form-group">
               <label htmlFor="cargo">Cargo *</label>
               <select
-                id="cargo"
-                name="cargo"
-                value={formData.cargo}
+                id="role"
+                name="role"
+                value={formData.role}
                 onChange={handleInputChange}
                 required
                 style={{ height: '35px' }}
@@ -290,12 +285,12 @@ const Funcionarios = () => {
                     <i className="bi bi-person-circle"></i>
                   </div>
                   <div className="funcionario-info">
-                    <h3>{capitalizeText(funcionario.nome)}</h3>
+                    <h3>{capitalizeText(funcionario.name)}</h3>
                     <span 
                       className="cargo-badge"
-                      style={{ backgroundColor: getCargoColor(funcionario.cargo) }}
+                      style={{ backgroundColor: getCargoColor(funcionario.role) }}
                     >
-                      {funcionario.cargo}
+                      {funcionario.role}
                     </span>
                   </div>
                   <div className="funcionario-actions">
@@ -307,7 +302,6 @@ const Funcionarios = () => {
                       <i className="bi bi-pencil"></i>
                     </button>
                     <button
-                      onClick={() => handleDelete(funcionario.id)}
                       className="btn-delete"
                       title="Excluir"
                     >
@@ -323,7 +317,7 @@ const Funcionarios = () => {
                   </div>
                   <div className="detail-item">
                     <i className="bi bi-telephone"></i>
-                    <span>{funcionario.telefone ? funcionario.telefone.replace('+55', '').replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3') : ''}</span>
+                    <span>{funcionario.phone ? funcionario.phone.replace('+55', '').replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3') : ''}</span>
                   </div>
                   <div className="detail-item">
                     <i className="bi bi-envelope"></i>

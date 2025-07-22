@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Modal from './Modal';
 import ChangePassword from './ChangePassword';
 import EditingProfile from './EditingProfile';
+import { useAuth } from '../hooks/useAuth';
+import { logout as logoutService } from '../services/authService';
 
 import '../styles/Sidebar.css';
 
@@ -33,9 +35,10 @@ const SidebarLink = ({ to, label, onClick, iconBoot }) => {
 
 const Sidebar = ({ setSideOpen }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [displayName, setDisplayName] = useState('Usuário');
   const [showModal, setShowModal] = useState(false);
   const [showModalPassword, setShowModalPassword] = useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const handleCloseModal = () => setShowModal(false);
   const handleCloseModalPassword = () => setShowModalPassword(false);
@@ -48,9 +51,32 @@ const Sidebar = ({ setSideOpen }) => {
     }
   };
 
-  const handleLogout = () => {
-    console.log('Logout clicked');
-    // Implementar logout aqui
+  const handleLogout = async () => {
+    try {
+      // Chama o serviço de logout para invalidar o refresh token no servidor
+      await logoutService();
+    } catch (error) {
+      console.error('Erro ao fazer logout no servidor:', error);
+    } finally {
+      // Faz logout local independente do resultado do servidor
+      logout();
+      navigate('/login');
+    }
+  };
+
+  // Obtém o nome do usuário para exibir
+  const getUserDisplayName = () => {
+    console.log('Dados do usuário no Sidebar:', user);
+    console.log('user.name:', user?.name);
+    console.log('user.username:', user?.username);
+    
+    if (user?.name) {
+      return user.name.split(' ')[0]; // Retorna apenas o primeiro nome
+    }
+    if (user?.username) {
+      return 'Usuário';
+    }
+    return 'Usuário';
   };
 
   return (
@@ -80,7 +106,7 @@ const Sidebar = ({ setSideOpen }) => {
 
             <div className="ms-3 profile-info" style={{ width: '100%' }}>
               <h6 className="text-white mb-0" style={{ whiteSpace: 'normal' }}>
-                Olá, {displayName}.
+                Olá, {getUserDisplayName()}.
               </h6>
             </div>
           </div>
