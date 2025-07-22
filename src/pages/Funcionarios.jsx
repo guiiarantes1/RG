@@ -20,6 +20,7 @@ const Funcionarios = () => {
   });
   const [editingId, setEditingId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     // Carregar dados da API
@@ -77,6 +78,8 @@ const Funcionarios = () => {
       return;
     }
     
+    setIsLoading(true);
+    
     try {
       if (editingId) {
         // Editar funcionário existente
@@ -120,6 +123,8 @@ const Funcionarios = () => {
         text: error.message || 'Ocorreu um erro ao salvar o funcionário.',
         confirmButtonColor: '#ef4444'
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -168,7 +173,15 @@ const Funcionarios = () => {
 
       {/* Formulário de Cadastro */}
       <div className="form-section mb-4" style={{ backgroundColor: 'var(--color-bg-card)' }}>
-        <h2 style={{ fontSize: '18px' }}>{editingId ? 'Editar Funcionário' : 'Cadastrar Novo Funcionário'}</h2>
+        <div className="form-header">
+          <h2 style={{ fontSize: '18px' }}>{editingId ? 'Editar Funcionário' : 'Cadastrar Novo Funcionário'}</h2>
+          {isLoading && (
+            <div className="loading-indicator">
+              <div className="spinner"></div>
+              <span>Salvando...</span>
+            </div>
+          )}
+        </div>
         <form onSubmit={handleSubmit} className="funcionario-form">
           <div className="form-row">
             <div className="form-group">
@@ -182,6 +195,7 @@ const Funcionarios = () => {
                 required
                 placeholder="Digite o nome completo"
                 style={{ height: '35px' }}
+                disabled={isLoading}
               />
             </div>
             <div className="form-group">
@@ -195,6 +209,7 @@ const Funcionarios = () => {
                 required
                 placeholder="000.000.000-00"
                 style={{ height: '35px' }}
+                disabled={isLoading}
               />
             </div>
           </div>
@@ -210,6 +225,7 @@ const Funcionarios = () => {
                 placeholder="(00) 00000-0000"
                 labels={ptBR}
                 className="phone-input"
+                disabled={isLoading}
               />
             </div>
             <div className="form-group">
@@ -223,6 +239,7 @@ const Funcionarios = () => {
                 required
                 placeholder="email@exemplo.com"
                 style={{ height: '35px' }}
+                disabled={isLoading}
               />
             </div>
           </div>
@@ -237,6 +254,7 @@ const Funcionarios = () => {
                 onChange={handleInputChange}
                 required
                 style={{ height: '35px' }}
+                disabled={isLoading}
               >
                 <option value="">Selecione um cargo</option>
                 <option value="ADMINISTRADOR">ADMINISTRADOR</option>
@@ -247,11 +265,25 @@ const Funcionarios = () => {
             <div className="form-group"></div>
           </div>
 
-  
-            <Button text={editingId ? 'Atualizar' : 'Cadastrar'} type="submit" variant="primary" style={{ width: 'fit-content', marginLeft: 'auto' }} />
+          <div className="form-actions">
+            <Button 
+              text={isLoading ? 'Salvando...' : (editingId ? 'Atualizar' : 'Cadastrar')} 
+              type="submit" 
+              variant="primary" 
+              disabled={isLoading}
+              style={{ width: 'fit-content', marginLeft: 'auto' }} 
+            />
             {editingId && (
-              <Button text="Cancelar" type="button" variant="secondary" onClick={handleCancelEdit} style={{ width: 'fit-content', marginLeft: 'auto' }} />
+              <Button 
+                text="Cancelar" 
+                type="button" 
+                variant="secondary" 
+                onClick={handleCancelEdit} 
+                disabled={isLoading}
+                style={{ width: 'fit-content', marginLeft: '10px' }} 
+              />
             )}
+          </div>
         </form>
       </div>
 
@@ -281,9 +313,7 @@ const Funcionarios = () => {
             filteredFuncionarios.map(funcionario => (
               <div key={funcionario.id} className="funcionario-card">
                 <div className="funcionario-header">
-                  <div className="funcionario-avatar">
-                    <i className="bi bi-person-circle"></i>
-                  </div>
+                 
                   <div className="funcionario-info">
                     <h3>{capitalizeText(funcionario.name)}</h3>
                     <span 

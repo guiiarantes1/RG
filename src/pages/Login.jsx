@@ -8,7 +8,6 @@ import { mascaraCPF } from '../utils/Mascaras';
 import PhoneInput from 'react-phone-number-input';
 import ptBR from 'react-phone-number-input/locale/pt-BR';
 import { useAuth } from '../hooks/useAuth';
-import LoginRedirectMessage from '../components/LoginRedirectMessage';
 
 const Login = () => {
   const { login } = useAuth();
@@ -126,7 +125,6 @@ const Login = () => {
         <p className="login-desc">Lorem ipsum dolor sit amet consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
       </div>
       <div className="login-card">
-        <LoginRedirectMessage />
         <div className="login-header">
           <h1>Login</h1>
           <p>Entre com suas credenciais para acessar sua conta</p>

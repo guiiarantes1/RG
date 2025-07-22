@@ -31,7 +31,7 @@ export const logout = async () => {
   try {
     const refreshToken = localStorage.getItem('refreshToken');
     if (refreshToken) {
-      await api.post('/auth/logout/', {
+      await api.post('/api/v1/service-orders/pre-triage/', {
         refresh: refreshToken
       });
     }

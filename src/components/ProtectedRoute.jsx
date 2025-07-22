@@ -7,9 +7,8 @@ const ProtectedRoute = ({ children }) => {
   const location = useLocation();
 
   if (!isAuthenticated) {
-    // Redireciona para login com a URL atual como parâmetro de redirecionamento
-    const currentPath = location.pathname + location.search;
-    return <Navigate to={`/login?redirect=${encodeURIComponent(currentPath)}`} replace />;
+    // Sempre redireciona para login sem parâmetros
+    return <Navigate to="/login" replace />;
   }
 
   return children;

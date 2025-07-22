@@ -6,6 +6,10 @@ import Button from '../components/Button';
 import InputDate from '../components/InputDate';
 import { mascaraCPF, mascaraCEP, removerMascara } from '../utils/Mascaras';
 import validarCPF from '../utils/ValidarCPF';
+import { triagemService } from '../services/triagemService';
+import { getEmployees } from '../services/employeeService';
+import { capitalizeText } from '../utils/capitalizeText';
+import Swal from 'sweetalert2';
 import '../styles/Triagem.css';
 
 const Triagem = () => {
@@ -22,21 +26,50 @@ const Triagem = () => {
         origem: '',
         evento: '',
         papelNoEvento: '',
-        dataEvento: null,
-        tipoServico: ''
+        dataEvento: null
     });
 
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
     const [cepLoading, setCepLoading] = useState(false);
+    const [atendentes, setAtendentes] = useState([]);
+    const [loadingAtendentes, setLoadingAtendentes] = useState(false);
+    const [cpfValido, setCpfValido] = useState(true);
+
+    // Função para carregar atendentes da API
+    const carregarAtendentes = async () => {
+        setLoadingAtendentes(true);
+        try {
+            const funcionarios = await getEmployees();
+            // Filtrar apenas funcionários com role ATENDENTE
+            const atendentesFiltrados = funcionarios.filter(func => func.role === 'ATENDENTE');
+            setAtendentes(atendentesFiltrados);
+        } catch (error) {
+            console.error('Erro ao carregar atendentes:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro!',
+                text: 'Erro ao carregar lista de atendentes',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#d33'
+            });
+        } finally {
+            setLoadingAtendentes(false);
+        }
+    };
+
+    // Carregar atendentes quando o componente montar
+    React.useEffect(() => {
+        carregarAtendentes();
+    }, []);
 
     // Opções para os selects
     const opcoesAtendentes = [
-        { value: '', label: 'Selecione um atendente' },
-        { value: 'maria', label: 'Maria Silva' },
-        { value: 'joao', label: 'João Santos' },
-        { value: 'ana', label: 'Ana Costa' },
-        { value: 'pedro', label: 'Pedro Oliveira' }
+        { value: '', label: loadingAtendentes ? 'Carregando...' : 'Selecione um atendente' },
+        ...atendentes.map(atendente => ({
+            value: atendente.id,
+            label: capitalizeText(atendente.name)
+        }))
     ];
 
     const opcoesOrigem = [
@@ -54,16 +87,13 @@ const Triagem = () => {
         { value: 'noiva', label: 'Noiva' },
         { value: 'padrinho', label: 'Padrinho' },
         { value: 'madrinha', label: 'Madrinha' },
-        { value: 'pais', label: 'Pais' },
+        { value: 'pai', label: 'Pai' },
+        { value: 'mae', label: 'Mãe' },
         { value: 'familia', label: 'Família' },
         { value: 'outro', label: 'Outro' }
     ];
 
-    const opcoesTipoServico = [
-        { value: '', label: 'Selecione o tipo de serviço' },
-        { value: 'aluguel', label: 'Aluguel' },
-        { value: 'venda', label: 'Venda' }
-    ];
+
 
     // Função para buscar CEP
     const buscarCEP = async (cep) => {
@@ -90,14 +120,7 @@ const Triagem = () => {
         }
     };
 
-    // Função para validar CPF
-    const validarCPFCampo = (cpf) => {
-        const cpfLimpo = removerMascara(cpf);
-        if (cpfLimpo.length === 11) {
-            return validarCPF(cpfLimpo);
-        }
-        return true;
-    };
+
 
     // Função para validar campos obrigatórios
     const validarCampos = () => {
@@ -111,11 +134,11 @@ const Triagem = () => {
             novosErros.telefone = 'Telefone é obrigatório';
         }
 
-        if (formData.cpf && !validarCPFCampo(formData.cpf)) {
+        if (formData.cpf && !cpfValido) {
             novosErros.cpf = 'CPF inválido';
         }
 
-        if (!formData.atendenteResponsavel) {
+        if (!formData.atendenteResponsavel || formData.atendenteResponsavel === '') {
             novosErros.atendenteResponsavel = 'Atendente responsável é obrigatório';
         }
 
@@ -125,6 +148,35 @@ const Triagem = () => {
 
         setErrors(novosErros);
         return Object.keys(novosErros).length === 0;
+    };
+
+    // Função para formatar data para o formato da API (YYYY-MM-DD)
+    const formatarDataParaAPI = (data) => {
+        if (!data) return null;
+        const dataObj = new Date(data);
+        return dataObj.toISOString().split('T')[0];
+    };
+
+    // Função para preparar dados para a API
+    const prepararDadosParaAPI = () => {
+        return {
+            cliente_nome: formData.nomeCliente.toUpperCase(),
+            telefone: formData.telefone,
+            cpf: removerMascara(formData.cpf),
+            atendente_id: formData.atendenteResponsavel ? parseInt(formData.atendenteResponsavel) : null,
+            origem: formData.origem.toUpperCase(),
+            data_evento: formatarDataParaAPI(formData.dataEvento),
+            tipo_servico: 'ALUGUEL',
+            evento: formData.evento.toUpperCase(),
+            papel_evento: formData.papelNoEvento.toUpperCase(),
+            endereco: {
+                cep: removerMascara(formData.cep),
+                rua: formData.rua.toUpperCase(),
+                numero: formData.numero,
+                bairro: formData.bairro.toUpperCase(),
+                cidade: formData.cidade.toUpperCase()
+            }
+        };
     };
 
     // Função para salvar formulário
@@ -137,12 +189,49 @@ const Triagem = () => {
 
         setLoading(true);
 
-        // Simular envio para API
-        setTimeout(() => {
-            console.log('Dados do formulário:', formData);
-            alert('Triagem salva com sucesso!');
+        try {
+            const dadosParaAPI = prepararDadosParaAPI();
+            const response = await triagemService.criarTriagem(dadosParaAPI);
+
+            console.log('Triagem criada com sucesso:', response);
+            Swal.fire({
+                icon: 'success',
+                title: 'Sucesso!',
+                text: 'Triagem salva com sucesso!',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#3085d6'
+            });
+
+            // Limpar formulário após sucesso
+            setFormData({
+                nomeCliente: '',
+                telefone: '',
+                cpf: '',
+                cep: '',
+                rua: '',
+                bairro: '',
+                cidade: '',
+                numero: '',
+                atendenteResponsavel: '',
+                origem: '',
+                evento: '',
+                papelNoEvento: '',
+                dataEvento: null
+            });
+            setErrors({});
+
+        } catch (error) {
+            console.error('Erro ao salvar triagem:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro!',
+                text: 'Erro ao salvar triagem. Tente novamente.',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#d33'
+            });
+        } finally {
             setLoading(false);
-        }, 1000);
+        }
     };
 
     // Função para atualizar campos
@@ -158,13 +247,27 @@ const Triagem = () => {
                 [field]: ''
             }));
         }
+
+        // Resetar validação do CPF quando o campo for limpo
+        if (field === 'cpf' && !value) {
+            setCpfValido(true);
+        }
     };
 
-    // Função para aplicar máscara de CPF
+    // Função para aplicar máscara de CPF e validar
     const handleCPFChange = (e) => {
         const value = e.target.value;
         const maskedValue = mascaraCPF(value);
         handleInputChange('cpf', maskedValue);
+
+        // Validar CPF se tiver 11 dígitos
+        const cpfLimpo = removerMascara(maskedValue);
+        if (cpfLimpo.length === 11) {
+            const ehValido = validarCPF(cpfLimpo);
+            setCpfValido(ehValido);
+        } else {
+            setCpfValido(true); // Reset quando não tem 11 dígitos
+        }
     };
 
     // Função para aplicar máscara de CEP
@@ -210,6 +313,7 @@ const Triagem = () => {
                 className={`form-select ${errors[id] ? 'error' : ''}`}
                 value={formData[id]}
                 onChange={(e) => handleInputChange(id, e.target.value)}
+                disabled={id === 'atendenteResponsavel' && loadingAtendentes}
             >
                 {options.map(option => (
                     <option key={option.value} value={option.value}>
@@ -257,11 +361,30 @@ const Triagem = () => {
                             </div>
 
                             <div className="form-row">
-                                {renderInput('cpf', 'CPF', 'text', '000.000.000-00', false, 14)}
+                                <div className="form-group">
+                                    <label htmlFor="cpf" className="form-label">
+                                        CPF
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="cpf"
+                                        className={`form-input ${errors.cpf ? 'error' : ''}`}
+                                        value={formData.cpf}
+                                        onChange={handleCPFChange}
+                                        placeholder="000.000.000-00"
+                                        maxLength="14"
+                                    />
+                                    {errors.cpf && (
+                                        <span className="error-message">{errors.cpf}</span>
+                                    )}
+                                    {formData.cpf && !cpfValido && (
+                                        <small className="error-message">CPF inválido</small>
+                                    )}
+                                </div>
 
                                 <div className="form-group">
                                     <label htmlFor="cep" className="form-label">
-                                        CEP
+                                        CEP*
                                     </label>
                                     <div className="cep-container">
                                         <input
@@ -283,13 +406,13 @@ const Triagem = () => {
                             </div>
 
                             <div className="form-row">
-                                {renderInput('rua', 'Rua', 'text', 'Nome da rua')}
-                                {renderInput('numero', 'Número', 'text', 'Número')}
+                                {renderInput('rua', 'Logradouro*', 'text', '')}
+                                {renderInput('numero', 'Número*', 'text', '')}
                             </div>
 
                             <div className="form-row">
-                                {renderInput('bairro', 'Bairro', 'text', 'Nome do bairro')}
-                                {renderInput('cidade', 'Cidade', 'text', 'Nome da cidade')}
+                                {renderInput('bairro', 'Bairro*', 'text', '')}
+                                {renderInput('cidade', 'Cidade*', 'text', '')}
                             </div>
                         </div>
 
@@ -318,8 +441,8 @@ const Triagem = () => {
                                         placeholderText="Selecione a data"
                                     />
                                 </div>
-
-                                {renderSelect('tipoServico', 'Tipo de Serviço', opcoesTipoServico)}
+                                <div className="form-row">
+                                </div>
                             </div>
                         </div>
                         <Button
@@ -329,7 +452,7 @@ const Triagem = () => {
                             disabled={loading}
                             iconName={loading ? "arrow-clockwise" : "check-circle"}
                             className="save-button"
-                            style={{ width: 'fit-content', marginLeft: 'auto'}}
+                            style={{ width: 'fit-content', marginLeft: 'auto' }}
                         />
 
                     </form>

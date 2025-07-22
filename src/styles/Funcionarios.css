@@ -182,8 +182,9 @@
   border-radius: 6px;
   background: var(--color-bg-input);
   color: var(--color-text-primary);
-  font-size: 16px;
+  font-size: 14px;
   transition: border-color 0.2s ease;
+  height: 35px;
 }
 
 .search-input:focus {

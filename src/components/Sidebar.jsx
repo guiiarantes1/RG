@@ -60,7 +60,8 @@ const Sidebar = ({ setSideOpen }) => {
     } finally {
       // Faz logout local independente do resultado do servidor
       logout();
-      navigate('/login');
+      // Redireciona para login
+      navigate('/login', { replace: true });
     }
   };
 
