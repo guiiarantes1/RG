@@ -7,6 +7,7 @@ import Swal from 'sweetalert2';
 import '../styles/Funcionarios.css';
 import Header from '../components/Header';
 import Button from '../components/Button';
+import EmployeeCardSkeleton from '../components/EmployeeCardSkeleton';
 import { registerEmployee, getEmployees, updateEmployee, toggleEmployeeStatus } from '../services/employeeService';
 
 const Funcionarios = () => {
@@ -21,6 +22,8 @@ const Funcionarios = () => {
   const [editingId, setEditingId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingEmployees, setIsLoadingEmployees] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     // Carregar dados da API
@@ -28,11 +31,14 @@ const Funcionarios = () => {
   }, []);
 
   const loadEmployees = async () => {
+    setIsLoadingEmployees(true);
+    setError(null);
     try {
       const data = await getEmployees();
       setFuncionarios(data);
     } catch (error) {
       console.error('Erro ao carregar funcionários:', error);
+      setError('Não foi possível carregar a lista de funcionários. Tente novamente.');
       Swal.fire({
         icon: 'error',
         title: 'Erro ao carregar funcionários',
@@ -40,6 +46,8 @@ const Funcionarios = () => {
         timer: 2000,
         showConfirmButton: false
       });
+    } finally {
+      setIsLoadingEmployees(false);
     }
   };
 
@@ -133,6 +141,7 @@ const Funcionarios = () => {
       }
 
       // Recarregar lista de funcionários
+      setIsLoadingEmployees(true);
       await loadEmployees();
 
       // Limpar formulário
@@ -180,7 +189,7 @@ const Funcionarios = () => {
   const handleToggleStatus = async (funcionario) => {
     const personId = funcionario.person_id || funcionario.id;
     const newStatus = !funcionario.active;
-    
+
     // Confirmação antes de alterar o status
     const result = await Swal.fire({
       icon: 'question',
@@ -188,20 +197,20 @@ const Funcionarios = () => {
       text: `Deseja ${newStatus ? 'ativar' : 'desativar'} o funcionário ${capitalizeText(funcionario.name)}?`,
       showCancelButton: true,
       cancelButtonText: 'Cancelar',
-      confirmButtonText: 'Sim',   
+      confirmButtonText: 'Sim',
       confirmButtonColor: '#CBA135',
       cancelButtonColor: 'transparent',
- 
+
     });
-    
+
     // Se o usuário cancelou, não faz nada
     if (!result.isConfirmed) {
       return;
     }
-    
+
     try {
       await toggleEmployeeStatus(personId, newStatus);
-      
+
       Swal.fire({
         icon: 'success',
         title: 'Status alterado!',
@@ -209,8 +218,9 @@ const Funcionarios = () => {
         timer: 2000,
         showConfirmButton: false
       });
-      
+
       // Recarregar lista de funcionários
+      setIsLoadingEmployees(true);
       await loadEmployees();
     } catch (error) {
       console.error('Erro ao alterar status do funcionário:', error);
@@ -368,7 +378,14 @@ const Funcionarios = () => {
         {/* Listagem de Funcionários */}
         <div className="list-section">
           <div className="list-header">
-            <h2 style={{ fontSize: '18px', color: 'var(--color-text-primary)' }}>Funcionários Cadastrados</h2>
+            <h2 style={{ fontSize: '18px', color: 'var(--color-text-primary)' }}>
+              Funcionários Cadastrados
+              {isLoadingEmployees && (
+                <span style={{ fontSize: '14px', color: 'var(--color-text-secondary)', marginLeft: '8px', fontWeight: 'normal' }}>
+                  (Carregando...)
+                </span>
+              )}
+            </h2>
             <div className="search-container">
               <input
                 type="text"
@@ -376,13 +393,26 @@ const Funcionarios = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="search-input"
+                disabled={isLoadingEmployees}
               />
               <i className="bi bi-search search-icon"></i>
             </div>
           </div>
 
           <div className="funcionarios-grid">
-            {filteredFuncionarios.length === 0 ? (
+            {isLoadingEmployees ? (
+              // Renderizar skeletons durante o carregamento
+              Array.from({ length: 8 }).map((_, index) => (
+                <EmployeeCardSkeleton key={index} />
+              ))
+            ) : error ? (
+              <div className="error-state">
+                <i className="bi bi-exclamation-triangle"></i>
+                <h3>Erro ao carregar funcionários</h3>
+                <p>{error}</p>
+                <Button variant="primary" text="Tentar novamente" iconName="arrow-clockwise" iconPosition="left" onClick={loadEmployees} disabled={isLoadingEmployees} style={{ width: 'fit-content', marginLeft: 'auto' }} />
+              </div>
+            ) : filteredFuncionarios.length === 0 ? (
               <div className="no-results">
                 <i className="bi bi-people"></i>
                 <p>Nenhum funcionário encontrado</p>

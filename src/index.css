@@ -28,6 +28,7 @@
   
   /* Cores de estado - Tema Escuro */
   --color-disabled: rgba(255, 255, 255, 0.7);
+  --color-bg-disabled: #1a1a1a;
   --color-shadow: rgba(255, 214, 0, 0.08);
   --color-shadow-focus: rgba(255, 214, 0, 0.12);
   --color-shadow-card: rgba(0, 0, 0, 0.3);
@@ -75,6 +76,7 @@
   
   /* Cores de estado - Tema Claro */
   --color-disabled: rgba(0, 0, 0, 0.5);
+  --color-bg-disabled: #f5f5f5;
   --color-shadow: rgba(255, 214, 0, 0.15);
   --color-shadow-focus: rgba(255, 214, 0, 0.25);
   --color-shadow-card: rgba(0, 0, 0, 0.1);

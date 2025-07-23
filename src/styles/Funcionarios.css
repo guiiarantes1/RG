@@ -192,6 +192,12 @@
   border-color: var(--color-accent);
 }
 
+.search-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: var(--color-bg-disabled);
+}
+
 .search-icon {
   position: absolute;
   left: 16px;
@@ -379,6 +385,66 @@
   font-size: 17.6px;
 }
 
+/* Estado de erro */
+.error-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 0px 20px;
+  color: var(--color-text-secondary);
+}
+
+.error-state i {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.error-state .bi-exclamation-triangle {
+  font-size: 48px;
+  margin-bottom: 16px;
+  color: var(--color-error);
+}
+
+.error-state h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 8px;
+}
+
+.error-state p {
+  font-size: 16px;
+  margin-bottom: 24px;
+  color: var(--color-text-secondary);
+}
+
+.retry-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-accent-dark);
+  color: var(--color-primary);
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.retry-button:hover:not(:disabled) {
+  background: var(--color-accent-hover);
+}
+
+.retry-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.retry-button i {
+  font-size: 16px;
+}
+
 /* Responsividade */
 @media (max-width: 768px) {
   .funcionarios-container {
@@ -467,5 +533,22 @@
 
   .detail-item {
     font-size: 13.6px;
+  }
+
+  .error-state {
+    padding: 40px 20px;
+  }
+
+  .error-state h3 {
+    font-size: 18px;
+  }
+
+  .error-state p {
+    font-size: 14px;
+  }
+
+  .retry-button {
+    padding: 10px 20px;
+    font-size: 13px;
   }
 } 

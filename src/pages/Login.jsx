@@ -126,7 +126,7 @@ const Login = () => {
         </div>
         <h1 className="login-title">Bem-vindo de volta</h1>
         <h2 className="login-highlight">Faça login para continuar</h2>
-        <p className="login-desc">Lorem ipsum dolor sit amet consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+        <p className="login-desc">Acesse a plataforma exclusiva de gerenciamento da Roupas de Gala. Organize clientes, pedidos e acervos com praticidade, segurança e sofisticação.</p>
       </div>
       <div className="login-card">
         <div className="login-header">
@@ -196,7 +196,7 @@ const Login = () => {
             <span style={{ textAlign: 'center', marginTop: 10, fontSize: 13 }}>Ainda não tem uma conta? <span type="button" className="register-toggle" onClick={() => setShowRegister(true)} style={{ fontSize: 13, textDecoration: 'underline', cursor: 'pointer', color: '#FFD600' }}>Cadastre-se</span></span>
           </div> */}
           {errorMessage && (
-            <div className="error-message-login">
+            <div className="error-message-login mt-3">
               {errorMessage}
             </div>
           )}
