@@ -10,12 +10,12 @@
 /* Primary button */
 .custom-btn-primary {
   background-color: var(--color-accent-dark);
-  color: var(--color-primary);
+  color: white;
 }
 
 .custom-btn-primary:hover {
   background-color: var(--color-accent-hover);
-  color: var(--color-primary);
+  color: white;
 }
 
 .custom-btn-primary:focus {
@@ -25,7 +25,7 @@
 
 .custom-btn-primary:active {
   background-color: var(--color-accent-dark);
-  color: var(--color-primary);
+  color: white;
 }
 
 .custom-btn-primary:disabled {

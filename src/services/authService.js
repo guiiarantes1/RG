@@ -17,7 +17,7 @@ export const login = async (username, password) => {
 // Função para renovar tokens
 export const refreshTokens = async (refreshToken) => {
   try {
-    const response = await api.post('/auth/refresh/', {
+    const response = await api.post('/api/v1/auth/refresh/', {
       refresh: refreshToken
     });
     return response.data;

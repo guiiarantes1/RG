@@ -1,11 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Button from '../components/Button';
 import StepProgressBar from '../components/StepProgressBar';
 import '../styles/OrdemServico.css';
 import Header from '../components/Header';
+import ServiceOrderList from '../components/ServiceOrderList';
+import { serviceOrderService } from '../services/serviceOrderService';
+import { mascaraCPF, mascaraCEP, formatarParaExibicaoDecimal } from '../utils/Mascaras';
+import { capitalizeText } from '../utils/capitalizeText';
+import PhoneInput from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
 
 const OrdemServico = () => {
     const [currentStep, setCurrentStep] = useState(0);
+    const [showForm, setShowForm] = useState(false);
+    const [selectedOrder, setSelectedOrder] = useState(null);
+    const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         // Cliente
         nome: '',
@@ -121,6 +130,18 @@ const OrdemServico = () => {
             ...prev,
             [field]: value
         }));
+        
+        // Calcular valor restante automaticamente
+        if (field === 'total' || field === 'sinal') {
+            const total = field === 'total' ? parseFloat(value) || 0 : parseFloat(inputValues.total) || 0;
+            const sinal = field === 'sinal' ? parseFloat(value) || 0 : parseFloat(inputValues.sinal) || 0;
+            const restante = total - sinal;
+            
+            setInputValues(prev => ({
+                ...prev,
+                restante: restante.toString()
+            }));
+        }
     };
 
     const handleInputBlur = (field, value) => {
@@ -128,6 +149,22 @@ const OrdemServico = () => {
             ...prev,
             [field]: value
         }));
+        
+        // Calcular valor restante automaticamente
+        if (field === 'total' || field === 'sinal') {
+            const total = field === 'total' ? parseFloat(value) || 0 : parseFloat(inputValues.total) || 0;
+            const sinal = field === 'sinal' ? parseFloat(value) || 0 : parseFloat(inputValues.sinal) || 0;
+            const restante = total - sinal;
+            
+            setFormData(prev => ({
+                ...prev,
+                restante: restante.toString()
+            }));
+            setInputValues(prev => ({
+                ...prev,
+                restante: restante.toString()
+            }));
+        }
     };
 
     const handleSelectChange = (field, value) => {
@@ -150,6 +187,198 @@ const OrdemServico = () => {
             ...prev,
             [field]: value
         }));
+    };
+
+    // Sincronizar formData com inputValues quando restante for calculado
+    useEffect(() => {
+        if (inputValues.restante !== formData.restante) {
+            setFormData(prev => ({
+                ...prev,
+                restante: inputValues.restante
+            }));
+        }
+    }, [inputValues.restante, formData.restante]);
+
+
+
+
+
+    // Função para criar nova ordem
+    const handleCreateNew = () => {
+        setSelectedOrder(null);
+        setFormData({
+            nome: '', telefone: '', cpf: '', cep: '', rua: '', numero: '', bairro: '', cidade: '',
+            paletoNumero: '', paletoCor: '', paletoManga: '', paletoAjuste: '', paletoExtras: '',
+            camisaNumero: '', camisaCor: '', camisaManga: '', camisaAjuste: '', camisaExtras: '',
+            calcaNumero: '', calcaCor: '', calcaCintura: '', calcaPerna: '', calcaAjuste: '', calcaExtras: '',
+            suspensorio: false, passante: false, corAcessorios: '', lenco: false, sapato: false,
+            dataPedido: '', dataEvento: '', ocasiao: '', tipoPagamento: 'Compra', total: '', sinal: '', restante: ''
+        });
+        setInputValues({
+            nome: '', telefone: '', cpf: '', cep: '', rua: '', numero: '', bairro: '', cidade: '',
+            paletoNumero: '', paletoCor: '', paletoManga: '', paletoAjuste: '', paletoExtras: '',
+            camisaNumero: '', camisaCor: '', camisaManga: '', camisaAjuste: '', camisaExtras: '',
+            calcaNumero: '', calcaCor: '', calcaCintura: '', calcaPerna: '', calcaAjuste: '', calcaExtras: '',
+            suspensorio: false, passante: false, corAcessorios: '', lenco: false, sapato: false,
+            dataPedido: '', dataEvento: '', ocasiao: '', tipoPagamento: 'Compra', total: '', sinal: '', restante: ''
+        });
+        setCurrentStep(0);
+        setShowForm(true);
+    };
+
+    // Função para selecionar uma ordem da lista
+    const handleSelectOrder = (order) => {
+        setSelectedOrder(order);
+        
+        // Extrair dados diretamente da ordem selecionada
+        const client = order.client || {};
+        const contact = client.contacts?.[0] || {};
+        const address = client.addresses?.[0] || {};
+        const city = address.cidade || {};
+        
+        // Mapear os dados para o formato do formulário
+        const clientData = {
+            nome: client.name || '',
+            telefone: contact.phone || '',
+            cpf: client.cpf || '',
+            cep: address.cep || '',
+            rua: address.rua || '',
+            numero: address.numero || '',
+            bairro: address.bairro || '',
+            cidade: city.name || ''
+        };
+        
+        const mappedData = {
+            // Cliente
+            ...clientData,
+
+            // Paletó
+            paletoNumero: '',
+            paletoCor: '',
+            paletoManga: '',
+            paletoAjuste: '',
+            paletoExtras: '',
+
+            // Camisa
+            camisaNumero: '',
+            camisaCor: '',
+            camisaManga: '',
+            camisaAjuste: '',
+            camisaExtras: '',
+
+            // Calça
+            calcaNumero: '',
+            calcaCor: '',
+            calcaCintura: '',
+            calcaPerna: '',
+            calcaAjuste: '',
+            calcaExtras: '',
+
+            // Acessórios
+            suspensorio: false,
+            passante: false,
+            corAcessorios: '',
+            lenco: false,
+            sapato: false,
+
+            // Pagamento
+            dataPedido: order.order_date || '',
+            dataEvento: order.event_date || '',
+            ocasiao: order.occasion || '',
+            tipoPagamento: 'Compra',
+            total: order.total_value?.toString() || '',
+            sinal: order.advance_payment?.toString() || '',
+            restante: order.remaining_payment?.toString() || ''
+        };
+
+        setFormData(mappedData);
+        setInputValues(mappedData);
+        setCurrentStep(0);
+        setShowForm(true);
+    };
+
+    // Função para voltar à listagem
+    const handleBackToList = () => {
+        setShowForm(false);
+        setSelectedOrder(null);
+        setCurrentStep(0);
+    };
+
+    // Função para finalizar a OS
+    const handleFinalizeOS = async () => {
+        if (!validateCurrentStep()) {
+            alert('Por favor, preencha todos os campos obrigatórios antes de finalizar.');
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const orderData = {
+                event_date: formData.dataEvento,
+                occasion: formData.ocasiao,
+                total_value: parseFloat(formData.total) || 0,
+                advance_payment: parseFloat(formData.sinal) || 0,
+                remaining_payment: parseFloat(formData.restante) || 0,
+                order_date: formData.dataPedido,
+                client: {
+                    name: formData.nome,
+                    cpf: formData.cpf,
+                    contacts: [
+                        {
+                            phone: formData.telefone
+                        }
+                    ],
+                    addresses: [
+                        {
+                            cep: formData.cep,
+                            rua: formData.rua,
+                            numero: formData.numero,
+                            bairro: formData.bairro,
+                            cidade: {
+                                name: formData.cidade
+                            }
+                        }
+                    ]
+                },
+                // Dados dos itens (se a API aceitar)
+                jacket_number: formData.paletoNumero,
+                jacket_color: formData.paletoCor,
+                jacket_sleeve: formData.paletoManga,
+                jacket_adjustment: formData.paletoAjuste,
+                jacket_extras: formData.paletoExtras,
+                shirt_number: formData.camisaNumero,
+                shirt_color: formData.camisaCor,
+                shirt_sleeve: formData.camisaManga,
+                shirt_adjustment: formData.camisaAjuste,
+                shirt_extras: formData.camisaExtras,
+                pants_number: formData.calcaNumero,
+                pants_color: formData.calcaCor,
+                pants_waist: formData.calcaCintura,
+                pants_leg: formData.calcaPerna,
+                pants_adjustment: formData.calcaAjuste,
+                pants_extras: formData.calcaExtras,
+                suspenders: formData.suspensorio,
+                belt_loop: formData.passante,
+                accessories_color: formData.corAcessorios,
+                tie: formData.lenco,
+                shoes: formData.sapato
+            };
+
+            if (selectedOrder) {
+                await serviceOrderService.updateServiceOrder(selectedOrder.id, orderData);
+                alert('Ordem de serviço atualizada com sucesso!');
+            } else {
+                await serviceOrderService.createServiceOrder(orderData);
+                alert('Ordem de serviço criada com sucesso!');
+            }
+            
+            handleBackToList();
+        } catch (error) {
+            console.error('Erro ao salvar ordem de serviço:', error);
+            alert('Erro ao salvar a ordem de serviço');
+        } finally {
+            setLoading(false);
+        }
     };
 
     // Função para validar se todos os campos do step atual estão preenchidos
@@ -226,7 +455,7 @@ const OrdemServico = () => {
                                 <label>Nome <span style={{ color: 'red' }}>*</span></label>
                                 <input
                                     type="text"
-                                    value={inputValues.nome}
+                                    value={capitalizeText(inputValues.nome)}
                                     onChange={(e) => handleInputChange('nome', e.target.value)}
                                     onBlur={(e) => handleInputBlur('nome', e.target.value)}
                                     placeholder="Digite o nome completo"
@@ -234,19 +463,20 @@ const OrdemServico = () => {
                             </div>
                             <div className="form-group">
                                 <label>Telefone <span style={{ color: 'red' }}>*</span></label>
-                                <input
-                                    type="text"
+                                <PhoneInput
+                                    international
+                                    defaultCountry="BR"
                                     value={inputValues.telefone}
-                                    onChange={(e) => handleInputChange('telefone', e.target.value)}
-                                    onBlur={(e) => handleInputBlur('telefone', e.target.value)}
-                                    placeholder="(00) 00000-0000"
+                                    onChange={(value) => handleInputChange('telefone', value)}
+                                    onBlur={(e) => handleInputBlur('telefone', inputValues.telefone)}
+                                    placeholder="Digite o telefone"
                                 />
                             </div>
                             <div className="form-group">
                                 <label>CPF <span style={{ color: 'red' }}>*</span></label>
                                 <input
                                     type="text"
-                                    value={inputValues.cpf}
+                                    value={mascaraCPF(inputValues.cpf)}
                                     onChange={(e) => handleInputChange('cpf', e.target.value)}
                                     onBlur={(e) => handleInputBlur('cpf', e.target.value)}
                                     placeholder="000.000.000-00"
@@ -256,17 +486,17 @@ const OrdemServico = () => {
                                 <label>CEP <span style={{ color: 'red' }}>*</span></label>
                                 <input
                                     type="text"
-                                    value={inputValues.cep}
+                                    value={mascaraCEP(inputValues.cep)}
                                     onChange={(e) => handleInputChange('cep', e.target.value)}
                                     onBlur={(e) => handleInputBlur('cep', e.target.value)}
                                     placeholder="00000-000"
                                 />
                             </div>
                             <div className="form-group">
-                                <label>Rua <span style={{ color: 'red' }}>*</span></label>
+                                <label>Endereço <span style={{ color: 'red' }}>*</span></label>
                                 <input
                                     type="text"
-                                    value={inputValues.rua}
+                                    value={capitalizeText(inputValues.rua)}
                                     onChange={(e) => handleInputChange('rua', e.target.value)}
                                     onBlur={(e) => handleInputBlur('rua', e.target.value)}
                                     placeholder="Nome da rua"
@@ -286,7 +516,7 @@ const OrdemServico = () => {
                                 <label>Bairro <span style={{ color: 'red' }}>*</span></label>
                                 <input
                                     type="text"
-                                    value={inputValues.bairro}
+                                    value={capitalizeText(inputValues.bairro)}
                                     onChange={(e) => handleInputChange('bairro', e.target.value)}
                                     onBlur={(e) => handleInputBlur('bairro', e.target.value)}
                                     placeholder="Nome do bairro"
@@ -296,7 +526,7 @@ const OrdemServico = () => {
                                 <label>Cidade <span style={{ color: 'red' }}>*</span></label>
                                 <input
                                     type="text"
-                                    value={inputValues.cidade}
+                                    value={capitalizeText(inputValues.cidade)}
                                     onChange={(e) => handleInputChange('cidade', e.target.value)}
                                     onBlur={(e) => handleInputBlur('cidade', e.target.value)}
                                     placeholder="Nome da cidade"
@@ -638,53 +868,68 @@ const OrdemServico = () => {
     return (
         <>
             <Header nomeHeader={"Ordem de Serviço"} />
-            <div className="ordem-servico-container">
-                <div className="ordem-servico-content">
-                    <div className="form-section">
-                        {/* Steps Navigation */}
-                        <div className="steps-navigation">
-                            <StepProgressBar steps={steps} currentStep={currentStep} />
-                        </div>
-
-                        {/* Form Content */}
-                        <div className="form-content">
-                            {renderStepContent()}
-
-                            <div className="form-actions">
-                                {currentStep > 0 && (
-                                    <Button
-                                        text="Anterior"
-                                        onClick={prevStep}
-                                        variant="disabled"
-                                        className="action-btn"
-                                    />
-                                )}
-                                {currentStep < steps.length - 1 ? (
-                                    <Button
-                                        text="Próximo"
-                                        onClick={nextStep}
-                                        variant="primary"
-                                        className="action-btn"
-                                    />
-                                ) : (
-                                    <Button
-                                        text="Finalizar OS"
-                                        onClick={() => console.log('Finalizar OS', formData)}
-                                        variant="primary"
-                                        className="action-btn"
-                                    />
-                                )}
-                            </div>
-                        </div>
+            {!showForm ? (
+                <ServiceOrderList 
+                    onSelectOrder={handleSelectOrder}
+                    onCreateNew={handleCreateNew}
+                />
+            ) : (
+                <div className="ordem-servico-container">
+                    <div className="ordem-servico-header mb-3">
+                       <Button text="Voltar à Lista" onClick={handleBackToList} variant="primary" className="action-btn" disabled={loading} iconName="arrow-left" style={{ width: 'fit-content', padding: '15px 20px' }} />                       
+                      
                     </div>
-
-                    {/* Preview Section */}
-                    <div className="preview-section">
-                        <div className="preview-card">
-                            <div className="preview-header">
-                                <h2>ORDEM DE SERVIÇO</h2>
-                                <div className="os-number">OS #001</div>
+                    
+                    <div className="ordem-servico-content">
+                        <div className="form-section">
+                            {/* Steps Navigation */}
+                            <div className="steps-navigation">
+                                <StepProgressBar steps={steps} currentStep={currentStep} />
                             </div>
+
+                            {/* Form Content */}
+                            <div className="form-content">
+                                {renderStepContent()}
+
+                                <div className="form-actions">
+                                    {currentStep > 0 && (
+                                        <Button
+                                            text="Anterior"
+                                            onClick={prevStep}
+                                            variant="disabled"
+                                            className="action-btn"
+                                            disabled={loading}
+                                        />
+                                    )}
+                                    {currentStep < steps.length - 1 ? (
+                                        <Button
+                                            text="Próximo"
+                                            onClick={nextStep}
+                                            variant="primary"
+                                            className="action-btn"
+                                            disabled={loading}
+                                            style={{ marginLeft: 'auto' }}
+                                        />
+                                    ) : (
+                                        <Button
+                                            text={loading ? "Salvando..." : "Finalizar OS"}
+                                            onClick={handleFinalizeOS}
+                                            variant="primary"
+                                            className="action-btn"
+                                            disabled={loading}
+                                        />
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Preview Section */}
+                        <div className="preview-section">
+                            <div className="preview-card">
+                                <div className="preview-header">
+                                    <h2>ORDEM DE SERVIÇO</h2>
+                                    <div className="os-number">OS #{selectedOrder?.id || 'Nova'}</div>
+                                </div>
 
                             <div className="preview-section-group">
                                 <h4 style={{ display: 'flex', alignItems: 'center' }}>
@@ -696,7 +941,7 @@ const OrdemServico = () => {
                                 <div className="info-grid">
                                     <div className="info-item">
                                         <span className="label">Nome:</span>
-                                        <span className="value">{formData.nome}</span>
+                                        <span className="value">{capitalizeText(formData.nome)}</span>
                                     </div>
                                     <div className="info-item">
                                         <span className="label">Telefone:</span>
@@ -704,11 +949,15 @@ const OrdemServico = () => {
                                     </div>
                                     <div className="info-item">
                                         <span className="label">CPF:</span>
-                                        <span className="value">{formData.cpf}</span>
+                                        <span className="value">{mascaraCPF(formData.cpf)}</span>
+                                    </div>
+                                    <div className="info-item">
+                                        <span className="label">CEP:</span>
+                                        <span className="value">{mascaraCEP(formData.cep)}</span>
                                     </div>
                                     <div className="info-item">
                                         <span className="label">Endereço:</span>
-                                        <span className="value">{formData.rua}, {formData.numero} - {formData.bairro}, {formData.cidade}</span>
+                                        <span className="value">{capitalizeText(formData.rua)}, {formData.numero} - {capitalizeText(formData.bairro)}, {capitalizeText(formData.cidade)}</span>
                                     </div>
                                 </div>
                             </div>
@@ -804,15 +1053,15 @@ const OrdemServico = () => {
                                 <div className="payment-grid">
                                     <div className="payment-item">
                                         <span className="payment-label">Data Pedido:</span>
-                                        <span className="payment-value">{formData.dataPedido}</span>
+                                        <span className="payment-value">{formData.dataPedido ? new Date(formData.dataPedido).toLocaleDateString('pt-BR') : ''}</span>
                                     </div>
                                     <div className="payment-item">
                                         <span className="payment-label">Data Evento:</span>
-                                        <span className="payment-value">{formData.dataEvento}</span>
+                                        <span className="payment-value">{formData.dataEvento ? new Date(formData.dataEvento).toLocaleDateString('pt-BR') : ''}</span>
                                     </div>
                                     <div className="payment-item">
                                         <span className="payment-label">Ocasião:</span>
-                                        <span className="payment-value">{formData.ocasiao}</span>
+                                        <span className="payment-value">{capitalizeText(formData.ocasiao)}</span>
                                     </div>
                                     <div className="payment-item">
                                         <span className="payment-label">Tipo:</span>
@@ -820,15 +1069,15 @@ const OrdemServico = () => {
                                     </div>
                                     <div className="payment-item highlight">
                                         <span className="payment-label">Total:</span>
-                                        <span className="payment-value">R$ {formData.total}</span>
+                                        <span className="payment-value">R$ {formatarParaExibicaoDecimal(parseFloat(formData.total) || 0)}</span>
                                     </div>
                                     <div className="payment-item">
                                         <span className="payment-label">Sinal:</span>
-                                        <span className="payment-value">R$ {formData.sinal}</span>
+                                        <span className="payment-value">R$ {formatarParaExibicaoDecimal(parseFloat(formData.sinal) || 0)}</span>
                                     </div>
                                     <div className="payment-item highlight">
                                         <span className="payment-label">Restante:</span>
-                                        <span className="payment-value">R$ {formData.restante}</span>
+                                        <span className="payment-value">R$ {formatarParaExibicaoDecimal(parseFloat(formData.restante) || 0)}</span>
                                     </div>
                                 </div>
                             </div>
@@ -836,6 +1085,7 @@ const OrdemServico = () => {
                     </div>
                 </div>
             </div>
+            )}
         </>
     );
 };
