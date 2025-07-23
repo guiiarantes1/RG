@@ -1,0 +1,43 @@
+.home {
+  padding: 20px;
+  text-align: center;
+}
+
+.home h1 {
+  color: var(--color-text-primary);
+  margin-bottom: 20px;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-bottom: 16px;
+}
+
+.dashboard-section {
+  background: var(--color-bg-secondary);
+  border-radius: 18px;
+  box-shadow: 0 2px 12px var(--color-shadow-card);
+  padding: 18px 16px 10px 16px;
+  min-width: 0;
+  transition: background 0.3s;
+}
+
+.dashboard-section h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+@media (max-width: 900px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .dashboard-section {
+    padding: 12px 6px 6px 6px;
+  }
+} 

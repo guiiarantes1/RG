@@ -1,0 +1,73 @@
+.react-datepicker__month-dropdown {
+    color: black !important;
+}
+
+.react-datepicker__month-option {
+    margin: 3px 0 !important;
+}
+
+.react-datepicker__month-option:hover {
+    background-color: var(--color-secondary) !important;
+    color: white !important;
+}
+
+.react-datepicker__year-dropdown {
+    color: black !important;
+}
+
+.react-datepicker__header__dropdown {
+    margin-top: 10px;
+
+}
+
+.react-datepicker__year-option {
+    margin: 3px 0 !important;
+}
+
+.react-datepicker__year-option:hover {
+    background-color: var(--color-secondary) !important;
+    color: white !important;
+}
+
+.react-datepicker__input-container input {
+    color: var(--color-text-primary) !important;
+    border: 2px solid var(--color-border) !important;
+    /* Cor que você deseja para o placeholder */
+}
+
+.react-datepicker__month-select,
+.react-datepicker__month-select:active,
+.react-datepicker__month-select:focus {
+    background-color: var(--color-accent) !important;
+    color: white !important;
+    cursor: pointer !important;
+}
+
+.react-datepicker__year-select,
+.react-datepicker__year-select:active,
+.react-datepicker__year-select:focus {
+    background-color: var(--color-accent) !important;
+    color: white !important;
+    cursor: pointer !important;
+}
+
+/* Garante o estilo mesmo quando estiver desabilitado */
+.date-picker-container .react-datepicker__input-container input:disabled::placeholder {
+    color: var(--font-color-disabled) !important;
+    opacity: 1;
+  }
+
+div.dataInicio > div.react-datepicker-wrapper > div > input, 
+div.dataFinal > div > div > input {
+    background-color: var(--background-cards) !important;
+    cursor: pointer;
+}
+
+.react-datepicker__input-container input{
+    cursor: pointer;
+    padding-left: 30px !important;
+}
+
+.react-datepicker__close-icon::after{
+    background-color: var(--color-accent-dark)  !important;
+}

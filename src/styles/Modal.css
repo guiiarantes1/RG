@@ -1,0 +1,101 @@
+.modal.fade.show {
+    background-color: #0000005d !important;
+    z-index: 99999 !important;
+    display: flex !important;
+    justify-content: center !important;
+}
+
+.modal-dialog-modal {
+    margin: 15px auto;
+    display: flex;
+    background-color: var(--background-modal);
+    color: var(--font-color);
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    border-radius: 12px;max-height: 1000px !important;
+    height: fit-content !important;
+    animation-duration: 0.3s !important;
+    z-index: 99999 !important;
+    max-height: calc(100dvh - 23px) !important;
+}
+
+.modal-header-modal {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+.modal-title-modal {
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #DBDBDB;
+}
+
+.modal-content-modal {
+    padding: 25px 35px;
+    width: 700px;
+    overflow: auto;
+    margin: 0 auto !important;
+    border: none !important;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+}
+
+.modal-body-modal {
+    /*height: 75vh !important;*/
+    max-height: fit-content !important;
+
+}
+
+.modal-footer-modal {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.modal-footer-modal .btn-primary {
+    background-color: var(--background-btn-primary) !important;
+}
+
+
+@media screen and (max-width:850px) {
+    .modal.fade.show {
+        margin-left: auto !important;
+        display: block !important;
+        right: 0;
+    }
+
+    .modal-dialog-modal {
+        width: calc(90dvw - var(--sidebar-width-collapsed)) !important;
+    }
+}
+
+@media screen and (max-width:540px) {
+    .nav-tabs {
+        display: flex;
+        flex-direction: column;
+        border: none !important;
+    }
+
+    .nav-tabs .nav-item {
+        margin: 5px 0 !important;
+    }
+
+    .nav-tabs .nav-link {
+        border-bottom: 1px solid var(--color-primary) !important;
+        border-radius: 8px !important;
+    }
+
+    .nav-tabs .nav-link.active {
+        border-bottom: 1px solid var(--color-primary) !important;
+    }
+}
+
+@media screen and (max-width:475px) {
+    .modal-dialog-modal {
+        margin: 0 !important;
+        display: flex;
+        background-color: var(--background-modal);
+        color: var(--font-color);
+        border-radius: 0px;
+        width: 100vw !important;
+        animation-duration: 0.3s !important;
+    }
+}
