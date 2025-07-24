@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Button from '../components/Button';
 import StepProgressBar from '../components/StepProgressBar';
 import '../styles/OrdemServico.css';
@@ -10,6 +10,9 @@ import { capitalizeText } from '../utils/capitalizeText';
 import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 import Swal from 'sweetalert2';
+import InputDate from '../components/InputDate';
+import { formatCurrency } from '../utils/format';
+import { addBusinessDays } from '../utils/addBusinessDays';
 
 const OrdemServico = () => {
     const [currentStep, setCurrentStep] = useState(0);
@@ -62,10 +65,11 @@ const OrdemServico = () => {
         dataPedido: '',
         dataEvento: '',
         ocasiao: '',
-        tipoPagamento: 'Compra',
+        tipoPagamento: 'Aluguel',
         total: '',
         sinal: '',
-        restante: ''
+        restante: '',
+        dataRetirada: ''
     });
 
     // Estado para controlar os valores dos inputs em tempo real
@@ -113,11 +117,15 @@ const OrdemServico = () => {
         dataPedido: '',
         dataEvento: '',
         ocasiao: '',
-        tipoPagamento: 'Compra',
+        tipoPagamento: 'Aluguel',
         total: '',
         sinal: '',
-        restante: ''
+        restante: '',
+        dataRetirada: ''
     });
+
+    // Ref para debounce do cálculo do restante
+    const debounceTimeout = useRef();
 
     const steps = [
         { label: 'Cliente' },
@@ -129,45 +137,61 @@ const OrdemServico = () => {
     ];
 
     const handleInputChange = (field, value) => {
+        // Para campos de moeda, tratar valor numérico
+        if (field === 'total' || field === 'sinal') {
+            // Remove tudo que não for número
+            let raw = value.replace(/[^\d]/g, '');
+            if (raw === '') raw = '0';
+            // Divide por 100 para considerar centavos
+            const valor = (Number(raw) / 100).toFixed(2);
+            setInputValues(prev => ({
+                ...prev,
+                [field]: valor
+            }));
+            // Debounce para cálculo do restante
+            if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+            debounceTimeout.current = setTimeout(() => {
+                const total = parseFloat(field === 'total' ? valor : inputValues.total) || 0;
+                const sinal = parseFloat(field === 'sinal' ? valor : inputValues.sinal) || 0;
+                const restante = (total - sinal).toFixed(2);
+                setInputValues(prev => ({
+                    ...prev,
+                    restante: restante
+                }));
+            }, 400);
+            return;
+        }
         setInputValues(prev => ({
             ...prev,
             [field]: value
         }));
-        
-        // Calcular valor restante automaticamente
-        if (field === 'total' || field === 'sinal') {
-            const total = field === 'total' ? parseFloat(value) || 0 : parseFloat(inputValues.total) || 0;
-            const sinal = field === 'sinal' ? parseFloat(value) || 0 : parseFloat(inputValues.sinal) || 0;
-            const restante = total - sinal;
-            
-            setInputValues(prev => ({
-                ...prev,
-                restante: restante.toString()
-            }));
-        }
     };
 
     const handleInputBlur = (field, value) => {
+        // Para campos de moeda, garantir valor numérico no formData
+        if (field === 'total' || field === 'sinal') {
+            setFormData(prev => ({
+                ...prev,
+                [field]: inputValues[field]
+            }));
+            // Calcular restante
+            const total = parseFloat(field === 'total' ? inputValues.total : formData.total) || 0;
+            const sinal = parseFloat(field === 'sinal' ? inputValues.sinal : formData.sinal) || 0;
+            const restante = (total - sinal).toFixed(2);
+            setFormData(prev => ({
+                ...prev,
+                restante: restante
+            }));
+            setInputValues(prev => ({
+                ...prev,
+                restante: restante
+            }));
+            return;
+        }
         setFormData(prev => ({
             ...prev,
             [field]: value
         }));
-        
-        // Calcular valor restante automaticamente
-        if (field === 'total' || field === 'sinal') {
-            const total = field === 'total' ? parseFloat(value) || 0 : parseFloat(inputValues.total) || 0;
-            const sinal = field === 'sinal' ? parseFloat(value) || 0 : parseFloat(inputValues.sinal) || 0;
-            const restante = total - sinal;
-            
-            setFormData(prev => ({
-                ...prev,
-                restante: restante.toString()
-            }));
-            setInputValues(prev => ({
-                ...prev,
-                restante: restante.toString()
-            }));
-        }
     };
 
     const handleSelectChange = (field, value) => {
@@ -201,6 +225,21 @@ const OrdemServico = () => {
             }));
         }
     }, [inputValues.restante, formData.restante]);
+
+    useEffect(() => {
+        if (inputValues.dataEvento) {
+            const retirada = addBusinessDays(new Date(inputValues.dataEvento), 2);
+            const retiradaIso = retirada.toISOString().split('T')[0];
+            setInputValues(prev => ({
+                ...prev,
+                dataRetirada: retiradaIso
+            }));
+            setFormData(prev => ({
+                ...prev,
+                dataRetirada: retiradaIso
+            }));
+        }
+    }, [inputValues.dataEvento]);
 
     // Função para carregar ordens de serviço
     const loadOrders = async () => {
@@ -243,7 +282,7 @@ const OrdemServico = () => {
             camisaNumero: '', camisaCor: '', camisaManga: '', camisaAjuste: '', camisaExtras: '',
             calcaNumero: '', calcaCor: '', calcaCintura: '', calcaPerna: '', calcaAjuste: '', calcaExtras: '',
             suspensorio: false, passante: false, corAcessorios: '', lenco: false, sapato: false,
-            dataPedido: '', dataEvento: '', ocasiao: '', tipoPagamento: 'Compra', total: '', sinal: '', restante: ''
+            dataPedido: '', dataEvento: '', ocasiao: '', tipoPagamento: 'Aluguel', total: '', sinal: '', restante: '', dataRetirada: ''
         });
         setInputValues({
             nome: '', telefone: '', cpf: '', cep: '', rua: '', numero: '', bairro: '', cidade: '',
@@ -251,7 +290,7 @@ const OrdemServico = () => {
             camisaNumero: '', camisaCor: '', camisaManga: '', camisaAjuste: '', camisaExtras: '',
             calcaNumero: '', calcaCor: '', calcaCintura: '', calcaPerna: '', calcaAjuste: '', calcaExtras: '',
             suspensorio: false, passante: false, corAcessorios: '', lenco: false, sapato: false,
-            dataPedido: '', dataEvento: '', ocasiao: '', tipoPagamento: 'Compra', total: '', sinal: '', restante: ''
+            dataPedido: '', dataEvento: '', ocasiao: '', tipoPagamento: 'Aluguel', total: '', sinal: '', restante: '', dataRetirada: ''
         });
         setCurrentStep(0);
         setShowForm(true);
@@ -316,10 +355,11 @@ const OrdemServico = () => {
             dataPedido: order.order_date || '',
             dataEvento: order.event_date || '',
             ocasiao: order.occasion || '',
-            tipoPagamento: 'Compra',
+            tipoPagamento: 'Aluguel',
             total: order.total_value?.toString() || '',
             sinal: order.advance_payment?.toString() || '',
-            restante: order.remaining_payment?.toString() || ''
+            restante: order.remaining_payment?.toString() || '',
+            dataRetirada: order.pickup_date || ''
         };
 
         setFormData(mappedData);
@@ -351,6 +391,7 @@ const OrdemServico = () => {
                 advance_payment: parseFloat(formData.sinal) || 0,
                 remaining_payment: parseFloat(formData.restante) || 0,
                 order_date: formData.dataPedido,
+                pickup_date: formData.dataRetirada,
                 client: {
                     name: formData.nome,
                     cpf: formData.cpf,
@@ -820,31 +861,62 @@ const OrdemServico = () => {
                         <div className="form-grid">
                             <div className="form-group">
                                 <label>Data do Pedido <span style={{ color: 'red' }}>*</span></label>
-                                <input
-                                    type="date"
-                                    value={inputValues.dataPedido}
-                                    onChange={(e) => handleInputChange('dataPedido', e.target.value)}
-                                    onBlur={(e) => handleInputBlur('dataPedido', e.target.value)}
+                                <InputDate
+                                    selectedDate={inputValues.dataPedido ? new Date(inputValues.dataPedido) : null}
+                                    onDateChange={(date) => {
+                                        const isoDate = date ? date.toISOString().split('T')[0] : '';
+                                        handleInputChange('dataPedido', isoDate);
+                                        handleInputBlur('dataPedido', isoDate);
+                                    }}
+                                    placeholderText="Selecione a data do pedido"
                                 />
                             </div>
                             <div className="form-group">
                                 <label>Data do Evento <span style={{ color: 'red' }}>*</span></label>
-                                <input
-                                    type="date"
-                                    value={inputValues.dataEvento}
-                                    onChange={(e) => handleInputChange('dataEvento', e.target.value)}
-                                    onBlur={(e) => handleInputBlur('dataEvento', e.target.value)}
+                                <InputDate
+                                    selectedDate={inputValues.dataEvento ? new Date(inputValues.dataEvento) : null}
+                                    onDateChange={(date) => {
+                                        const isoDate = date ? date.toISOString().split('T')[0] : '';
+                                        handleInputChange('dataEvento', isoDate);
+                                        handleInputBlur('dataEvento', isoDate);
+
+                                        // Preencher dataRetirada automaticamente se estiver vazia
+                                        if (!inputValues.dataRetirada && date) {
+                                            const retirada = addBusinessDays(date, 2);
+                                            const retiradaIso = retirada.toISOString().split('T')[0];
+                                            handleInputChange('dataRetirada', retiradaIso);
+                                            handleInputBlur('dataRetirada', retiradaIso);
+                                        }
+                                    }}
+                                    placeholderText="Selecione a data do evento"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Data da Retirada</label>
+                                <InputDate
+                                    selectedDate={inputValues.dataRetirada ? new Date(inputValues.dataRetirada) : null}
+                                    onDateChange={(date) => {
+                                        const isoDate = date ? date.toISOString().split('T')[0] : '';
+                                        handleInputChange('dataRetirada', isoDate);
+                                        handleInputBlur('dataRetirada', isoDate);
+                                    }}
+                                    placeholderText="Selecione a data da retirada"
                                 />
                             </div>
                             <div className="form-group">
                                 <label>Ocasião <span style={{ color: 'red' }}>*</span></label>
-                                <input
-                                    type="text"
+                                <select
                                     value={inputValues.ocasiao}
-                                    onChange={(e) => handleInputChange('ocasiao', e.target.value)}
+                                    onChange={(e) => handleSelectChange('ocasiao', e.target.value)}
                                     onBlur={(e) => handleInputBlur('ocasiao', e.target.value)}
-                                    placeholder="Tipo de evento"
-                                />
+                                >
+                                    <option value="">Selecione uma ocasião</option>
+                                    <option value="Casamento">Casamento</option>
+                                    <option value="Formatura">Formatura</option>
+                                    <option value="Aniversário">Aniversário</option>
+                                    <option value="Evento Social">Evento Social</option>
+                                    <option value="Outro">Outro</option>
+                                </select>
                             </div>
                             <div className="form-group">
                                 <label>Tipo de Pagamento <span style={{ color: 'red' }}>*</span></label>
@@ -852,39 +924,38 @@ const OrdemServico = () => {
                                     value={inputValues.tipoPagamento}
                                     onChange={(e) => handleSelectChange('tipoPagamento', e.target.value)}
                                 >
-                                    <option value="Compra">Compra</option>
+                                
                                     <option value="Aluguel">Aluguel</option>
+                                    <option value="Compra">Compra</option>
                                 </select>
                             </div>
                             <div className="form-group">
                                 <label>Total <span style={{ color: 'red' }}>*</span></label>
                                 <input
-                                    type="number"
-                                    value={inputValues.total}
+                                    type="text"
+                                    value={inputValues.total !== '' ? formatCurrency(Number(inputValues.total)) : ''}
                                     onChange={(e) => handleInputChange('total', e.target.value)}
-                                    onBlur={(e) => handleInputBlur('total', e.target.value)}
+                                    onBlur={(e) => handleInputBlur('total', inputValues.total)}
                                     placeholder="Valor total"
                                 />
                             </div>
                             <div className="form-group">
                                 <label>Sinal <span style={{ color: 'red' }}>*</span></label>
                                 <input
-                                    type="number"
-                                    value={inputValues.sinal}
+                                    type="text"
+                                    value={inputValues.sinal !== '' ? formatCurrency(Number(inputValues.sinal)) : ''}
                                     onChange={(e) => handleInputChange('sinal', e.target.value)}
-                                    onBlur={(e) => handleInputBlur('sinal', e.target.value)}
+                                    onBlur={(e) => handleInputBlur('sinal', inputValues.sinal)}
                                     placeholder="Valor do sinal"
                                 />
                             </div>
                             <div className="form-group">
                                 <label>Restante</label>
                                 <input
-                                    type="number"
-                                    value={inputValues.restante}
-                                    onChange={(e) => handleInputChange('restante', e.target.value)}
-                                    onBlur={(e) => handleInputBlur('restante', e.target.value)}
-                                    placeholder="Valor restante"
+                                    type="text"
+                                    value={inputValues.restante !== '' ? formatCurrency(Number(inputValues.restante)) : ''}
                                     readOnly
+                                    placeholder="Valor restante"
                                 />
                             </div>
                         </div>
@@ -951,6 +1022,7 @@ const OrdemServico = () => {
                                             variant="primary"
                                             className="action-btn"
                                             disabled={loading}
+                                            style={{width: "fit-content"}}
                                         />
                                     )}
                                 </div>
@@ -1094,6 +1166,10 @@ const OrdemServico = () => {
                                         <span className="payment-value">{formData.dataEvento ? new Date(formData.dataEvento).toLocaleDateString('pt-BR') : ''}</span>
                                     </div>
                                     <div className="payment-item">
+                                        <span className="payment-label">Data da Retirada:</span>
+                                        <span className="payment-value">{formData.dataRetirada ? new Date(formData.dataRetirada).toLocaleDateString('pt-BR') : ''}</span>
+                                    </div>
+                                    <div className="payment-item">
                                         <span className="payment-label">Ocasião:</span>
                                         <span className="payment-value">{capitalizeText(formData.ocasiao)}</span>
                                     </div>
@@ -1103,15 +1179,15 @@ const OrdemServico = () => {
                                     </div>
                                     <div className="payment-item highlight">
                                         <span className="payment-label">Total:</span>
-                                        <span className="payment-value">R$ {formatarParaExibicaoDecimal(parseFloat(formData.total) || 0)}</span>
+                                        <span className="payment-value">{formatCurrency(Number(formData.total) || 0)}</span>
                                     </div>
                                     <div className="payment-item">
                                         <span className="payment-label">Sinal:</span>
-                                        <span className="payment-value">R$ {formatarParaExibicaoDecimal(parseFloat(formData.sinal) || 0)}</span>
+                                        <span className="payment-value">{formatCurrency(Number(formData.sinal) || 0)}</span>
                                     </div>
                                     <div className="payment-item highlight">
                                         <span className="payment-label">Restante:</span>
-                                        <span className="payment-value">R$ {formatarParaExibicaoDecimal(parseFloat(formData.restante) || 0)}</span>
+                                        <span className="payment-value">{formatCurrency(Number(formData.restante) || 0)}</span>
                                     </div>
                                 </div>
                             </div>
