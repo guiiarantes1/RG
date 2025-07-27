@@ -1790,6 +1790,76 @@ const OrdemServico = () => {
                             <div className="preview-section-group">
                                 <h4 style={{ display: 'flex', alignItems: 'center' }}>
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '8px', verticalAlign: 'middle' }}>
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                    </svg>
+                                    ACESSÓRIOS
+                                </h4>
+                                <div className="accessories-grid">
+                                    {formData.suspensorio && (
+                                        <div className="accessory-item">
+                                            <span className="accessory-label">Suspensório:</span>
+                                            <span className="accessory-value">{formData.suspensorioCor}</span>
+                                        </div>
+                                    )}
+                                    {formData.passante && (
+                                        <div className="accessory-item">
+                                            <span className="accessory-label">Passante:</span>
+                                            <span className="accessory-value">{formData.passanteCor}</span>
+                                        </div>
+                                    )}
+                                    {formData.passante && formData.passanteExtensor && (
+                                        <div className="accessory-item">
+                                            <span className="accessory-label">Extensor:</span>
+                                            <span className="accessory-value">Sim</span>
+                                        </div>
+                                    )}
+                                    {formData.lenco && (
+                                        <div className="accessory-item">
+                                            <span className="accessory-label">Lenço:</span>
+                                            <span className="accessory-value">{formData.lencoCor}</span>
+                                        </div>
+                                    )}
+                                    {formData.gravata && (
+                                        <div className="accessory-item">
+                                            <span className="accessory-label">Gravata:</span>
+                                            <span className="accessory-value">Nº {formData.gravataNumero} - {formData.gravataCor}</span>
+                                        </div>
+                                    )}
+                                    {formData.cinto && (
+                                        <div className="accessory-item">
+                                            <span className="accessory-label">Cinto:</span>
+                                            <span className="accessory-value">Nº {formData.cintoNumero} - {formData.cintoCor}</span>
+                                        </div>
+                                    )}
+                                    {formData.sapato && (
+                                        <div className="accessory-item">
+                                            <span className="accessory-label">Sapato:</span>
+                                            <span className="accessory-value">Nº {formData.sapatoNumero} - {formData.sapatoCor}</span>
+                                        </div>
+                                    )}
+                                    {formData.colete && (
+                                        <div className="accessory-item">
+                                            <span className="accessory-label">Colete:</span>
+                                            <span className="accessory-value">Nº {formData.coleteNumero} - {formData.coleteCor}</span>
+                                        </div>
+                                    )}
+                                    
+                                    {!formData.suspensorio && !formData.passante && !formData.lenco && 
+                                     !formData.gravata && !formData.cinto && !formData.sapato && !formData.colete && (
+                                        <div className="accessory-item full-width" style={{ 
+                                            textAlign: 'center', 
+                                            color: 'var(--color-text-muted)',
+                                            fontStyle: 'italic'
+                                        }}>
+                                            <span>Nenhum acessório escolhido</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="preview-section-group">
+                                <h4 style={{ display: 'flex', alignItems: 'center' }}>
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '8px', verticalAlign: 'middle' }}>
                                         <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>
                                     </svg>
                                     PAGAMENTO
