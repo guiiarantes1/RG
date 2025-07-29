@@ -15,6 +15,9 @@ import { formatCurrency } from '../utils/format';
 import { addBusinessDays } from '../utils/addBusinessDays';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import useColors from '../hooks/useColors';
+import useBrands from '../hooks/useBrands';
+import CustomSelect from '../components/CustomSelect';
 
 const OrdemServico = () => {
     const [currentStep, setCurrentStep] = useState(0);
@@ -39,6 +42,7 @@ const OrdemServico = () => {
         paletoNumero: '',
         paletoCor: '',
         paletoManga: '',
+        paletoMarca: '',
         paletoAjuste: false,
         paletoAjusteValor: '',
         paletoExtras: '',
@@ -47,6 +51,7 @@ const OrdemServico = () => {
         camisaNumero: '',
         camisaCor: '',
         camisaManga: '',
+        camisaMarca: '',
         camisaAjuste: false,
         camisaAjusteValor: '',
         camisaExtras: '',
@@ -56,6 +61,7 @@ const OrdemServico = () => {
         calcaCor: '',
         calcaCintura: '',
         calcaPerna: '',
+        calcaMarca: '',
         calcaAjusteCos: false,
         calcaAjusteComprimento: false,
         calcaAjusteCosValor: '',
@@ -73,12 +79,15 @@ const OrdemServico = () => {
         gravata: false,
         gravataNumero: '',
         gravataCor: '',
+        gravataMarca: '',
         cinto: false,
         cintoNumero: '',
         cintoCor: '',
+        cintoMarca: '',
         sapato: false,
         sapatoNumero: '',
         sapatoCor: '',
+        sapatoMarca: '',
         colete: false,
         coleteNumero: '',
         coleteCor: '',
@@ -110,6 +119,7 @@ const OrdemServico = () => {
         paletoNumero: '',
         paletoCor: '',
         paletoManga: '',
+        paletoMarca: '',
         paletoAjuste: false,
         paletoAjusteValor: '',
         paletoExtras: '',
@@ -118,6 +128,7 @@ const OrdemServico = () => {
         camisaNumero: '',
         camisaCor: '',
         camisaManga: '',
+        camisaMarca: '',
         camisaAjuste: false,
         camisaAjusteValor: '',
         camisaExtras: '',
@@ -127,6 +138,7 @@ const OrdemServico = () => {
         calcaCor: '',
         calcaCintura: '',
         calcaPerna: '',
+        calcaMarca: '',
         calcaAjusteCos: false,
         calcaAjusteComprimento: false,
         calcaAjusteCosValor: '',
@@ -144,12 +156,15 @@ const OrdemServico = () => {
         gravata: false,
         gravataNumero: '',
         gravataCor: '',
+        gravataMarca: '',
         cinto: false,
         cintoNumero: '',
         cintoCor: '',
+        cintoMarca: '',
         sapato: false,
         sapatoNumero: '',
         sapatoCor: '',
+        sapatoMarca: '',
         colete: false,
         coleteNumero: '',
         coleteCor: '',
@@ -176,6 +191,9 @@ const OrdemServico = () => {
         { label: 'Acessórios' },
         { label: 'Pagamento' }
     ];
+
+    const { colors, loading: loadingColors } = useColors();
+    const { brands, loading: loadingBrands } = useBrands();
 
     const handleInputChange = (field, value) => {
         // Para campos de moeda, tratar valor numérico
@@ -293,6 +311,15 @@ const OrdemServico = () => {
             ...prev,
             [field]: value
         }));
+        
+        // Limpar erro do campo quando uma opção válida é selecionada
+        if (value && validationErrors[field]) {
+            setValidationErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[field];
+                return newErrors;
+            });
+        }
     };
 
     const handleCheckboxChange = (field, value) => {
@@ -396,26 +423,26 @@ const OrdemServico = () => {
         setSelectedOrder(null);
         setFormData({
             nome: '', telefone: '', cpf: '', cep: '', rua: '', numero: '', bairro: '', cidade: '',
-            paletoNumero: '', paletoCor: '', paletoManga: '', paletoAjuste: false, paletoAjusteValor: '', paletoExtras: '',
-            camisaNumero: '', camisaCor: '', camisaManga: '', camisaAjuste: false, camisaAjusteValor: '', camisaExtras: '',
-            calcaNumero: '', calcaCor: '', calcaCintura: '', calcaPerna: '', calcaAjusteCos: false,
+            paletoNumero: '', paletoCor: '', paletoManga: '', paletoMarca: '', paletoAjuste: false, paletoAjusteValor: '', paletoExtras: '',
+            camisaNumero: '', camisaCor: '', camisaManga: '', camisaMarca: '', camisaAjuste: false, camisaAjusteValor: '', camisaExtras: '',
+            calcaNumero: '', calcaCor: '', calcaCintura: '', calcaPerna: '', calcaMarca: '', calcaAjusteCos: false,
             calcaAjusteComprimento: false,
             calcaAjusteCosValor: '',
             calcaAjusteComprimentoValor: '',
             calcaExtras: '',
-            suspensorio: false, suspensorioCor: '', passante: false, passanteCor: '', passanteExtensor: false, lenco: false, lencoCor: '', gravata: false, gravataNumero: '', gravataCor: '', cinto: false, cintoNumero: '', cintoCor: '', sapato: false, sapatoNumero: '', sapatoCor: '', colete: false, coleteNumero: '', coleteCor: '',
+            suspensorio: false, suspensorioCor: '', passante: false, passanteCor: '', passanteExtensor: false, lenco: false, lencoCor: '', gravata: false, gravataNumero: '', gravataCor: '', gravataMarca: '', cinto: false, cintoNumero: '', cintoCor: '', cintoMarca: '', sapato: false, sapatoNumero: '', sapatoCor: '', sapatoMarca: '', colete: false, coleteNumero: '', coleteCor: '',
             dataPedido: '', dataEvento: '', ocasiao: '', tipoPagamento: 'Aluguel', total: '', sinal: '', restante: '', dataRetirada: ''
         });
         setInputValues({
             nome: '', telefone: '', cpf: '', cep: '', rua: '', numero: '', bairro: '', cidade: '',
-            paletoNumero: '', paletoCor: '', paletoManga: '', paletoAjuste: false, paletoAjusteValor: '', paletoExtras: '',
-            camisaNumero: '', camisaCor: '', camisaManga: '', camisaAjuste: false, camisaAjusteValor: '', camisaExtras: '',
-            calcaNumero: '', calcaCor: '', calcaCintura: '', calcaPerna: '', calcaAjusteCos: false,
+            paletoNumero: '', paletoCor: '', paletoManga: '', paletoMarca: '', paletoAjuste: false, paletoAjusteValor: '', paletoExtras: '',
+            camisaNumero: '', camisaCor: '', camisaManga: '', camisaMarca: '', camisaAjuste: false, camisaAjusteValor: '', camisaExtras: '',
+            calcaNumero: '', calcaCor: '', calcaCintura: '', calcaPerna: '', calcaMarca: '', calcaAjusteCos: false,
             calcaAjusteComprimento: false,
             calcaAjusteCosValor: '',
             calcaAjusteComprimentoValor: '',
             calcaExtras: '',
-            suspensorio: false, suspensorioCor: '', passante: false, passanteCor: '', passanteExtensor: false, lenco: false, lencoCor: '', gravata: false, gravataNumero: '', gravataCor: '', cinto: false, cintoNumero: '', cintoCor: '', sapato: false, sapatoNumero: '', sapatoCor: '', colete: false, coleteNumero: '', coleteCor: '',
+            suspensorio: false, suspensorioCor: '', passante: false, passanteCor: '', passanteExtensor: false, lenco: false, lencoCor: '', gravata: false, gravataNumero: '', gravataCor: '', gravataMarca: '', cinto: false, cintoNumero: '', cintoCor: '', cintoMarca: '', sapato: false, sapatoNumero: '', sapatoCor: '', sapatoMarca: '', colete: false, coleteNumero: '', coleteCor: '',
             dataPedido: '', dataEvento: '', ocasiao: '', tipoPagamento: 'Aluguel', total: '', sinal: '', restante: '', dataRetirada: ''
         });
         setCurrentStep(0);
@@ -458,6 +485,7 @@ const OrdemServico = () => {
             paletoNumero: '',
             paletoCor: '',
             paletoManga: '',
+            paletoMarca: '',
             paletoAjuste: false,
             paletoAjusteValor: '',
             paletoExtras: '',
@@ -466,6 +494,7 @@ const OrdemServico = () => {
             camisaNumero: '',
             camisaCor: '',
             camisaManga: '',
+            camisaMarca: '',
             camisaAjuste: false,
             camisaAjusteValor: '',
             camisaExtras: '',
@@ -475,6 +504,7 @@ const OrdemServico = () => {
             calcaCor: '',
             calcaCintura: '',
             calcaPerna: '',
+            calcaMarca: '',
             calcaAjusteCos: false,
             calcaAjusteComprimento: false,
             calcaAjusteCosValor: '',
@@ -491,12 +521,15 @@ const OrdemServico = () => {
             gravata: false,
             gravataNumero: '',
             gravataCor: '',
+            gravataMarca: '',
             cinto: false,
             cintoNumero: '',
             cintoCor: '',
+            cintoMarca: '',
             sapato: false,
             sapatoNumero: '',
             sapatoCor: '',
+            sapatoMarca: '',
             colete: false,
             coleteNumero: '',
             coleteCor: '',
@@ -566,17 +599,20 @@ const OrdemServico = () => {
                 jacket_number: formData.paletoNumero,
                 jacket_color: formData.paletoCor,
                 jacket_sleeve: formData.paletoManga,
+                jacket_brand: formData.paletoMarca,
                 jacket_adjustment: formData.paletoAjuste ? formData.paletoAjusteValor : '',
                 jacket_extras: formData.paletoExtras,
                 shirt_number: formData.camisaNumero,
                 shirt_color: formData.camisaCor,
                 shirt_sleeve: formData.camisaManga,
+                shirt_brand: formData.camisaMarca,
                 shirt_adjustment: formData.camisaAjuste ? formData.camisaAjusteValor : '',
                 shirt_extras: formData.camisaExtras,
                 pants_number: formData.calcaNumero,
                 pants_color: formData.calcaCor,
                 pants_waist: formData.calcaCintura,
                 pants_leg: formData.calcaPerna,
+                pants_brand: formData.calcaMarca,
                 pants_adjustment_cos: formData.calcaAjusteCos ? formData.calcaAjusteCosValor : '',
                 pants_adjustment_comprimento: formData.calcaAjusteComprimento ? formData.calcaAjusteComprimentoValor : '',
                 pants_extras: formData.calcaExtras,
@@ -590,12 +626,15 @@ const OrdemServico = () => {
                 tie_accessory: formData.gravata,
                 tie_number: formData.gravataNumero,
                 tie_color_accessory: formData.gravataCor,
+                tie_brand: formData.gravataMarca,
                 belt: formData.cinto,
                 belt_number: formData.cintoNumero,
                 belt_color: formData.cintoCor,
+                belt_brand: formData.cintoMarca,
                 shoes: formData.sapato,
                 shoes_number: formData.sapatoNumero,
                 shoes_color: formData.sapatoCor,
+                shoes_brand: formData.sapatoMarca,
                 vest: formData.colete,
                 vest_number: formData.coleteNumero,
                 vest_color: formData.coleteCor
@@ -759,6 +798,7 @@ const OrdemServico = () => {
                 if (inputValues.paletoAjuste && !inputValues.paletoAjusteValor.trim()) {
                     errors.paletoAjusteValor = 'Ajuste é obrigatório quando marcado';
                 }
+                if (!inputValues.paletoMarca.trim()) errors.paletoMarca = 'Marca é obrigatória';
                 break;
                 
             case 2: // Camisa
@@ -768,6 +808,7 @@ const OrdemServico = () => {
                 if (inputValues.camisaAjuste && !inputValues.camisaAjusteValor.trim()) {
                     errors.camisaAjusteValor = 'Ajuste é obrigatório quando marcado';
                 }
+                if (!inputValues.camisaMarca.trim()) errors.camisaMarca = 'Marca é obrigatória';
                 break;
                 
             case 3: // Calça
@@ -781,6 +822,7 @@ const OrdemServico = () => {
                 if (inputValues.calcaAjusteComprimento && !inputValues.calcaAjusteComprimentoValor.trim()) {
                     errors.calcaAjusteComprimentoValor = 'Ajuste do comprimento é obrigatório quando marcado';
                 }
+                if (!inputValues.calcaMarca.trim()) errors.calcaMarca = 'Marca é obrigatória';
                 break;
                 
             case 4: // Acessórios
@@ -809,6 +851,9 @@ const OrdemServico = () => {
                     if (!inputValues.coleteNumero.trim()) errors.coleteNumero = 'Número do colete é obrigatório';
                     if (!inputValues.coleteCor.trim()) errors.coleteCor = 'Cor do colete é obrigatória';
                 }
+                if (!inputValues.gravataMarca.trim()) errors.gravataMarca = 'Marca da gravata é obrigatória';
+                if (!inputValues.cintoMarca.trim()) errors.cintoMarca = 'Marca do cinto é obrigatória';
+                if (!inputValues.sapatoMarca.trim()) errors.sapatoMarca = 'Marca do sapato é obrigatória';
                 break;
                 
             case 5: // Pagamento
@@ -986,13 +1031,19 @@ const OrdemServico = () => {
                             </div>
                             <div className="form-group">
                                 <label>Cor <span style={{ color: 'red' }}>*</span></label>
-                                <input
-                                    type="text"
+                                <CustomSelect
                                     value={inputValues.paletoCor}
-                                    onChange={(e) => handleInputChange('paletoCor', e.target.value)}
-                                    onBlur={(e) => handleInputBlur('paletoCor', e.target.value)}
-                                    placeholder="Cor do paletó"
-                                    className={validationErrors.paletoCor ? 'error' : ''}
+                                    onChange={(value) => handleSelectChange('paletoCor', value)}
+                                    options={[
+                                        { value: '', label: 'Selecione a cor' },
+                                        ...colors.map((c, idx) => ({
+                                            value: c.combined,
+                                            label: c.combined
+                                        }))
+                                    ]}
+                                    placeholder="Selecione a cor"
+                                    disabled={loadingColors}
+                                    error={!!validationErrors.paletoCor}
                                 />
                                 {validationErrors.paletoCor && (
                                     <div className="error-message">{validationErrors.paletoCor}</div>
@@ -1010,6 +1061,26 @@ const OrdemServico = () => {
                                 />
                                 {validationErrors.paletoManga && (
                                     <div className="error-message">{validationErrors.paletoManga}</div>
+                                )}
+                            </div>
+                            <div className="form-group">
+                                <label>Marca <span style={{ color: 'red' }}>*</span></label>
+                                <CustomSelect
+                                    value={inputValues.paletoMarca}
+                                    onChange={(value) => handleSelectChange('paletoMarca', value)}
+                                    options={[
+                                        { value: '', label: 'Selecione uma marca' },
+                                        ...brands.map((brand) => ({
+                                            value: brand.id.toString(),
+                                            label: brand.description
+                                        }))
+                                    ]}
+                                    placeholder="Selecione uma marca"
+                                    disabled={loadingBrands}
+                                    error={!!validationErrors.paletoMarca}
+                                />
+                                {validationErrors.paletoMarca && (
+                                    <div className="error-message">{validationErrors.paletoMarca}</div>
                                 )}
                             </div>
                             <div className="form-group">
@@ -1070,13 +1141,20 @@ const OrdemServico = () => {
                             </div>
                             <div className="form-group">
                                 <label>Cor <span style={{ color: 'red' }}>*</span></label>
-                                <input
-                                    type="text"
+                                <CustomSelect
                                     value={inputValues.camisaCor}
-                                    onChange={(e) => handleInputChange('camisaCor', e.target.value)}
-                                    onBlur={(e) => handleInputBlur('camisaCor', e.target.value)}
-                                    placeholder="Cor da camisa"
-                                    className={validationErrors.camisaCor ? 'error' : ''}
+                                    onChange={(value) => handleSelectChange('camisaCor', value)}
+                                    onBlur={(value) => handleInputBlur('camisaCor', value)}
+                                    options={[
+                                        { value: '', label: 'Selecione a cor' },
+                                        ...colors.map((c, idx) => ({
+                                            value: c.combined,
+                                            label: c.combined
+                                        }))
+                                    ]}
+                                    placeholder="Selecione a cor"
+                                    disabled={loadingColors}
+                                    error={!!validationErrors.camisaCor}
                                 />
                                 {validationErrors.camisaCor && (
                                     <div className="error-message">{validationErrors.camisaCor}</div>
@@ -1094,6 +1172,26 @@ const OrdemServico = () => {
                                 />
                                 {validationErrors.camisaManga && (
                                     <div className="error-message">{validationErrors.camisaManga}</div>
+                                )}
+                            </div>
+                            <div className="form-group">
+                                <label>Marca <span style={{ color: 'red' }}>*</span></label>
+                                <CustomSelect
+                                    value={inputValues.camisaMarca}
+                                    onChange={(value) => handleSelectChange('camisaMarca', value)}
+                                    options={[
+                                        { value: '', label: 'Selecione uma marca' },
+                                        ...brands.map((brand) => ({
+                                            value: brand.id.toString(),
+                                            label: brand.description
+                                        }))
+                                    ]}
+                                    placeholder="Selecione uma marca"
+                                    disabled={loadingBrands}
+                                    error={!!validationErrors.camisaMarca}
+                                />
+                                {validationErrors.camisaMarca && (
+                                    <div className="error-message">{validationErrors.camisaMarca}</div>
                                 )}
                             </div>
                             <div className="form-group">
@@ -1154,13 +1252,21 @@ const OrdemServico = () => {
                             </div>
                             <div className="form-group">
                                 <label>Cor <span style={{ color: 'red' }}>*</span></label>
-                                <input
-                                    type="text"
+                                <CustomSelect
                                     value={inputValues.calcaCor}
-                                    onChange={(e) => handleInputChange('calcaCor', e.target.value)}
-                                    onBlur={(e) => handleInputBlur('calcaCor', e.target.value)}
-                                    placeholder="Cor da calça"
-                                    className={validationErrors.calcaCor ? 'error' : ''}
+                                    onChange={(value) => handleSelectChange('calcaCor', value)}
+                                    onBlur={(value) => handleInputBlur('calcaCor', value)}
+                                    options={[
+                                        { value: '', label: 'Selecione a cor' },
+                                        ...colors.map((c, idx) => ({
+                                            value: c.combined,
+                                            label: c.combined
+                                        }))
+                                    ]}
+                                    placeholder="Selecione a cor"
+                                    searchPlaceholder="Pesquisar cor..."
+                                    disabled={loadingColors}
+                                    error={!!validationErrors.calcaCor}
                                 />
                                 {validationErrors.calcaCor && (
                                     <div className="error-message">{validationErrors.calcaCor}</div>
@@ -1178,6 +1284,26 @@ const OrdemServico = () => {
                                 />
                                 {validationErrors.calcaCintura && (
                                     <div className="error-message">{validationErrors.calcaCintura}</div>
+                                )}
+                            </div>
+                            <div className="form-group">
+                                <label>Marca <span style={{ color: 'red' }}>*</span></label>
+                                <CustomSelect
+                                    value={inputValues.calcaMarca}
+                                    onChange={(value) => handleSelectChange('calcaMarca', value)}
+                                    options={[
+                                        { value: '', label: 'Selecione uma marca' },
+                                        ...brands.map((brand) => ({
+                                            value: brand.id.toString(),
+                                            label: brand.description
+                                        }))
+                                    ]}
+                                    placeholder="Selecione uma marca"
+                                    disabled={loadingBrands}
+                                    error={!!validationErrors.calcaMarca}
+                                />
+                                {validationErrors.calcaMarca && (
+                                    <div className="error-message">{validationErrors.calcaMarca}</div>
                                 )}
                             </div>
                             <div className="form-group">
@@ -1270,14 +1396,21 @@ const OrdemServico = () => {
                                     />
                                     Suspensório
                                 </label>
-                                <input
-                                    type="text"
+                                <CustomSelect
                                     value={inputValues.suspensorioCor}
-                                    onChange={(e) => handleInputChange('suspensorioCor', e.target.value)}
-                                    onBlur={(e) => handleInputBlur('suspensorioCor', e.target.value)}
-                                    placeholder="Cor do suspensório"
-                                    disabled={!inputValues.suspensorio}
-                                    className={validationErrors.suspensorioCor ? 'error' : ''}
+                                    onChange={(value) => handleSelectChange('suspensorioCor', value)}
+                                    onBlur={(value) => handleInputBlur('suspensorioCor', value)}
+                                    options={[
+                                        { value: '', label: 'Selecione a cor' },
+                                        ...colors.map((c, idx) => ({
+                                            value: c.combined,
+                                            label: c.combined
+                                        }))
+                                    ]}
+                                    placeholder="Selecione a cor"
+                                    searchPlaceholder="Pesquisar cor..."
+                                    disabled={!inputValues.suspensorio || loadingColors}
+                                    error={!!validationErrors.suspensorioCor}
                                 />
                                 {validationErrors.suspensorioCor && (
                                     <div className="error-message">{validationErrors.suspensorioCor}</div>
@@ -1308,14 +1441,21 @@ const OrdemServico = () => {
                                         Extensor
                                     </label>
                                     </div>
-                                <input
-                                    type="text"
+                                <CustomSelect
                                     value={inputValues.passanteCor}
-                                    onChange={(e) => handleInputChange('passanteCor', e.target.value)}
-                                    onBlur={(e) => handleInputBlur('passanteCor', e.target.value)}
-                                    placeholder="Cor do passante"
-                                    disabled={!inputValues.passante}
-                                    className={validationErrors.passanteCor ? 'error' : ''}
+                                    onChange={(value) => handleSelectChange('passanteCor', value)}
+                                    onBlur={(value) => handleInputBlur('passanteCor', value)}
+                                    options={[
+                                        { value: '', label: 'Selecione a cor' },
+                                        ...colors.map((c, idx) => ({
+                                            value: c.combined,
+                                            label: c.combined
+                                        }))
+                                    ]}
+                                    placeholder="Selecione a cor"
+                                    searchPlaceholder="Pesquisar cor..."
+                                    disabled={!inputValues.passante || loadingColors}
+                                    error={!!validationErrors.passanteCor}
                                 />
                                 {validationErrors.passanteCor && (
                                     <div className="error-message">{validationErrors.passanteCor}</div>
@@ -1336,14 +1476,21 @@ const OrdemServico = () => {
                                     />
                                     Lenço
                                 </label>
-                                <input
-                                    type="text"
+                                <CustomSelect
                                     value={inputValues.lencoCor}
-                                    onChange={(e) => handleInputChange('lencoCor', e.target.value)}
-                                    onBlur={(e) => handleInputBlur('lencoCor', e.target.value)}
-                                    placeholder="Cor do lenço"
-                                    disabled={!inputValues.lenco}
-                                    className={validationErrors.lencoCor ? 'error' : ''}
+                                    onChange={(value) => handleSelectChange('lencoCor', value)}
+                                    onBlur={(value) => handleInputBlur('lencoCor', value)}
+                                    options={[
+                                        { value: '', label: 'Selecione a cor' },
+                                        ...colors.map((c, idx) => ({
+                                            value: c.combined,
+                                            label: c.combined
+                                        }))
+                                    ]}
+                                    placeholder="Selecione a cor"
+                                    searchPlaceholder="Pesquisar cor..."
+                                    disabled={!inputValues.lenco || loadingColors}
+                                    error={!!validationErrors.lencoCor}
                                 />
                                 {validationErrors.lencoCor && (
                                     <div className="error-message">{validationErrors.lencoCor}</div>
@@ -1372,20 +1519,40 @@ const OrdemServico = () => {
                                         style={{ flex: 1 }}
                                         className={validationErrors.gravataNumero ? 'error' : ''}
                                     />
-                                    <input
-                                        type="text"
+                                    <CustomSelect
                                         value={inputValues.gravataCor}
-                                        onChange={(e) => handleInputChange('gravataCor', e.target.value)}
-                                        onBlur={(e) => handleInputBlur('gravataCor', e.target.value)}
-                                        placeholder="Cor"
-                                        disabled={!inputValues.gravata}
-                                        style={{ flex: 1 }}
-                                        className={validationErrors.gravataCor ? 'error' : ''}
+                                        onChange={(value) => handleSelectChange('gravataCor', value)}
+                                        onBlur={(value) => handleInputBlur('gravataCor', value)}
+                                        options={[
+                                            { value: '', label: 'Selecione a cor' },
+                                            ...colors.map((c, idx) => ({
+                                                value: c.combined,
+                                                label: c.combined
+                                            }))
+                                        ]}
+                                        placeholder="Selecione a cor"
+                                        searchPlaceholder="Pesquisar cor..."
+                                        disabled={!inputValues.gravata || loadingColors}
+                                        error={!!validationErrors.gravataCor}
                                     />
                                 </div>
-                                {(validationErrors.gravataNumero || validationErrors.gravataCor) && (
+                                <CustomSelect
+                                    value={inputValues.gravataMarca}
+                                    onChange={(value) => handleSelectChange('gravataMarca', value)}
+                                    options={[
+                                        { value: '', label: 'Selecione uma marca' },
+                                        ...brands.map((brand) => ({
+                                            value: brand.id.toString(),
+                                            label: brand.description
+                                        }))
+                                    ]}
+                                    placeholder="Selecione uma marca"
+                                    disabled={!inputValues.gravata || loadingBrands}
+                                    error={!!validationErrors.gravataMarca}
+                                />
+                                {(validationErrors.gravataNumero || validationErrors.gravataCor || validationErrors.gravataMarca) && (
                                     <div className="error-message">
-                                        {validationErrors.gravataNumero || validationErrors.gravataCor}
+                                        {validationErrors.gravataNumero || validationErrors.gravataCor || validationErrors.gravataMarca}
                                     </div>
                                 )}
                             </div>
@@ -1412,20 +1579,38 @@ const OrdemServico = () => {
                                         style={{ flex: 1 }}
                                         className={validationErrors.cintoNumero ? 'error' : ''}
                                     />
-                                    <input
-                                        type="text"
+                                    <CustomSelect
                                         value={inputValues.cintoCor}
-                                        onChange={(e) => handleInputChange('cintoCor', e.target.value)}
-                                        onBlur={(e) => handleInputBlur('cintoCor', e.target.value)}
-                                        placeholder="Cor"
-                                        disabled={!inputValues.cinto}
-                                        style={{ flex: 1 }}
-                                        className={validationErrors.cintoCor ? 'error' : ''}
+                                                                            onChange={(value) => handleSelectChange('cintoCor', value)}
+                                    options={[
+                                        { value: '', label: 'Selecione a cor' },
+                                        ...colors.map((c, idx) => ({
+                                            value: c.combined,
+                                            label: c.combined
+                                        }))
+                                    ]}
+                                    placeholder="Selecione a cor"
+                                    disabled={!inputValues.cinto || loadingColors}
+                                    error={!!validationErrors.cintoCor}
                                     />
                                 </div>
-                                {(validationErrors.cintoNumero || validationErrors.cintoCor) && (
+                                <CustomSelect
+                                    value={inputValues.cintoMarca}
+                                    onChange={(value) => handleSelectChange('cintoMarca', value)}
+                                    options={[
+                                        { value: '', label: 'Selecione uma marca' },
+                                        ...brands.map((brand) => ({
+                                            value: brand.id.toString(),
+                                            label: brand.description
+                                        }))
+                                    ]}
+                                    placeholder="Selecione uma marca"
+                                    disabled={!inputValues.cinto || loadingBrands}
+                                    error={!!validationErrors.cintoMarca}
+                                />
+                                {(validationErrors.cintoNumero || validationErrors.cintoCor || validationErrors.cintoMarca) && (
                                     <div className="error-message">
-                                        {validationErrors.cintoNumero || validationErrors.cintoCor}
+                                        {validationErrors.cintoNumero || validationErrors.cintoCor || validationErrors.cintoMarca}
                                     </div>
                                 )}
                             </div>
@@ -1452,20 +1637,40 @@ const OrdemServico = () => {
                                         style={{ flex: 1 }}
                                         className={validationErrors.sapatoNumero ? 'error' : ''}
                                     />
-                                    <input
-                                        type="text"
+                                    <CustomSelect
                                         value={inputValues.sapatoCor}
-                                        onChange={(e) => handleInputChange('sapatoCor', e.target.value)}
-                                        onBlur={(e) => handleInputBlur('sapatoCor', e.target.value)}
-                                        placeholder="Cor"
-                                        disabled={!inputValues.sapato}
-                                        style={{ flex: 1 }}
-                                        className={validationErrors.sapatoCor ? 'error' : ''}
+                                        onChange={(value) => handleSelectChange('sapatoCor', value)}
+                                        onBlur={(value) => handleInputBlur('sapatoCor', value)}
+                                        options={[
+                                            { value: '', label: 'Selecione a cor' },
+                                            ...colors.map((c, idx) => ({
+                                                value: c.combined,
+                                                label: c.combined
+                                            }))
+                                        ]}
+                                        placeholder="Selecione a cor"
+                                        searchPlaceholder="Pesquisar cor..."
+                                        disabled={!inputValues.sapato || loadingColors}
+                                        error={!!validationErrors.sapatoCor}
                                     />
                                 </div>
-                                {(validationErrors.sapatoNumero || validationErrors.sapatoCor) && (
+                                <CustomSelect
+                                    value={inputValues.sapatoMarca}
+                                    onChange={(value) => handleSelectChange('sapatoMarca', value)}
+                                    options={[
+                                        { value: '', label: 'Selecione uma marca' },
+                                        ...brands.map((brand) => ({
+                                            value: brand.id.toString(),
+                                            label: brand.description
+                                        }))
+                                    ]}
+                                    placeholder="Selecione uma marca"
+                                    disabled={!inputValues.sapato || loadingBrands}
+                                    error={!!validationErrors.sapatoMarca}
+                                />
+                                {(validationErrors.sapatoNumero || validationErrors.sapatoCor || validationErrors.sapatoMarca) && (
                                     <div className="error-message">
-                                        {validationErrors.sapatoNumero || validationErrors.sapatoCor}
+                                        {validationErrors.sapatoNumero || validationErrors.sapatoCor || validationErrors.sapatoMarca}
                                     </div>
                                 )}
                             </div>
@@ -1492,15 +1697,21 @@ const OrdemServico = () => {
                                         style={{ flex: 1 }}
                                         className={validationErrors.coleteNumero ? 'error' : ''}
                                     />
-                                    <input
-                                        type="text"
+                                    <CustomSelect
                                         value={inputValues.coleteCor}
-                                        onChange={(e) => handleInputChange('coleteCor', e.target.value)}
-                                        onBlur={(e) => handleInputBlur('coleteCor', e.target.value)}
-                                        placeholder="Cor"
-                                        disabled={!inputValues.colete}
-                                        style={{ flex: 1 }}
-                                        className={validationErrors.coleteCor ? 'error' : ''}
+                                        onChange={(value) => handleSelectChange('coleteCor', value)}
+                                        onBlur={(value) => handleInputBlur('coleteCor', value)}
+                                        options={[
+                                            { value: '', label: 'Selecione a cor' },
+                                            ...colors.map((c, idx) => ({
+                                                value: c.combined,
+                                                label: c.combined
+                                            }))
+                                        ]}
+                                        placeholder="Selecione a cor"
+                                        searchPlaceholder="Pesquisar cor..."
+                                        disabled={!inputValues.colete || loadingColors}
+                                        error={!!validationErrors.coleteCor}
                                     />
                                 </div>
                                 {(validationErrors.coleteNumero || validationErrors.coleteCor) && (
@@ -1573,14 +1784,16 @@ const OrdemServico = () => {
 
                             <div className="form-group">
                                 <label>Modalidade <span style={{ color: 'red' }}>*</span></label>
-                                <select
+                                <CustomSelect
                                     value={inputValues.tipoPagamento}
-                                    onChange={(e) => handleSelectChange('tipoPagamento', e.target.value)}
-                                >
-                                
-                                    <option value="Aluguel">Aluguel</option>
-                                    <option value="Compra">Compra</option>
-                                </select>
+                                    onChange={(value) => handleSelectChange('tipoPagamento', value)}
+                                    options={[
+                                        { value: 'Aluguel', label: 'Aluguel' },
+                                        { value: 'Compra', label: 'Compra' }
+                                    ]}
+                                    placeholder="Selecione a modalidade"
+                                    searchPlaceholder="Pesquisar modalidade..."
+                                />
                             </div>
                             <div className="form-group">
                                 <label>Total <span style={{ color: 'red' }}>*</span></label>
@@ -1887,6 +2100,7 @@ const OrdemServico = () => {
                                             <span><strong>Nº:</strong> {formData.paletoNumero}</span>
                                             <span><strong>Cor:</strong> {formData.paletoCor}</span>
                                             <span><strong>Manga:</strong> {formData.paletoManga}</span>
+                                            <span><strong>Marca:</strong> {formData.paletoMarca || 'Não informada'}</span>
                                             <span><strong>Ajuste:</strong> {formData.paletoAjuste ? formData.paletoAjusteValor : 'Não'}</span>
                                             <span><strong>Extras:</strong> {formData.paletoExtras}</span>
                                         </div>
@@ -1900,6 +2114,7 @@ const OrdemServico = () => {
                                             <span><strong>Nº:</strong> {formData.camisaNumero}</span>
                                             <span><strong>Cor:</strong> {formData.camisaCor}</span>
                                             <span><strong>Manga:</strong> {formData.camisaManga}</span>
+                                            <span><strong>Marca:</strong> {formData.camisaMarca || 'Não informada'}</span>
                                             <span><strong>Ajuste:</strong> {formData.camisaAjuste ? formData.camisaAjusteValor : 'Não'}</span>
                                             <span><strong>Extras:</strong> {formData.camisaExtras}</span>
                                         </div>
@@ -1914,6 +2129,7 @@ const OrdemServico = () => {
                                             <span><strong>Cor:</strong> {formData.calcaCor}</span>
                                             <span><strong>Cós:</strong> {formData.calcaCintura}</span>
                                             <span><strong>Comprimento:</strong> {formData.calcaPerna}</span>
+                                            <span><strong>Marca:</strong> {formData.calcaMarca || 'Não informada'}</span>
                                             {formData.calcaAjusteCos && (
                                                 <span><strong>Ajuste Cós:</strong> {formData.calcaAjusteCosValor} cm</span>
                                             )}
@@ -1961,19 +2177,19 @@ const OrdemServico = () => {
                                     {formData.gravata && (
                                         <div className="accessory-item">
                                             <span className="accessory-label">Gravata:</span>
-                                            <span className="accessory-value">Nº {formData.gravataNumero} - {formData.gravataCor}</span>
+                                            <span className="accessory-value">Nº {formData.gravataNumero} - {formData.gravataCor} {formData.gravataMarca && `(${formData.gravataMarca})`}</span>
                                         </div>
                                     )}
                                     {formData.cinto && (
                                         <div className="accessory-item">
                                             <span className="accessory-label">Cinto:</span>
-                                            <span className="accessory-value">Nº {formData.cintoNumero} - {formData.cintoCor}</span>
+                                            <span className="accessory-value">Nº {formData.cintoNumero} - {formData.cintoCor} {formData.cintoMarca && `(${formData.cintoMarca})`}</span>
                                         </div>
                                     )}
                                     {formData.sapato && (
                                         <div className="accessory-item">
                                             <span className="accessory-label">Sapato:</span>
-                                            <span className="accessory-value">Nº {formData.sapatoNumero} - {formData.sapatoCor}</span>
+                                            <span className="accessory-value">Nº {formData.sapatoNumero} - {formData.sapatoCor} {formData.sapatoMarca && `(${formData.sapatoMarca})`}</span>
                                         </div>
                                     )}
                                     {formData.colete && (
