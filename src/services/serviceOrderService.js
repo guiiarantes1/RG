@@ -59,7 +59,7 @@ export const serviceOrderService = {
     // Finalizar ordem de serviço (marcar como devolvida)
     finishServiceOrder: async (id) => {
         try {
-            const response = await api.post(`/api/v1/service-orders/${id}/finish/`);
+            const response = await api.post(`/api/v1/service-orders/${id}/mark-paid/`);
             return response.data;
         } catch (error) {
             console.error('Erro ao finalizar ordem de serviço:', error);

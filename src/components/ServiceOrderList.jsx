@@ -354,6 +354,12 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
                                             <span className="label">Atendente Responsável:</span>
                                             <span className="value">{capitalizeText(order.employee_name)}</span>
                                         </div>
+                                        {activeTab === 'RECUSADA' && order.justification_refusal && (
+                                            <div className="info-row">
+                                                <span className="label">Justificativa da Recusa:</span>
+                                                <span className="value justification-refusal">{capitalizeText(order.justification_refusal)}</span>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="order-payment">

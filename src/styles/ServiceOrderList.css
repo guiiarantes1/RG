@@ -268,6 +268,16 @@
     white-space: nowrap;
 }
 
+.info-row .value.justification-refusal {
+    color: #dc3545;
+    font-weight: 600;
+    font-style: italic;
+    max-width: 70%;
+    text-align: left;
+    white-space: normal;
+    word-wrap: break-word;
+}
+
 .order-payment {
     background: var(--background-modal-body);
     padding: 16px;

@@ -868,12 +868,20 @@ const OrdemServico = () => {
                        parseFloat(inputValues.total) > 0 && 
                        inputValues.sinal.trim() !== '';
                 
+                // Validar que a data de retirada não pode ser maior que a data do evento
+                let datasValid = true;
+                if (inputValues.dataEvento.trim() && inputValues.dataRetirada.trim()) {
+                    const dataEvento = new Date(inputValues.dataEvento + 'T00:00:00');
+                    const dataRetirada = new Date(inputValues.dataRetirada + 'T00:00:00');
+                    datasValid = dataRetirada <= dataEvento;
+                }
+                
                 // Validar itens vendidos apenas se modalidade for Aluguel + Venda
                 const itensVendidosValid = inputValues.tipoPagamento === 'Aluguel + Venda' 
                     ? inputValues.itensVendidos.length > 0 
                     : true;
                 
-                return pagamentoBaseValid && itensVendidosValid;
+                return pagamentoBaseValid && datasValid && itensVendidosValid;
             
             default:
                 return true;
@@ -962,6 +970,17 @@ const OrdemServico = () => {
                 if (!inputValues.dataPedido.trim()) errors.dataPedido = 'Data do pedido é obrigatória';
                 if (!inputValues.dataEvento.trim()) errors.dataEvento = 'Data do evento é obrigatória';
                 if (!inputValues.dataRetirada.trim()) errors.dataRetirada = 'Data da retirada é obrigatória';
+                
+                // Validar que a data de retirada não pode ser maior que a data do evento
+                if (inputValues.dataEvento.trim() && inputValues.dataRetirada.trim()) {
+                    const dataEvento = new Date(inputValues.dataEvento + 'T00:00:00');
+                    const dataRetirada = new Date(inputValues.dataRetirada + 'T00:00:00');
+                    
+                    if (dataRetirada > dataEvento) {
+                        errors.dataRetirada = 'A data de retirada não pode ser maior que a data do evento';
+                    }
+                }
+                
                 if (!inputValues.tipoPagamento.trim()) errors.tipoPagamento = 'Modalidade é obrigatória';
                 
                 // Validar itens vendidos apenas se modalidade for Aluguel + Venda
