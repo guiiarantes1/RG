@@ -14,6 +14,7 @@ import setaDireitaRed from '../assets/seta-direita-red.png';
 import setaDireitaBlue from '../assets/seta-direita-blue.png';
 import setaDireitaGreen from '../assets/seta-direita-green.png';
 import useDashboard from '../hooks/useDashboard';
+import Button from '../components/Button';
 
 const Home = () => {
   const { dashboardData, loading, error, refetch } = useDashboard();
@@ -53,11 +54,18 @@ const Home = () => {
       <>
         <Header nomeHeader="Home" />
         <div className="home">
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh', flexDirection: 'column' }}>
-            <p style={{ color: 'red', marginBottom: '1rem' }}>Erro ao carregar dashboard: {error}</p>
-            <button onClick={refetch} style={{ padding: '0.5rem 1rem', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
-              Tentar novamente
-            </button>
+          <div className="error-state-dashboard">
+            <i className="bi bi-exclamation-triangle"></i>
+            <h3>Erro ao carregar dashboard</h3>
+            <p>{error}</p>
+            <Button
+              text="Tentar novamente"
+              variant="primary"
+              iconName="arrow-clockwise"
+              iconPosition="left"
+              onClick={refetch}
+              style={{ width: 'fit-content' }}
+            />
           </div>
         </div>
       </>

@@ -37,7 +37,7 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* Filtros Modernos */
+/* Filtros Modernos */upload-area
 .filters-container {
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
@@ -245,11 +245,6 @@
   overflow: hidden;
 }
 
-.upload-area:hover {
-  border-color: var(--color-primary);
-  background: rgba(var(--color-primary-rgb), 0.05);
-}
-
 .upload-area.dragover {
   border-color: var(--color-primary);
   background: rgba(var(--color-primary-rgb), 0.1);
@@ -340,6 +335,46 @@
   color: #dc3545;
 }
 
+/* Error State */
+.error-state-produtos {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.error-state-produtos .bi-exclamation-triangle {
+  font-size: 48px;
+  margin-bottom: 16px;
+  color: var(--color-error);
+}
+
+.error-state-produtos i {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.error-state-produtos h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 8px;
+}
+
+.error-state-produtos p {
+  font-size: 16px;
+  margin-bottom: 24px;
+  color: var(--color-text-secondary);
+}
+
+.error-state-produtos button {
+  margin-top: 16px;
+}
+
 /* Responsividade */
 @media (max-width: 768px) {
   .produtos {
@@ -407,5 +442,20 @@
   
   .upload-content .display-4 {
     font-size: 2rem;
+  }
+} 
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .error-state-produtos {
+    padding: 40px 20px;
+  }
+  
+  .error-state-produtos h3 {
+    font-size: 18px;
+  }
+  
+  .error-state-produtos p {
+    font-size: 14px;
   }
 } 

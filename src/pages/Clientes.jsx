@@ -44,13 +44,7 @@ const Clientes = () => {
     } catch (error) {
       console.error('Erro ao carregar clientes:', error);
       setError('Não foi possível carregar a lista de clientes. Tente novamente.');
-      Swal.fire({
-        icon: 'error',
-        title: 'Erro ao carregar clientes',
-        text: 'Não foi possível carregar a lista de clientes.',
-        timer: 2000,
-        showConfirmButton: false
-      });
+    
     } finally {
       setIsLoadingClientes(false);
     }

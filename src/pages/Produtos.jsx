@@ -3,6 +3,9 @@ import '../styles/Produtos.css';
 import Header from '../components/Header';
 import Modal from '../components/Modal';
 import CustomSelect from '../components/CustomSelect';
+import { productService } from '../services/productService';
+import Swal from 'sweetalert2';
+import Button from '../components/Button';
 
 const Produtos = () => {
   const [produtos, setProdutos] = useState([]);
@@ -18,73 +21,15 @@ const Produtos = () => {
   const [uploadLoading, setUploadLoading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
 
-  // Simulação da API - substitua pela chamada real
+  // Buscar produtos da API com paginação e filtros
   const buscarProdutos = async (page = 1, search = '', tipo = '', marca = '') => {
     setLoading(true);
     try {
-      // Simulação da resposta da API
-      const mockResponse = {
-        count: 123,
-        next: page < 5 ? `http://api.example.org/accounts/?page=${page + 1}` : null,
-        previous: page > 1 ? `http://api.example.org/accounts/?page=${page - 1}` : null,
-        results: Array.from({ length: 12 }, (_, index) => ({
-          id: (page - 1) * 12 + index,
-                     tipo: ['Paletó', 'Calça', 'Colete', 'Camisa', 'Gravata', 'Sapato'][Math.floor(Math.random() * 6)],
-          id_produto: `PROD${String((page - 1) * 12 + index + 1).padStart(3, '0')}`,
-          nome_produto: `Produto ${(page - 1) * 12 + index + 1}`,
-          marca: ['Marca A', 'Marca B', 'Marca C', 'Marca D'][Math.floor(Math.random() * 4)],
-          material: ['Algodão', 'Linho', 'Seda', 'Lã'][Math.floor(Math.random() * 4)],
-          cor: ['Azul', 'Preto', 'Cinza', 'Marrom'][Math.floor(Math.random() * 4)],
-          intensidade_cor: ['Clara', 'Média', 'Escura'][Math.floor(Math.random() * 3)],
-          padronagem: ['Lisa', 'Listrada', 'Xadrez'][Math.floor(Math.random() * 3)],
-          botoes: ['2 botões', '3 botões', '4 botões'][Math.floor(Math.random() * 3)],
-          lapela: ['Lapela ponta', 'Lapela chanfrada', 'Sem lapela'][Math.floor(Math.random() * 3)],
-          tamanho: (Math.random() * 0.5 + 0.5).toFixed(2),
-          foto_base64: null,
-          date_created: new Date().toISOString(),
-          date_updated: new Date().toISOString()
-        }))
-      };
-
-      // Simular filtro de busca
-      let filteredResults = mockResponse.results;
-      if (search) {
-        const searchLower = search.toLowerCase();
-        filteredResults = mockResponse.results.filter(produto => 
-          produto.nome_produto.toLowerCase().includes(searchLower) ||
-          produto.id_produto.toLowerCase().includes(searchLower) ||
-          produto.tipo.toLowerCase().includes(searchLower) ||
-          produto.marca.toLowerCase().includes(searchLower) ||
-          produto.material.toLowerCase().includes(searchLower) ||
-          produto.cor.toLowerCase().includes(searchLower)
-        );
-      }
-
-      // Simular filtro por tipo
-      if (tipo) {
-        const tipos = tipo.split(',').filter(t => t.trim());
-        if (tipos.length > 0) {
-          filteredResults = filteredResults.filter(produto => 
-            tipos.includes(produto.tipo)
-          );
-        }
-      }
-
-      // Simular filtro por marca
-      if (marca) {
-        const marcas = marca.split(',').filter(m => m.trim());
-        if (marcas.length > 0) {
-          filteredResults = filteredResults.filter(produto => 
-            marcas.includes(produto.marca)
-          );
-        }
-      }
-
-      // Simular delay da API
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      setProdutos(filteredResults);
-      setTotalPages(Math.ceil(filteredResults.length / 12));
+      // Chamada para a API real usando o productService
+      const response = await productService.buscarProdutos(page, search, tipo, marca);
+      
+      setProdutos(response.results);
+      setTotalPages(Math.ceil(response.count / 12));
       setError(null);
     } catch (err) {
       setError('Erro ao carregar produtos');
@@ -99,20 +44,22 @@ const Produtos = () => {
   }, [currentPage, searchTerm, filtroTipo, filtroMarca]);
 
   const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-    setCurrentPage(1);
+    const value = e.target.value;
+    setSearchTerm(value);
+    setCurrentPage(1); // Reset para primeira página ao buscar
   };
 
 
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
+    // A mudança de página será capturada pelo useEffect que chama buscarProdutos automaticamente
   };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Verificar se é um arquivo Excel
+      // Verificar se é um arquivo Excel ou CSV válido
       const allowedTypes = [
         'application/vnd.ms-excel',
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -140,25 +87,41 @@ const Produtos = () => {
 
     try {
       const formData = new FormData();
-      formData.append('file', selectedFile);
+      formData.append('excel_file', selectedFile);
 
-      // Simulação da chamada da API - substitua pela chamada real
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Chamada real da API usando o service
+      await productService.importarProdutos(formData);
 
-      // Simular sucesso
       console.log('Arquivo enviado:', selectedFile.name);
       
       // Fechar modal e recarregar produtos
       setShowImportModal(false);
       setSelectedFile(null);
-      buscarProdutos(currentPage, searchTerm, filtroTipo, filtroMarca);
       
-      // Mostrar mensagem de sucesso (você pode implementar um toast)
-      alert('Produtos importados com sucesso!');
+      // Recarregar lista de produtos após importação bem-sucedida
+      await buscarProdutos(currentPage, searchTerm, filtroTipo.join(','), filtroMarca.join(','));
+      
+      // Mostrar mensagem de sucesso com SweetAlert
+      Swal.fire({
+        icon: 'success',
+        title: 'Sucesso!',
+        text: 'Produtos importados com sucesso!',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#28a745'
+      });
       
     } catch (err) {
       setUploadError('Erro ao importar produtos. Tente novamente.');
       console.error('Erro no upload:', err);
+      
+      // Mostrar mensagem de erro com SweetAlert
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro!',
+        text: 'Erro ao importar produtos. Tente novamente.',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#dc3545'
+      });
     } finally {
       setUploadLoading(false);
     }
@@ -168,9 +131,11 @@ const Produtos = () => {
     setShowImportModal(false);
     setSelectedFile(null);
     setUploadError(null);
+    // Limpa todos os estados relacionados ao modal de importação
   };
 
   const ProdutoCard = ({ produto }) => {
+    // Função para determinar a cor do badge baseada no tipo do produto
     const getTipoColor = (tipo) => {
       switch (tipo.toLowerCase()) {
         case 'paletó':
@@ -217,6 +182,15 @@ const Produtos = () => {
             <small><strong>Material:</strong> {produto.material}</small>
             <small><strong>Cor:</strong> {produto.cor} ({produto.intensidade_cor})</small>
             <small><strong>Tamanho:</strong> {produto.tamanho}</small>
+            {produto.padronagem && (
+              <small><strong>Padronagem:</strong> {produto.padronagem}</small>
+            )}
+            {produto.botoes && (
+              <small><strong>Botões:</strong> {produto.botoes}</small>
+            )}
+            {produto.lapela && (
+              <small><strong>Lapela:</strong> {produto.lapela}</small>
+            )}
           </div>
         </div>
       </div>
@@ -224,6 +198,7 @@ const Produtos = () => {
   };
 
   const Paginacao = () => {
+    // Lógica para calcular as páginas a serem exibidas na paginação
     const pages = [];
     const maxPages = Math.min(5, totalPages);
     let startPage = Math.max(1, currentPage - Math.floor(maxPages / 2));
@@ -277,12 +252,7 @@ const Produtos = () => {
 
   const ImportModal = () => (
     <div className="import-modal">
-      <div className="text-center mb-4">
-        <i className="bi bi-file-earmark-excel display-4 text-success"></i>
-        <h5 className="mt-3">Importar Produtos</h5>
-        <p className="text-muted">Selecione um arquivo Excel (.xlsx, .xls) ou CSV para importar os produtos</p>
-      </div>
-
+      {/* Área de upload de arquivo */}
       <div className="mb-4">
         <div className="upload-area">
           <input
@@ -313,31 +283,35 @@ const Produtos = () => {
         </div>
       )}
 
+      {/* Botões de ação */}
       <div className="d-flex justify-content-end gap-2">
-        <button 
-          className="btn btn-outline-secondary" 
+        <Button
+          text="Cancelar"
+          variant="disabled"
           onClick={handleCloseModal}
           disabled={uploadLoading}
-        >
-          Cancelar
-        </button>
-        <button 
-          className="btn btn-primary" 
-          onClick={handleUpload}
-          disabled={!selectedFile || uploadLoading}
-        >
-          {uploadLoading ? (
-            <>
-              <span className="spinner-border spinner-border-sm me-2" role="status"></span>
-              Importando...
-            </>
-          ) : (
-            <>
-              <i className="bi bi-upload me-2"></i>
-              Importar Produtos
-            </>
-          )}
-        </button>
+        />
+        {uploadLoading ? (
+          <Button
+            text={
+              <span className="d-flex align-items-center">
+                Importando...
+              </span>
+            }
+            variant="primary"
+            onClick={handleUpload}
+            disabled={true}
+          />
+        ) : (
+          <Button
+            text="Importar Produtos"
+            variant="primary"
+            onClick={handleUpload}
+            disabled={!selectedFile}
+            iconName="upload"
+            iconPosition="left"
+          />
+        )}
       </div>
     </div>
   );
@@ -355,13 +329,13 @@ const Produtos = () => {
                   <h4 className="mb-1" style={{ color: 'var(--color-text-primary)' }}>Listagem de Produtos</h4>
                   <p className=" mb-0" style={{ color: 'var(--color-text-secondary)' }}>Gerencie todos os produtos do sistema</p>
                 </div>
-                <button 
-                  className="btn btn-primary"
+                <Button
+                  text="Importar Produtos"
+                  variant="primary"
                   onClick={() => setShowImportModal(true)}
-                >
-                  <i className="bi bi-upload me-2"></i>
-                  Importar Produtos
-                </button>
+                  iconName="upload"
+                  iconPosition="left"
+                />
               </div>
             </div>
           </div>
@@ -433,15 +407,18 @@ const Produtos = () => {
                   <p className="mt-3">Carregando produtos...</p>
                 </div>
               ) : error ? (
-                <div className="alert alert-danger" role="alert">
-                  <i className="bi bi-exclamation-triangle me-2"></i>
-                  {error}
-                  <button 
-                    className="btn btn-outline-danger btn-sm ms-3"
-                    onClick={() => buscarProdutos(currentPage, searchTerm, filtroTipo, filtroMarca)}
-                  >
-                    Tentar novamente
-                  </button>
+                <div className="error-state-produtos">
+                  <i className="bi bi-exclamation-triangle"></i>
+                  <h3>Erro ao carregar produtos</h3>
+                  <p>{error}</p>
+                  <Button
+                    text="Tentar novamente"
+                    variant="primary"
+                    iconName="arrow-clockwise"
+                    iconPosition="left"
+                    onClick={() => buscarProdutos(currentPage, searchTerm, filtroTipo.join(','), filtroMarca.join(','))}
+                    style={{ width: 'fit-content' }}
+                  />
                 </div>
               ) : produtos.length === 0 ? (
                 <div className="text-center py-5">

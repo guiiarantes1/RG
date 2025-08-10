@@ -40,13 +40,7 @@ const Funcionarios = () => {
     } catch (error) {
       console.error('Erro ao carregar funcionários:', error);
       setError('Não foi possível carregar a lista de funcionários. Tente novamente.');
-      Swal.fire({
-        icon: 'error',
-        title: 'Erro ao carregar funcionários',
-        text: 'Não foi possível carregar a lista de funcionários.',
-        timer: 2000,
-        showConfirmButton: false
-      });
+
     } finally {
       setIsLoadingEmployees(false);
     }
