@@ -2521,7 +2521,7 @@ const OrdemServico = () => {
             ) : (
                 <div className="ordem-servico-container">
                     <div className="ordem-servico-header mb-3">
-                       <Button text="Voltar à Lista" onClick={handleBackToList} variant="primary" className="action-btn" disabled={loading} iconName="arrow-left" style={{ width: 'fit-content', padding: '15px 20px' }} />                       
+                       <Button text="Voltar à Lista" onClick={handleBackToList} variant="primary" className="action-btn1" disabled={loading} iconName="arrow-left" style={{ width: 'fit-content', padding: '5px 20px'}} />                       
                       
                     </div>
                     
@@ -2543,7 +2543,7 @@ const OrdemServico = () => {
                                             text="Anterior"
                                             onClick={prevStep}
                                             variant="disabled"
-                                            className="action-btn"
+                                            className="action-btn1"
                                             disabled={loading}
                                         />
                                     )}
@@ -2552,7 +2552,7 @@ const OrdemServico = () => {
                                             text="Próximo"
                                             onClick={nextStep}
                                             variant="primary"
-                                            className="action-btn"
+                                            className="action-btn1"
                                             disabled={loading}
                                             style={{ marginLeft: 'auto' }}
                                         />
@@ -2561,7 +2561,7 @@ const OrdemServico = () => {
                                             text={loading ? "Salvando..." : "Finalizar OS"}
                                             onClick={handleFinalizeOS}
                                             variant="primary"
-                                            className="action-btn"
+                                            className="action-btn1"
                                             disabled={loading}
                                             style={{width: "fit-content"}}
                                         />

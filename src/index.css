@@ -8,6 +8,7 @@
   --color-accent: #1F3B4D;
   --color-accent-dark: #1c3b4d;
   --color-accent-hover: #1a3241;
+ 
   
   /* Cores de texto - Tema Escuro */
   --color-text-primary: #F5F5F5;
@@ -83,6 +84,7 @@
   --color-shadow: rgba(255, 214, 0, 0.15);
   --color-shadow-focus: rgba(255, 214, 0, 0.25);
   --color-shadow-card: rgba(0, 0, 0, 0.1);
+  --color-accent-step: #3b6580;
   
   /* Cores de sucesso, erro e aviso - Tema Claro */
   --color-success: #059669;
@@ -128,6 +130,7 @@
   --color-shadow: rgba(255, 214, 0, 0.08);
   --color-shadow-focus: rgba(255, 214, 0, 0.12);
   --color-shadow-card: rgba(0, 0, 0, 0.3);
+  --color-accent-step: #4e80a4;
   
   /* Cores de sucesso, erro e aviso */
   --color-success: #10b981;

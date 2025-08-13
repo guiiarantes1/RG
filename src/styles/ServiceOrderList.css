@@ -203,7 +203,6 @@
 .order-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    border-color: var(--color-border-focus);
     transition: all 0.3s ease !important;
 }
 
@@ -289,7 +288,7 @@
 }
 
 .order-payment {
-    background: var(--background-modal-body);
+    background: var(--color-bg-secondary);
     padding: 16px;
     border-radius: 8px;
     border-left: 4px solid #6666ea;

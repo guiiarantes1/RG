@@ -19,9 +19,17 @@ import Button from '../components/Button';
 const Home = () => {
   const { dashboardData, loading, error, refetch } = useDashboard();
 
+  // Verificar se os dados estão na estrutura esperada
+  if (dashboardData && (!dashboardData.status || !dashboardData.resultados)) {
+    console.warn('Estrutura de dados inesperada:', dashboardData);
+  }
+
   // Função para formatar valores monetários
   const formatCurrency = (value) => {
-    if (typeof value !== 'number') return 'R$ 0,00';
+    if (typeof value !== 'number') {
+      return 'R$ 0,00';
+    }
+    
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL'
@@ -33,6 +41,7 @@ const Home = () => {
     if (cardKey.includes('total')) {
       return formatCurrency(value);
     }
+    
     return value.toString();
   };
 
@@ -72,6 +81,40 @@ const Home = () => {
     );
   }
 
+
+  // Função para garantir que os dados tenham valores padrão válidos
+  const ensureValidData = (data, defaultValue = 0) => {
+    if (data === null || data === undefined) return defaultValue;
+    if (typeof data === 'number') return data;
+    if (typeof data === 'string') {
+      const parsed = parseFloat(data);
+      return isNaN(parsed) ? defaultValue : parsed;
+    }
+    return defaultValue;
+  };
+
+  // Função para processar dados de status
+  const processStatusData = (statusData) => {
+    if (!statusData) return { provas: 0, retiradas: 0, devolucoes: 0 };
+    
+    return {
+      provas: ensureValidData(statusData.provas),
+      retiradas: ensureValidData(statusData.retiradas),
+      devolucoes: ensureValidData(statusData.devolucoes)
+    };
+  };
+
+  // Função para processar dados de resultados
+  const processResultadosData = (resultadosData) => {
+    if (!resultadosData) return { total_pedidos: 0, total_recebido: 0, numero_pedidos: 0 };
+    
+    return {
+      total_pedidos: ensureValidData(resultadosData.total_pedidos),
+      total_recebido: ensureValidData(resultadosData.total_recebido),
+      numero_pedidos: ensureValidData(resultadosData.numero_pedidos)
+    };
+  };
+
   // Dados do status (primeira linha)
   const statusData = [
     {
@@ -79,7 +122,7 @@ const Home = () => {
       color: 'var(--color-error)',
       bg: 'rgba(239,68,68,0.12)',
       iconBgColor: 'rgba(239,68,68,0.18)',
-      data: dashboardData?.status?.em_atraso || { provas: 0, retiradas: 0, devolucoes: 0 },
+      data: processStatusData(dashboardData?.status?.em_atraso),
       cards: [
         { key: 'provas', title: 'Provas', icon: <img src={hangerRed} alt="Provas" style={{ width: 20, height: 20 }} /> },
         { key: 'retiradas', title: 'Retiradas', icon: <img src={setaDireitaRed} alt="Retiradas" style={{ width: 20, height: 20 }} /> },
@@ -91,7 +134,7 @@ const Home = () => {
       color: 'var(--color-info)',
       bg: 'rgba(59,130,246,0.10)',
       iconBgColor: 'rgba(59,130,246,0.18)',
-      data: dashboardData?.status?.hoje || { provas: 0, retiradas: 0, devolucoes: 0 },
+      data: processStatusData(dashboardData?.status?.hoje),
       cards: [
         { key: 'provas', title: 'Provas', icon: <img src={hangerBlue} alt="Provas" style={{ width: 20, height: 20 }} /> },
         { key: 'retiradas', title: 'Retiradas', icon: <img src={setaDireitaBlue} alt="Retiradas" style={{ width: 20, height: 20 }} /> },
@@ -103,7 +146,7 @@ const Home = () => {
       color: 'var(--color-success)',
       bg: 'rgba(16,185,129,0.10)',
       iconBgColor: 'rgba(16,185,129,0.18)',
-      data: dashboardData?.status?.proximos_10_dias || { provas: 0, retiradas: 0, devolucoes: 0 },
+      data: processStatusData(dashboardData?.status?.proximos_10_dias),
       cards: [
         { key: 'provas', title: 'Provas', icon: <img src={hangerGreen} alt="Provas" style={{ width: 20, height: 20 }} /> },
         { key: 'retiradas', title: 'Retiradas', icon: <img src={setaDireitaGreen} alt="Retiradas" style={{ width: 20, height: 20 }} /> },
@@ -116,7 +159,7 @@ const Home = () => {
   const resultadosData = [
     {
       section: 'Resultados do dia',
-      data: dashboardData?.resultados?.dia || { total_pedidos: 0, total_recebido: 0, numero_pedidos: 0 },
+      data: processResultadosData(dashboardData?.resultados?.dia),
       cards: [
         { key: 'total_pedidos', title: 'Total de pedidos', icon: <FontAwesomeIcon icon={faClipboardList} style={{color: '#1EC1BC'}} /> },
         { key: 'total_recebido', title: 'Total recebido', icon: <FontAwesomeIcon icon={faMoneyBillWave} style={{color: '#1EC1BC'}} /> },
@@ -125,7 +168,7 @@ const Home = () => {
     },
     {
       section: 'Resultados da semana',
-      data: dashboardData?.resultados?.semana || { total_pedidos: 0, total_recebido: 0, numero_pedidos: 0 },
+      data: processResultadosData(dashboardData?.resultados?.semana),
       cards: [
         { key: 'total_pedidos', title: 'Total de pedidos', icon: <FontAwesomeIcon icon={faClipboardList} style={{color: '#1EC1BC'}} /> },
         { key: 'total_recebido', title: 'Total recebido', icon: <FontAwesomeIcon icon={faMoneyBillWave} style={{color: '#1EC1BC'}} /> },
@@ -134,7 +177,7 @@ const Home = () => {
     },
     {
       section: 'Resultados do mês',
-      data: dashboardData?.resultados?.mes || { total_pedidos: 0, total_recebido: 0, numero_pedidos: 0 },
+      data: processResultadosData(dashboardData?.resultados?.mes),
       cards: [
         { key: 'total_pedidos', title: 'Total de pedidos', icon: <FontAwesomeIcon icon={faClipboardList} style={{color: '#1EC1BC'}} /> },
         { key: 'total_recebido', title: 'Total recebido', icon: <FontAwesomeIcon icon={faMoneyBillWave} style={{color: '#1EC1BC'}} /> },
@@ -152,17 +195,20 @@ const Home = () => {
           {statusData.map((section) => (
             <div className="dashboard-section" key={section.section}>
               <h3 style={{marginBottom: 12, color: section.color}}>{section.section}</h3>
-              {section.cards.map((card) => (
-                <Card
-                  key={card.key}
-                  title={card.title}
-                  value={section.data[card.key] || 0}
-                  icon={card.icon}
-                  bgColor={section.bg}
-                  textColor={section.color}
-                  iconBgColor={section.iconBgColor}
-                />
-              ))}
+              {section.cards.map((card) => {
+                const value = section.data[card.key] || 0;
+                return (
+                  <Card
+                    key={card.key}
+                    title={card.title}
+                    value={value}
+                    icon={card.icon}
+                    bgColor={section.bg}
+                    textColor={section.color}
+                    iconBgColor={section.iconBgColor}
+                  />
+                );
+              })}
             </div>
           ))}
         </div>

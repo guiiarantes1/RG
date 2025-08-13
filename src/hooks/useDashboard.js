@@ -12,10 +12,19 @@ export const useDashboard = () => {
       setError(null);
       
       const response = await dashboardService.getDashboardData();
-      setDashboardData(response.data);
+      console.log('📊 Resposta completa da API:', response);
+      console.log('📊 Dados do dashboard:', response.data);
+      
+      // Verificar se a resposta tem a estrutura esperada
+      if (response && response.data) {
+        setDashboardData(response.data);
+      } else {
+        console.warn('⚠️ Resposta da API não tem a estrutura esperada:', response);
+        setDashboardData(response || {});
+      }
     } catch (err) {
+      console.error('❌ Erro no hook useDashboard:', err);
       setError(err.message || 'Erro ao carregar dados do dashboard');
-      console.error('Erro no hook useDashboard:', err);
     } finally {
       setLoading(false);
     }
