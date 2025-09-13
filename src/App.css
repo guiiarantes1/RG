@@ -1,6 +1,14 @@
-* {
-  font-family: 'Roboto', sans-serif;
+@font-face {
+  font-family: 'GT-Eesti-Text-Regular-Trial'; /* Nome que você vai usar para referenciar a fonte */
+  src: url('./assets/fonts/GT-Eesti-Text-Regular-Trial.otf') format('opentype'); /* Caminho para o arquivo .otf */
+  font-weight: normal;
+  font-style: normal;
 }
+
+* {
+  font-family: 'GT-Eesti-Text-Regular-Trial', sans-serif;
+}
+
 
 .App {
   min-height: 100vh;

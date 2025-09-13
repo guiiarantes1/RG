@@ -12,7 +12,10 @@
   justify-content: center;
   width: 70%;
   padding: 60px 40px 60px 5%;
-  background: linear-gradient(135deg, #1a1f2e 0%, #2d3748 50%, #1a1f2e 100%);
+  background-image: url('../assets/mens-gala-hero-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   color: #F5F5F5 ;
   position: relative;
 }
@@ -24,9 +27,11 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(203, 161, 53, 0.03) 0%, rgba(45, 55, 72, 0.05) 100%);
+  opacity: 0.8;
+  background: var(--gradient-hero);
   pointer-events: none;
 }
+
 
 .login-header-section {
   position: absolute;
@@ -58,16 +63,12 @@
 }
 
 .login-left-content{
-  display: flex;
-  flex-direction: column;
-  padding: 35px 35px 35px 35px;
-  background: linear-gradient(145deg, rgba(30, 35, 48, 0.9) 0%, rgba(45, 55, 72, 0.7) 100%);
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(203, 161, 53, 0.1);
-  position: relative;
-  z-index: 1;
+  position: absolute;
+  top: 35%;
+  left: 5%;
+  right: 40px;
+  z-index: 2;
+
 }
 
 .login-title {
@@ -93,15 +94,14 @@
 
 .login-card {
   flex: 1;
-  background: #191d29;
-  color: #F5F5F5 ;
+  background: hsl(0 0% 100% / 0.95);
+  color: #212529;
   width: 30%;
   padding: 48px 36px 36px 36px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   min-width: 340px;
-  max-width: 500px;
   min-height: 480px;
 }
 
@@ -119,6 +119,8 @@
 .login-header p {
   font-size: 16px;
   line-height: 1.5;
+  font-weight: 400;
+  color: #6b7980;
 }
 
 .login-form {
@@ -266,13 +268,15 @@
 }
 
 #input-login{
-  background-color: #2a2a2a !important;
-  border-color: #404040 !important;
-  color: white !important;
+  background-color: #ffffff !important;
+  border-color:transparent !important;
+  border-radius: 12px !important;
+  color: #6b7980 !important;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
 }
 
 #input-login::placeholder{
-  color: white !important;
+  color: #6b7980 !important;
   font-size: 14px !important;
 }
 

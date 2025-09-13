@@ -130,6 +130,11 @@ const Login = () => {
           <h1 className="login-title">Bem-vindo de volta</h1>
           <h2 className="login-highlight">Faça login para continuar</h2>
           <p className="login-desc">Acesse a plataforma exclusiva de gerenciamento da Roupas de Gala. Organize clientes, pedidos e acervos com praticidade, segurança e sofisticação.</p>
+          <div className="login-left-content-labels d-flex flex-column gap-4 mt-4">
+            <span className="login-left-content-label"><i className="bi bi-people" style={{ color: '#10a3ff', padding: 7 , borderRadius: 100, backgroundColor: '#8f8f8faa'}}></i> Gestão de clientes e pedidos</span>
+            <span className="login-left-content-label"><i className="bi bi-shield-check" style={{ color: '#10a3ff', padding: 7 , borderRadius: 100, backgroundColor: '#8f8f8faa'}}></i> Controle de ternos e acessórios</span>
+            <span className="login-left-content-label"><i className="bi bi-star" style={{ color: '#10a3ff', padding: 7 , borderRadius: 100, backgroundColor: '#8f8f8faa'}}></i> Elegância e sofisticação</span>
+          </div>
         </div>
       </div>
       <div className="login-card">
