@@ -416,7 +416,7 @@ const Produtos = () => {
             <div className="col-12">
               {loading ? (
                 <div className="text-center py-5">
-                  <div className="spinner-border text-primary" role="status">
+                  <div className="spinner-border" role="status" style={{ color: 'var(--color-accent)'}}>
                     <span className="visually-hidden">Carregando...</span>
                   </div>
                   <p className="mt-3">Carregando produtos...</p>
@@ -437,9 +437,9 @@ const Produtos = () => {
                 </div>
               ) : produtos.length === 0 ? (
                 <div className="text-center py-5">
-                  <i className="bi bi-box display-1 text-muted"></i>
+                  <i className="bi bi-box display-1" style={{ color: 'var(--color-accent)'}}></i>
                   <h5 className="mt-3">Nenhum produto encontrado</h5>
-                  <p className="text-muted">Tente ajustar os filtros de busca</p>
+                  <p className="empty-state-text">Tente ajustar os filtros de busca</p>
                 </div>
               ) : (
                 <>

@@ -239,7 +239,7 @@ const ChangePassword = ({ handleCloseModalPassword }) => {
 
                     <div className="alterar-senha__acoes d-flex gap-2">
                         {loading ? (
-                            <div className="spinner-border text-success d-flex mx-auto mb-3" role="status">
+                            <div className="spinner-border d-flex mx-auto mb-3" role="status" style={{ color: 'var(--color-accent)'}}>
                                 <span className="sr-only"></span>
                             </div>
                         ) : (

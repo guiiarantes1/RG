@@ -297,7 +297,7 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
             <div className="list-content">
                 {(isLoading || loading) ? (
                     <div className="loading-container">
-                        <div className="loading-spinner"></div>
+                        <div className="loading-spinner" style={{ color: 'var(--color-accent)'}}></div>
                         <p>Carregando ordens de serviço...</p>
                     </div>
                 ) : (error || internalError) ? (

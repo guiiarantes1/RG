@@ -288,7 +288,7 @@ const Funcionarios = () => {
             <h2 style={{ fontSize: '18px' }}>{editingId ? 'Editar Funcionário' : 'Cadastrar Novo Funcionário'}</h2>
             {isLoading && (
               <div className="loading-indicator">
-                <div className="spinner"></div>
+                <div className="spinner" style={{ color: 'var(--color-accent)'}}></div>
                 <span>Salvando...</span>
               </div>
             )}
@@ -438,7 +438,7 @@ const Funcionarios = () => {
               </div>
             ) : filteredFuncionarios.length === 0 ? (
               <div className="no-results">
-                <i className="bi bi-people"></i>
+                <i className="bi bi-people" style={{ color: 'var(--color-accent)'}}></i>
                 <p>Nenhum funcionário encontrado</p>
               </div>
             ) : (

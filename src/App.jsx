@@ -66,7 +66,7 @@ function AppContent() {
     return (
       <div className="App d-flex justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
         <div className="text-center">
-          <div className="spinner-border text-warning" role="status" style={{ width: '3rem', height: '3rem' }}>
+          <div className="spinner-border" role="status" style={{ width: '3rem', height: '3rem', color: 'var(--color-accent)'}}>
             <span className="visually-hidden">Carregando...</span>
           </div>
           <p className="mt-3">Carregando...</p>
