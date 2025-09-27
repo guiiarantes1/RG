@@ -154,7 +154,6 @@ const EventoDetalhes = () => {
                             <h1 className="evento-title">
                                 {evento.name ? capitalizeText(evento.name) : 'Evento sem nome'}
                             </h1>
-                            <div className="evento-id">OS-{evento.id}</div>
                         </div>
                         <div className="evento-status">
                             <span className={`status-badge status-${evento.status?.toLowerCase().replace(' ', '-') || 'open'}`}>
