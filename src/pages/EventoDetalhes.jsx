@@ -51,9 +51,7 @@ const EventoDetalhes = () => {
             weekday: 'long',
             day: '2-digit',
             month: 'long',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
+            year: 'numeric'
         });
     };
 
@@ -68,7 +66,7 @@ const EventoDetalhes = () => {
                 <Header nomeHeader="Detalhes do Evento" />
                 <div className="evento-detalhes-container">
                     <div className="loading-state">
-                        <div className="spinner" style={{ color: 'var(--color-accent)'}}></div>
+                        <div className="spinner" style={{ color: 'var(--color-accent)' }}></div>
                         <p>Carregando detalhes do evento...</p>
                     </div>
                 </div>
@@ -135,14 +133,16 @@ const EventoDetalhes = () => {
                 {/* Informações principais do evento */}
                 <div className="evento-info-card">
                     <div className="evento-info-header">
-                        <div className="evento-title-section">
+                        <div className="evento-title-section d-flex flex-row justify-content-between align-items-center">
                             <h1 className="evento-title">
                                 {evento.name ? capitalizeText(evento.name) : 'Evento sem nome'}
                             </h1>
-                            <div className="evento-id">#{evento.id}</div>
+                            <div className="evento-id">OS-{evento.id}</div>
                         </div>
                         <div className="evento-status">
-                            <span className="status-badge status-open">Em Aberto</span>
+                            <span className={`status-badge status-${evento.status?.toLowerCase().replace(' ', '-') || 'open'}`}>
+                                {evento.status || 'Em Aberto'}
+                            </span>
                         </div>
                     </div>
 
@@ -181,52 +181,39 @@ const EventoDetalhes = () => {
                     <div className="card-header">
                         <h2>
                             <i className="bi bi-clipboard-check"></i>
-                            Ordens de Serviço ({evento.ordens_servico_detalhadas ? evento.ordens_servico_detalhadas.length : 0})
+                            Ordens de Serviço ({evento.service_orders_count || 0})
                         </h2>
                     </div>
 
                     <div className="ordens-servico-content">
-                        {!evento.ordens_servico_detalhadas || evento.ordens_servico_detalhadas.length === 0 ? (
+                        {!evento.service_orders || evento.service_orders.length === 0 ? (
                             <div className="no-ordens">
                                 <i className="bi bi-clipboard-x"></i>
                                 <p>Nenhuma ordem de serviço vinculada</p>
                             </div>
                         ) : (
                             <div className="ordens-servico-list">
-                                {evento.ordens_servico_detalhadas.map((ordem, index) => (
+                                {evento.service_orders.map((ordem, index) => (
                                     <div key={ordem.id || index} className="ordem-item" onClick={() => navigate(`/ordens/${ordem.id}`)}>
                                         <div className="ordem-header">
                                             <div className="ordem-numero">
-                                                <h4>{ordem.numero_ordem}</h4>
-                                                <span className="ordem-cliente">{capitalizeText(ordem.cliente.name)}</span>
-                                            </div>
-                                            <div className="ordem-status">
-                                                <span className={`status-badge status-${ordem.status.toLowerCase().replace(' ', '-')}`}>
-                                                    {ordem.status}
-                                                </span>
+                                                <h4>OS-{ordem.id}</h4>
+                                                <span className="ordem-cliente">Criado em: {formatDate(ordem.date_created)}</span>
                                             </div>
                                         </div>
-                                        
-                                        <div className="ordem-details">
+
+                                        <div className="ordem-details d-flex flex-column">
                                             <div className="ordem-detail">
-                                                <i className="bi bi-calendar-event"></i>
-                                                <span>Evento: {formatEventDate(ordem.ordem_servico.data_evento)}</span>
-                                            </div>
-                                            <div className="ordem-detail">
-                                                <i className="bi bi-tag"></i>
-                                                <span>Ocasião: {ordem.ordem_servico.ocasiao}</span>
-                                            </div>
-                                            <div className="ordem-detail">
-                                                <i className="bi bi-currency-dollar"></i>
-                                                <span>Total: R$ {ordem.pagamento.total.toFixed(2)}</span>
+                                                <i className="bi bi-cash"></i>
+                                                <span>Total: R$ {parseFloat(ordem.total_value).toFixed(2)}</span>
                                             </div>
                                             <div className="ordem-detail">
                                                 <i className="bi bi-clipboard-data"></i>
-                                                <span>Fase: {ordem.fase}</span>
+                                                <span>Fase: {capitalizeText(ordem.phase)}</span>
                                             </div>
                                         </div>
-                                        
-                                        <div className="ordem-arrow">
+
+                                        <div className="ordem-arrow d-flex flex-row justify-content-center align-items-center">
                                             <i className="bi bi-arrow-right"></i>
                                         </div>
                                     </div>
