@@ -322,7 +322,7 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
             </div>
 
             {/* Tabs */}
-            <div className="tabs-container">
+            <div className="tabs-container mb-3">
                 {tabs.map((tab) => (
                     <button
                         key={tab.key}
