@@ -380,19 +380,28 @@ const OrdemServico = () => {
     }, [inputValues.restante, formData.restante]);
 
     useEffect(() => {
-        if (inputValues.dataEvento) {
-            const devolucao = addBusinessDays(new Date(inputValues.dataEvento + 'T00:00:00'), 2);
-            const devolucaoIso = devolucao.toISOString().split('T')[0];
-            setInputValues(prev => ({
-                ...prev,
-                dataDevolucao: devolucaoIso
-            }));
-            setFormData(prev => ({
-                ...prev,
-                dataDevolucao: devolucaoIso
-            }));
+        // Só calcula a data de devolução se:
+        // 1. Há uma data de evento
+        // 2. A data de devolução está vazia (para não sobrescrever dados da API)
+        // 3. Não está em modo de carregamento
+        if (inputValues.dataEvento && !inputValues.dataDevolucao && !loading) {
+            // Pequeno delay para garantir que os dados da API foram carregados
+            const timer = setTimeout(() => {
+                const devolucao = addBusinessDays(new Date(inputValues.dataEvento + 'T00:00:00'), 2);
+                const devolucaoIso = devolucao.toISOString().split('T')[0];
+                setInputValues(prev => ({
+                    ...prev,
+                    dataDevolucao: devolucaoIso
+                }));
+                setFormData(prev => ({
+                    ...prev,
+                    dataDevolucao: devolucaoIso
+                }));
+            }, 100);
+
+            return () => clearTimeout(timer);
         }
-    }, [inputValues.dataEvento]);
+    }, [inputValues.dataEvento, inputValues.dataDevolucao, loading]);
 
     // Função para carregar ordens de serviço
     const loadOrders = async () => {
