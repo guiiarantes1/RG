@@ -56,6 +56,25 @@ const EventoDetalhes = () => {
         });
     };
 
+    // Mapeamento de phases com cores e labels (igual ao ServiceOrderList)
+    const phaseMapping = [
+        { key: 'PENDENTE', label: 'PENDENTE', color: '#0095e2' },
+        { key: 'AGUARDANDO_RETIRADA', label: 'AGUARDANDO RETIRADA', color: '#e2d502' },
+        { key: 'AGUARDANDO_DEVOLUCAO', label: 'AGUARDANDO DEVOLUÇÃO', color: '#1c3b4d' },
+        { key: 'ATRASADO', label: 'ATRASADO', color: '#f44336' },
+        { key: 'RECUSADA', label: 'RECUSADA', color: '#9e9e9e' },
+        { key: 'FINALIZADO', label: 'FINALIZADO', color: '#4caf50' },
+    ];
+
+    const getStatusBadge = (phase) => {
+        const phaseInfo = phaseMapping.find(p => p.key === phase);
+        return (
+            <span>
+                {capitalizeText(phaseInfo?.label) || phase}
+            </span>
+        );
+    };
+
 
     const handleVoltar = () => {
         navigate('/eventos');
@@ -125,7 +144,7 @@ const EventoDetalhes = () => {
             <div className="evento-detalhes-container">
                 {/* Header com ações */}
                 <div className="evento-header">
-                <Button text="Voltar para eventos" onClick={handleVoltar} variant="primary" iconName="arrow-left" iconPosition="left" />
+                    <Button text="Voltar para eventos" onClick={handleVoltar} variant="primary" iconName="arrow-left" iconPosition="left" />
                 </div>
 
                 {/* Informações principais do evento */}
@@ -208,7 +227,8 @@ const EventoDetalhes = () => {
                                             </div>
                                             <div className="ordem-detail">
                                                 <i className="bi bi-clipboard-data"></i>
-                                                <span>Fase: {capitalizeText(ordem.phase)}</span>
+                                                <span>Fase:</span>
+                                                {getStatusBadge(ordem.phase)}
                                             </div>
                                         </div>
 
