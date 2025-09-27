@@ -116,5 +116,16 @@ export const serviceOrderService = {
             console.error('Erro ao buscar ordens de serviço:', error);
             throw error;
         }
+    },
+
+    // Buscar ordens de serviço por cliente (locatário)
+    getServiceOrdersByRenter: async (renterId) => {
+        try {
+            const response = await api.get(`/api/v1/service-orders/renter/${renterId}/`);
+            return response.data;
+        } catch (error) {
+            console.error('Erro ao buscar ordens de serviço do cliente:', error);
+            throw error;
+        }
     }
 }; 

@@ -8,6 +8,7 @@ import '../styles/Clientes.css';
 import Header from '../components/Header';
 import Button from '../components/Button';
 import { clientService } from '../services/clientService';
+import ClientHistoryModal from '../components/ClientHistoryModal';
 
 const Clientes = () => {
   const [clientes, setClientes] = useState([]);
@@ -28,6 +29,8 @@ const Clientes = () => {
   const [isLoadingClientes, setIsLoadingClientes] = useState(true);
   const [isLoadingCep, setIsLoadingCep] = useState(false);
   const [error, setError] = useState(null);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [selectedClient, setSelectedClient] = useState(null);
 
   useEffect(() => {
     // Carregar dados da API
@@ -265,6 +268,16 @@ const Clientes = () => {
       bairro: '',
       cidade: ''
     });
+  };
+
+  const handleShowHistory = (cliente) => {
+    setSelectedClient(cliente);
+    setShowHistoryModal(true);
+  };
+
+  const handleCloseHistory = () => {
+    setShowHistoryModal(false);
+    setSelectedClient(null);
   };
 
   // Função para formatar o endereço
@@ -578,13 +591,20 @@ const Clientes = () => {
                        {formatAddress(cliente.address)}
                      </div>
                     <div className="table-cell">
-                      <div className="cliente-actions">
+                      <div className="cliente-actions">        
                         <button
                           onClick={() => handleEdit(cliente)}
-                          className="btn-edit"
+                          className="btn-edit-profile"
                           title="Editar"
                         >
                           <i className="bi bi-pencil"></i>
+                        </button>
+                        <button
+                          onClick={() => handleShowHistory(cliente)}
+                          className="btn-details"
+                          title="Ver Histórico"
+                        >
+                          <i className="bi bi-box-arrow-up-right"></i>
                         </button>
                       </div>
                     </div>
@@ -595,6 +615,14 @@ const Clientes = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal de Histórico do Cliente */}
+      <ClientHistoryModal
+        show={showHistoryModal}
+        onClose={handleCloseHistory}
+        onCloseX={handleCloseHistory}
+        client={selectedClient}
+      />
     </>
   );
 };

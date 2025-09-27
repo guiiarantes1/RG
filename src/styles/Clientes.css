@@ -314,7 +314,7 @@
   justify-content: center;
 }
 
-.btn-edit {
+.btn-details {
   width: 32px;
   height: 32px;
   border: none;
@@ -325,11 +325,36 @@
   cursor: pointer;
   transition: all 0.2s ease;
   font-size: 14px;
-  background: transparent;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
   color: var(--color-accent);
+  i {
+    color: var( --color-info) !important;
+  }
 }
 
-.btn-edit:hover {
+.btn-details:hover {
+  background: var(--color-info);
+  color: white;
+}
+
+.btn-edit-profile {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  color: var( --color-info);
+}
+
+.btn-edit-profile:hover {
   background: var(--color-accent);
   color: var(--color-primary);
 }
