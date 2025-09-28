@@ -33,11 +33,13 @@ const OrdemServico = () => {
         // Cliente
         nome: '',
         telefone: '',
+        email: '',
         cpf: '',
         cep: '',
         rua: '',
         numero: '',
         bairro: '',
+        complemento: '',
         cidade: '',
         // Itens vendidos
         itensVendidos: [],
@@ -113,11 +115,13 @@ const OrdemServico = () => {
         // Cliente
         nome: '',
         telefone: '',
+        email: '',
         cpf: '',
         cep: '',
         rua: '',
         numero: '',
         bairro: '',
+        complemento: '',
         cidade: '',
         // Itens vendidos
         itensVendidos: [],
@@ -246,7 +250,7 @@ const OrdemServico = () => {
             let shouldClear = false;
             
             // Para campos obrigatórios simples
-            if (['nome', 'telefone', 'cpf', 'cep', 'rua', 'numero', 'bairro', 'cidade', 
+            if (['nome', 'telefone', 'email', 'cpf', 'cep', 'rua', 'numero', 'bairro', 'cidade', 
                  'paletoNumero', 'paletoCor', 'paletoManga', 'camisaNumero', 'camisaCor', 'camisaManga',
                  'calcaNumero', 'calcaCor', 'calcaCintura', 'calcaPerna', 'dataPedido', 'dataEvento', 'dataRetirada'].includes(field)) {
                 shouldClear = value.trim() !== '';
@@ -468,7 +472,7 @@ const OrdemServico = () => {
     const handleCreateNew = () => {
         setSelectedOrder(null);
         setFormData({
-            nome: '', telefone: '', cpf: '', cep: '', rua: '', numero: '', bairro: '', cidade: '',
+            nome: '', telefone: '', email: '', cpf: '', cep: '', rua: '', numero: '', bairro: '', complemento: '', cidade: '',
             paletoNumero: '', paletoCor: '', paletoManga: '', paletoMarca: '', paletoAjuste: false, paletoAjusteValor: '', paletoExtras: '',
             camisaNumero: '', camisaCor: '', camisaManga: '', camisaMarca: '', camisaAjuste: false, camisaAjusteValor: '', camisaExtras: '',
             calcaNumero: '', calcaCor: '', calcaCintura: '', calcaPerna: '', calcaMarca: '', calcaAjusteCos: false,
@@ -480,7 +484,7 @@ const OrdemServico = () => {
             dataPedido: '', dataEvento: '', ocasiao: '', tipoPagamento: 'Aluguel', total: '', sinal: '', restante: '', dataRetirada: ''
         });
         setInputValues({
-            nome: '', telefone: '', cpf: '', cep: '', rua: '', numero: '', bairro: '', cidade: '',
+            nome: '', telefone: '', email: '', cpf: '', cep: '', rua: '', numero: '', bairro: '', complemento: '', cidade: '',
             paletoNumero: '', paletoCor: '', paletoManga: '', paletoMarca: '', paletoAjuste: false, paletoAjusteValor: '', paletoExtras: '',
             camisaNumero: '', camisaCor: '', camisaManga: '', camisaMarca: '', camisaAjuste: false, camisaAjusteValor: '', camisaExtras: '',
             calcaNumero: '', calcaCor: '', calcaCintura: '', calcaPerna: '', calcaMarca: '', calcaAjusteCos: false,
@@ -559,11 +563,13 @@ const OrdemServico = () => {
         const clientData = {
             nome: client.name || '',
             telefone: telefoneFormatado,
+            email: contact.email || '',
             cpf: client.cpf || '',
             cep: address.cep || '',
             rua: address.rua || '',
             numero: address.numero || '',
             bairro: address.bairro || '',
+            complemento: address.complemento || '',
             cidade: city.name || ''
         };
 
@@ -767,7 +773,8 @@ const OrdemServico = () => {
                     contatos: [
                         {
                             tipo: "telefone",
-                            valor: formData.telefone ? formData.telefone.replace(/\D/g, '') : ''
+                            valor: formData.telefone ? formData.telefone.replace(/\D/g, '') : '',
+                            email: formData.email
                         }
                     ],
                     enderecos: [
@@ -776,6 +783,7 @@ const OrdemServico = () => {
                             rua: formData.rua,
                             numero: formData.numero,
                             bairro: formData.bairro,
+                            complemento: formData.complemento,
                             cidade: formData.cidade
                         }
                     ]
@@ -841,6 +849,7 @@ const OrdemServico = () => {
             case 0: // Cliente
                 return inputValues.nome.trim() !== '' && 
                        inputValues.telefone.trim() !== '' && 
+                       inputValues.email.trim() !== '' && 
                        inputValues.cpf.trim() !== '' && 
                        inputValues.cep.trim() !== '' && 
                        inputValues.rua.trim() !== '' && 
@@ -936,6 +945,7 @@ const OrdemServico = () => {
             case 0: // Cliente
                 if (!inputValues.nome.trim()) errors.nome = 'Nome é obrigatório';
                 if (!inputValues.telefone.trim()) errors.telefone = 'Telefone é obrigatório';
+                if (!inputValues.email.trim()) errors.email = 'Email é obrigatório';
                 if (!inputValues.cpf.trim()) errors.cpf = 'CPF é obrigatório';
                 if (!inputValues.cep.trim()) errors.cep = 'CEP é obrigatório';
                 if (!inputValues.rua.trim()) errors.rua = 'Endereço é obrigatório';
@@ -1093,6 +1103,20 @@ const OrdemServico = () => {
                                 )}
                             </div>
                             <div className="form-group">
+                                <label>Email <span style={{ color: 'red' }}>*</span></label>
+                                <input
+                                    type="email"
+                                    value={inputValues.email}
+                                    onChange={(e) => handleInputChange('email', e.target.value)}
+                                    onBlur={(e) => handleInputBlur('email', e.target.value)}
+                                    placeholder="Digite o email"
+                                    className={validationErrors.email ? 'error' : ''}
+                                />
+                                {validationErrors.email && (
+                                    <div className="error-message">{validationErrors.email}</div>
+                                )}
+                            </div>
+                            <div className="form-group">
                                 <label>CPF <span style={{ color: 'red' }}>*</span></label>
                                 <input
                                     type="text"
@@ -1161,6 +1185,16 @@ const OrdemServico = () => {
                                 {validationErrors.bairro && (
                                     <div className="error-message">{validationErrors.bairro}</div>
                                 )}
+                            </div>
+                            <div className="form-group">
+                                <label>Complemento</label>
+                                <input
+                                    type="text"
+                                    value={capitalizeText(inputValues.complemento)}
+                                    onChange={(e) => handleInputChange('complemento', e.target.value)}
+                                    onBlur={(e) => handleInputBlur('complemento', e.target.value)}
+                                    placeholder="Apartamento, casa, etc."
+                                />
                             </div>
                             <div className="form-group">
                                 <label>Cidade <span style={{ color: 'red' }}>*</span></label>
@@ -2635,6 +2669,10 @@ const OrdemServico = () => {
                                         <span className="value">{formatarTelefoneParaExibicao(formData.telefone)}</span>
                                     </div>
                                     <div className="info-item">
+                                        <span className="label">Email:</span>
+                                        <span className="value">{formData.email}</span>
+                                    </div>
+                                    <div className="info-item">
                                         <span className="label">CPF:</span>
                                         <span className="value">{mascaraCPF(formData.cpf)}</span>
                                     </div>
@@ -2644,7 +2682,7 @@ const OrdemServico = () => {
                                     </div>
                                     <div className="info-item">
                                         <span className="label">Endereço:</span>
-                                        <span className="value">{capitalizeText(formData.rua)}, {formData.numero} - {capitalizeText(formData.bairro)}, {capitalizeText(formData.cidade)}</span>
+                                        <span className="value">{capitalizeText(formData.rua)}, {formData.numero} - {capitalizeText(formData.complemento)} - {capitalizeText(formData.bairro)}, {capitalizeText(formData.cidade)}</span>
                                     </div>
                                 </div>
                             </div>
