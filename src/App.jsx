@@ -18,6 +18,7 @@ import OrdemServico from './pages/OrdemServico'
 import Produtos from './pages/Produtos'
 import Eventos from './pages/Eventos'
 import EventoDetalhes from './pages/EventoDetalhes'
+import ClienteHistorico from './pages/ClienteHistorico'
 
 function AppContent() {
   const { theme } = useTheme();
@@ -108,6 +109,12 @@ function AppContent() {
           <Route path="/clientes" element={
             <ProtectedRoute>
               <Clientes />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/cliente/:id/historico" element={
+            <ProtectedRoute>
+              <ClienteHistorico />
             </ProtectedRoute>
           } />
           

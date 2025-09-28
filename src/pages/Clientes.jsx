@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { mascaraCPF, mascaraTelefone, removerMascara, formatarTelefoneParaExibicao } from '../utils/Mascaras';
 import { capitalizeText } from '../utils/capitalizeText';
 import PhoneInput from 'react-phone-number-input';
@@ -8,9 +9,9 @@ import '../styles/Clientes.css';
 import Header from '../components/Header';
 import Button from '../components/Button';
 import { clientService } from '../services/clientService';
-import ClientHistoryModal from '../components/ClientHistoryModal';
 
 const Clientes = () => {
+  const navigate = useNavigate();
   const [clientes, setClientes] = useState([]);
   const [formData, setFormData] = useState({
     nome: '',
@@ -29,8 +30,6 @@ const Clientes = () => {
   const [isLoadingClientes, setIsLoadingClientes] = useState(true);
   const [isLoadingCep, setIsLoadingCep] = useState(false);
   const [error, setError] = useState(null);
-  const [showHistoryModal, setShowHistoryModal] = useState(false);
-  const [selectedClient, setSelectedClient] = useState(null);
 
   useEffect(() => {
     // Carregar dados da API
@@ -271,13 +270,7 @@ const Clientes = () => {
   };
 
   const handleShowHistory = (cliente) => {
-    setSelectedClient(cliente);
-    setShowHistoryModal(true);
-  };
-
-  const handleCloseHistory = () => {
-    setShowHistoryModal(false);
-    setSelectedClient(null);
+    navigate(`/cliente/${cliente.id}/historico`);
   };
 
   // Função para formatar o endereço
@@ -615,14 +608,6 @@ const Clientes = () => {
           </div>
         </div>
       </div>
-
-      {/* Modal de Histórico do Cliente */}
-      <ClientHistoryModal
-        show={showHistoryModal}
-        onClose={handleCloseHistory}
-        onCloseX={handleCloseHistory}
-        client={selectedClient}
-      />
     </>
   );
 };

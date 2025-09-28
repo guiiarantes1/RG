@@ -334,8 +334,11 @@
 }
 
 .btn-details:hover {
-  background: var(--color-info);
-  color: white;
+  background: var(--color-accent);
+  color: var(--color-primary);
+  i {
+    color: white !important;
+  }
 }
 
 .btn-edit-profile {
@@ -356,7 +359,7 @@
 
 .btn-edit-profile:hover {
   background: var(--color-accent);
-  color: var(--color-primary);
+  color: white;
 }
 
 /* Skeletons */

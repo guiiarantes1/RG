@@ -1,37 +1,127 @@
-/* Container principal do modal de histórico */
-.client-history-modal {
-  width: 100%;
-  max-width: 100%;
-  max-height: 70vh;
-  overflow-y: auto;
-  padding: 0;
-  margin: 0;
+/* Container principal da página de histórico do cliente */
+.cliente-historico-container {
+  padding: 20px;
+  margin: 0 auto;
+}
+
+/* Botão de voltar */
+.back-button-container {
+  margin-bottom: 20px;
+}
+
+.btn-back {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-back:hover {
+  background: var(--color-accent);
+  color: white;
+  border-color: var(--color-accent);
+}
+
+.btn-back i {
+  font-size: 16px;
 }
 
 /* Informações do cliente */
-.client-history-modal .client-info {
+.client-info {
   background: var(--color-bg-card);
   border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 20px;
+  padding: 24px;
+  margin-bottom: 24px;
   border: 1px solid var(--color-border);
 }
 
-.client-history-modal .client-info h4 {
+.client-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.client-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.client-details h2 {
   margin: 0 0 8px 0;
   color: var(--color-text-primary);
-  font-size: 18px;
+  font-size: 24px;
   font-weight: 600;
 }
 
-.client-history-modal .client-info p {
-  margin: 0;
+.client-details p {
+  margin: 0 0 4px 0;
   color: var(--color-text-secondary);
   font-size: 14px;
 }
 
+/* Seção de ordens de serviço */
+.service-orders-section {
+  background: var(--color-bg-card);
+  border-radius: 8px;
+  padding: 24px;
+  border: 1px solid var(--color-border);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.section-header h3 {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.btn-refresh {
+  background: var(--color-accent);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-refresh:hover:not(:disabled) {
+  background: var(--color-accent-dark);
+}
+
+.btn-refresh:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* Estados de loading, erro e lista vazia */
-.client-history-modal .loading-state {
+.loading-state {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -40,7 +130,7 @@
   text-align: center;
 }
 
-.client-history-modal .loading-state .spinner {
+.loading-state .spinner {
   width: 32px;
   height: 32px;
   border: 3px solid var(--color-border);
@@ -50,12 +140,12 @@
   margin-bottom: 16px;
 }
 
-.client-history-modal .loading-state p {
+.loading-state p {
   color: var(--color-text-secondary);
   margin: 0;
 }
 
-.client-history-modal .error-state {
+.error-state {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -64,18 +154,23 @@
   text-align: center;
 }
 
-.client-history-modal .error-state i {
+.error-state i {
   font-size: 48px;
   color: var(--color-error);
   margin-bottom: 16px;
 }
 
-.client-history-modal .error-state p {
+.error-state h3 {
+  color: var(--color-text-primary);
+  margin: 0 0 8px 0;
+}
+
+.error-state p {
   color: var(--color-text-secondary);
   margin: 0 0 16px 0;
 }
 
-.client-history-modal .btn-retry {
+.btn-retry {
   background: var(--color-accent);
   color: white;
   border: none;
@@ -84,18 +179,19 @@
   cursor: pointer;
   font-size: 14px;
   transition: background-color 0.2s;
+  margin-bottom: 8px;
 }
 
-.client-history-modal .btn-retry:hover:not(:disabled) {
+.btn-retry:hover:not(:disabled) {
   background: var(--color-accent-dark);
 }
 
-.client-history-modal .btn-retry:disabled {
+.btn-retry:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.client-history-modal .no-orders {
+.no-orders {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -104,49 +200,55 @@
   text-align: center;
 }
 
-.client-history-modal .no-orders i {
+.no-orders i {
   font-size: 48px;
   color: var(--color-accent);
   margin-bottom: 16px;
 }
 
-.client-history-modal .no-orders p {
+.no-orders p {
   color: var(--color-text-secondary);
   margin: 0;
 }
 
 /* Lista de ordens de serviço */
-.client-history-modal .service-orders-list h5 {
-  color: var(--color-text-primary);
-  margin: 0 0 20px 0;
-  font-size: 16px;
-  font-weight: 600;
+.service-orders-list {
+  width: 100%;
 }
 
-.client-history-modal .orders-container {
+.orders-summary {
+  margin-bottom: 20px;
+  padding: 12px;
+  background: var(--color-bg-secondary);
+  border-radius: 6px;
+}
+
+.orders-summary p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}
+
+.orders-container {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  max-height: 50vh;
-  overflow-y: auto;
-  padding-right: 8px;
 }
 
-.client-history-modal .service-order-card {
-  background: var(--color-bg-card);
+.service-order-card {
+  background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 16px;
   transition: box-shadow 0.2s;
-  margin-bottom: 0;
 }
 
-.client-history-modal .service-order-card:hover {
+.service-order-card:hover {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Cabeçalho da ordem */
-.client-history-modal .order-header {
+.order-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -156,7 +258,7 @@
 }
 
 /* Cabeçalho clicável para colapsar */
-.client-history-modal .collapsible-header {
+.collapsible-header {
   cursor: pointer;
   transition: background-color 0.2s ease;
   border-radius: 6px;
@@ -165,38 +267,38 @@
   margin-bottom: 8px;
 }
 
-.client-history-modal .collapsible-header:hover {
-  background-color: var(--color-bg-secondary);
+.collapsible-header:hover {
+  background-color: var(--color-bg-card);
 }
 
-.client-history-modal .order-header-right {
+.order-header-right {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.client-history-modal .expand-icon {
+.expand-icon {
   transition: transform 0.2s ease;
   color: var(--color-text-secondary);
   font-size: 16px;
 }
 
-.client-history-modal .expand-icon.expanded {
+.expand-icon.expanded {
   transform: rotate(180deg);
 }
 
-.client-history-modal .order-id {
+.order-id {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.client-history-modal .order-id strong {
+.order-id strong {
   color: var(--color-text-primary);
   font-size: 16px;
 }
 
-.client-history-modal .status-badge {
+.status-badge {
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 12px;
@@ -204,143 +306,143 @@
   text-transform: uppercase;
 }
 
-.client-history-modal .status-triagem {
+.status-triagem {
   background: #fff3cd;
   color: #856404;
 }
 
-.client-history-modal .status-lavagem {
+.status-lavagem {
   background: #d1ecf1;
   color: #0c5460;
 }
 
-.client-history-modal .status-costura {
+.status-costura {
   background: #f8d7da;
   color: #721c24;
 }
 
-.client-history-modal .status-finalizado {
+.status-finalizado {
   background: #d4edda;
   color: #155724;
 }
 
-.client-history-modal .status-pendente {
+.status-pendente {
   background: #e2e8f0;
   color: #475569;
 }
 
-.client-history-modal .status-default {
+.status-default {
   background: var(--color-border);
   color: var(--color-text-secondary);
 }
 
-.client-history-modal .order-value {
+.order-value {
   font-size: 18px;
   font-weight: 600;
   color: var(--color-accent);
 }
 
 /* Conteúdo colapsável */
-.client-history-modal .collapsible-content {
+.collapsible-content {
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.3s ease-out;
   opacity: 0;
 }
 
-.client-history-modal .collapsible-content.expanded {
+.collapsible-content.expanded {
   max-height: 1000px;
   opacity: 1;
   transition: max-height 0.3s ease-in, opacity 0.2s ease-in 0.1s;
 }
 
 /* Detalhes da ordem - sempre visíveis */
-.client-history-modal .order-details {
+.order-details {
   padding-top: 8px;
 }
 
-.client-history-modal .detail-row {
-    width: calc(50% - 4px);
+.detail-row {
+  width: calc(50% - 4px);
 }
 
-.client-history-modal .detail-row:last-child {
+.detail-row:last-child {
   margin-bottom: 0;
 }
 
-.client-history-modal .detail-row .label {
+.detail-row .label {
   color: var(--color-text-secondary);
   margin-right: 10px;
   font-size: 14px;
   font-weight: 700;
 }
 
-.client-history-modal .detail-row .value {
+.detail-row .value {
   color: var(--color-text-primary);
   font-size: 14px;
 }
 
 /* Informações de pagamento - dentro do conteúdo colapsável */
-.client-history-modal .collapsible-content .payment-info {
-  background: var(--color-bg-secondary);
+.collapsible-content .payment-info {
+  background: var(--color-bg-card);
   border-radius: 6px;
   padding: 12px;
   margin-bottom: 16px;
   margin-top: 16px;
 }
 
-.client-history-modal .payment-row {
+.payment-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
 }
 
-.client-history-modal .payment-row:last-child {
+.payment-row:last-child {
   margin-bottom: 0;
 }
 
-.client-history-modal .payment-row .label {
+.payment-row .label {
   color: var(--color-text-secondary);
   font-size: 14px;
   font-weight: 700;
 }
 
-.client-history-modal .payment-row .value {
+.payment-row .value {
   font-size: 14px;
   font-weight: 600;
 }
 
-.client-history-modal .payment-row .value.total {
+.payment-row .value.total {
   color: var(--color-text-primary);
 }
 
-.client-history-modal .payment-row .value.advance {
+.payment-row .value.advance {
   color: var(--color-success);
 }
 
-.client-history-modal .payment-row .value.remaining {
+.payment-row .value.remaining {
   color: red;
 }
 
 /* Informações de datas - dentro do conteúdo colapsável */
-.client-history-modal .collapsible-content .dates-info {
+.collapsible-content .dates-info {
   margin-bottom: 16px;
 }
 
-.client-history-modal .dates-row {
+.dates-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 12px;
 }
 
-.client-history-modal .date-item {
+.date-item {
   text-align: center;
-  background: var(--color-bg-secondary);
+  background: var(--color-bg-card);
   border-radius: 6px;
   padding: 8px;
 }
 
-.client-history-modal .date-item .label {
+.date-item .label {
   display: block;
   color: var(--color-text-secondary);
   font-size: 12px;
@@ -348,21 +450,21 @@
   margin-bottom: 4px;
 }
 
-.client-history-modal .date-item .value {
+.date-item .value {
   color: var(--color-text-primary);
   font-size: 14px;
   font-weight: 600;
 }
 
 /* Justificativa de atraso - dentro do conteúdo colapsável */
-.client-history-modal .collapsible-content .delay-justification {
+.collapsible-content .delay-justification {
   background: #fff3cd;
   border: 1px solid #ffeaa7;
   border-radius: 6px;
   padding: 12px;
 }
 
-.client-history-modal .delay-justification .label {
+.delay-justification .label {
   display: block;
   color: #856404;
   font-size: 14px;
@@ -370,7 +472,7 @@
   margin-bottom: 8px;
 }
 
-.client-history-modal .delay-justification .value {
+.delay-justification .value {
   color: #856404;
   font-size: 14px;
   margin: 0;
@@ -382,47 +484,55 @@
   100% { transform: rotate(360deg); }
 }
 
-/* Scrollbar personalizado para o container de ordens */
-.client-history-modal .orders-container::-webkit-scrollbar {
-  width: 6px;
-}
-
-.client-history-modal .orders-container::-webkit-scrollbar-track {
-  background: var(--color-bg-secondary);
-  border-radius: 3px;
-}
-
-.client-history-modal .orders-container::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: 3px;
-}
-
-.client-history-modal .orders-container::-webkit-scrollbar-thumb:hover {
-  background: var(--color-accent);
-}
-
 /* Responsividade */
 @media (max-width: 768px) {
-  .client-history-modal .order-header {
+  .cliente-historico-container {
+    padding: 16px;
+  }
+
+  .client-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+  }
+
+  .client-avatar {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+  }
+
+  .client-details h2 {
+    font-size: 20px;
+  }
+
+  .section-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .order-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
 
-  .client-history-modal .order-id {
+  .order-id {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
 
-  .client-history-modal .dates-row {
+  .dates-row {
     grid-template-columns: 1fr;
   }
 
-  .client-history-modal .detail-row,
-  .client-history-modal .payment-row {
+  .detail-row,
+  .payment-row {
     flex-direction: column;
     align-items: flex-start;
     gap: 4px;
+    width: 100%;
   }
 }

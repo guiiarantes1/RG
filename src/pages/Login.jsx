@@ -8,6 +8,7 @@ import { mascaraCPF } from '../utils/Mascaras';
 import PhoneInput from 'react-phone-number-input';
 import ptBR from 'react-phone-number-input/locale/pt-BR';
 import { useAuth } from '../hooks/useAuth';
+import Button from '../components/Button';
 
 const Login = () => {
   const { login, getCurrentUser } = useAuth();
@@ -186,18 +187,8 @@ const Login = () => {
           </div>
 
           <div className='login-button-container w-100 mb-2 mt-3' style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="login-button"
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-            >
-              {isLoading ? (
-                <div className="loading-spinner" style={{ width: '20px', height: '20px', margin: '0' }}></div>
-              ) : (
-                'Entrar'
-              )}
-            </button>
+
+            <Button text="Entrar" onClick={handleSubmit} disabled={isLoading}/>
           </div>
           {errorMessage && (
             <div className="error-message-login mt-3">
