@@ -1,3 +1,6 @@
+/* Bootstrap Icons */
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
 /* Sistema de Temas - Claro e Escuro */
 :root {
   /* Tema Escuro (padrão) */

@@ -16,7 +16,7 @@
 }
 
 .dashboard-section {
-  background: var(--color-bg-secondary);
+  background: var(--color-bg-card);
   border-radius: 18px;
   box-shadow: 0 2px 12px var(--color-shadow-card);
   padding: 18px 16px 10px 16px;

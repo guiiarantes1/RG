@@ -1,17 +1,17 @@
 import { useState, useEffect } from 'react';
 import { dashboardService } from '../services/dashboardService';
 
-export const useDashboard = () => {
+export const useDashboard = (period = 'mes', customDate = null, customType = null) => {
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = async (selectedPeriod = period, selectedCustomDate = customDate, selectedCustomType = customType) => {
     try {
       setLoading(true);
       setError(null);
       
-      const response = await dashboardService.getDashboardData();
+      const response = await dashboardService.getDashboardData(selectedPeriod, selectedCustomDate, selectedCustomType);
       console.log('📊 Resposta completa da API:', response);
       console.log('📊 Dados do dashboard:', response.data);
       
@@ -34,15 +34,23 @@ export const useDashboard = () => {
     fetchDashboardData();
   }, []);
 
-  const refetch = () => {
-    fetchDashboardData();
+  const refetch = (selectedPeriod = period, selectedCustomDate = customDate, selectedCustomType = customType) => {
+    fetchDashboardData(selectedPeriod, selectedCustomDate, selectedCustomType);
+  };
+
+  const changePeriod = (newPeriod, newCustomDate = null, newCustomType = null) => {
+    fetchDashboardData(newPeriod, newCustomDate, newCustomType);
   };
 
   return {
     dashboardData,
     loading,
     error,
-    refetch
+    refetch,
+    changePeriod,
+    currentPeriod: period,
+    currentCustomDate: customDate,
+    currentCustomType: customType
   };
 };
 

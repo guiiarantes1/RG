@@ -3,14 +3,64 @@ import api from './api';
 export const dashboardService = {
   /**
    * Busca todos os dados do dashboard principal
+   * @param {string} periodo - Período para filtrar os dados (dia, semana, mes, ano, custom)
+   * @param {string} customDate - Data customizada (formato YYYY-MM-DD)
+   * @param {string} customType - Tipo de período customizado (month, year)
    * @returns {Promise<Object>} Dados completos do dashboard
    */
-  async getDashboardData() {
+  async getDashboardData(periodo = 'mes', customDate = null, customType = null) {
     try {
-      const response = await api.get('/api/v1/service-orders/dashboard/');
+      let url = `/api/v1/service-orders/dashboard/?periodo=${periodo}`;
+      
+      if (customDate) {
+        url += `&data_customizada=${customDate}`;
+      }
+      
+      if (customType) {
+        url += `&tipo_customizado=${customType}`;
+      }
+
+      const response = await api.get(url);
       return response.data;
     } catch (error) {
       console.error('Erro ao buscar dados do dashboard:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Busca dados analíticos com filtros específicos
+   * @param {string} periodo - Período para filtrar os dados
+   * @param {string} dataInicio - Data de início (opcional)
+   * @param {string} dataFim - Data de fim (opcional)
+   * @param {string} customDate - Data customizada (opcional)
+   * @param {string} customType - Tipo de período customizado (opcional)
+   * @returns {Promise<Object>} Dados analíticos do dashboard
+   */
+  async getAnalyticsData(periodo = 'mes', dataInicio = null, dataFim = null, customDate = null, customType = null) {
+    try {
+      let url = `/api/v1/analytics/dashboard/?periodo=${periodo}`;
+      
+      if (dataInicio) {
+        url += `&data_inicio=${dataInicio}`;
+      }
+      
+      if (dataFim) {
+        url += `&data_fim=${dataFim}`;
+      }
+
+      if (customDate) {
+        url += `&data_customizada=${customDate}`;
+      }
+      
+      if (customType) {
+        url += `&tipo_customizado=${customType}`;
+      }
+
+      const response = await api.get(url);
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao buscar dados analíticos:', error);
       throw error;
     }
   }
