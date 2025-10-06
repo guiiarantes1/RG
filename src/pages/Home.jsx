@@ -27,7 +27,6 @@ import setaDireitaRed from '../assets/seta-direita-red.png';
 import setaDireitaBlue from '../assets/seta-direita-blue.png';
 import setaDireitaGreen from '../assets/seta-direita-green.png';
 import useDashboard from '../hooks/useDashboard';
-import Button from '../components/Button';
 import {
   VendasPorTipoChart,
   ConversaoPorAtendenteChart,
@@ -38,13 +37,12 @@ import {
   ClientesAtendidosChart,
   StatCard
 } from '../components/Charts';
-import analyticsData from '../mock/analyticsData';
 
 const Home = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('mes');
   const [customDate, setCustomDate] = useState(null);
   const [customType, setCustomType] = useState(null);
-  const { dashboardData, loading, error, refetch, changePeriod } = useDashboard(selectedPeriod, customDate, customType);
+  const { dashboardData, loading, changePeriod } = useDashboard(selectedPeriod, customDate, customType);
 
   // Função para lidar com mudança de período
   const handlePeriodChange = (newPeriod, newCustomDate = null, newCustomType = null) => {
@@ -54,8 +52,18 @@ const Home = () => {
     changePeriod(newPeriod, newCustomDate, newCustomType);
   };
 
-  // Usar dados do backend quando disponíveis, senão usar mock
-  const currentAnalyticsData = dashboardData?.analytics || analyticsData;
+  // Dados analíticos normalizados da API
+  const currentAnalyticsData = dashboardData?.analytics || {
+    vendasPorTipo: { locacao: 0, venda: 0, totalVendas: 0, percentualLocacao: 0, percentualVenda: 0 },
+    clientesAtendidos: { total: 0, novos: 0, recorrentes: 0, porPeriodo: [] },
+    conversao: { geral: 0, loja: 0, atendentes: [] },
+    ticketMedio: { geral: 0, locacao: 0, venda: 0, evolucao: [] },
+    vendasPorCanal: [],
+    tipoCliente: [],
+    motivosRecusa: [],
+    reclamacoes: { total: 0, resolvidas: 0, pendentes: 0, porCategoria: [], satisfacaoPos: 0 },
+    resumo: { ticketMedio: 0, conversaoGeral: 0, satisfacaoCliente: 0, nps: 0 }
+  };
 
   // Verificar se os dados estão na estrutura esperada
   if (dashboardData && (!dashboardData.status || !dashboardData.resultados)) {
@@ -396,29 +404,76 @@ const Home = () => {
               </h4>
               <div style={{ 
                 display: 'grid', 
-                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                gap: 12
+                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                gap: 16
               }}>
                 {currentAnalyticsData.conversao.atendentes.map((atendente) => (
                   <div key={atendente.id} style={{
-                    padding: '12px',
+                    padding: '16px',
                     background: 'var(--color-bg-secondary)',
-                    borderRadius: '8px',
+                    borderRadius: '12px',
                     border: '1px solid var(--color-border)',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                   }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-text-primary)' }}>
-                      {atendente.nome}
-                    </div>
-                    <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginTop: 4 }}>
-                      {atendente.conversoes}/{atendente.atendimentos} conversões
-                    </div>
                     <div style={{ 
-                      fontSize: 16, 
-                      fontWeight: 700, 
-                      color: atendente.taxa >= 70 ? '#10b981' : atendente.taxa >= 60 ? '#f59e0b' : '#ef4444',
-                      marginTop: 4
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center',
+                      marginBottom: '12px'
                     }}>
-                      {atendente.taxa.toFixed(1)}%
+                      <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                        {atendente.nome}
+                      </div>
+                      <div style={{ 
+                        fontSize: 18, 
+                        fontWeight: 700, 
+                        color: atendente.taxa >= 70 ? '#10b981' : atendente.taxa >= 60 ? '#f59e0b' : '#ef4444'
+                      }}>
+                        {atendente.taxa.toFixed(1)}%
+                      </div>
+                    </div>
+                    
+                    <div style={{ 
+                      display: 'grid', 
+                      gridTemplateColumns: '1fr 1fr', 
+                      gap: '8px',
+                      fontSize: 12,
+                      color: 'var(--color-text-secondary)'
+                    }}>
+                      <div>
+                        <strong>Conversões:</strong> {atendente.conversoes}/{atendente.atendimentos}
+                      </div>
+                      <div>
+                        <strong>Total Atendimentos:</strong> {atendente.totalAtendimentos || atendente.atendimentos}
+                      </div>
+                      <div>
+                        <strong>Finalizados:</strong> {atendente.finalizados || 0}
+                      </div>
+                      <div>
+                        <strong>Cancelados:</strong> {atendente.cancelados || 0}
+                      </div>
+                      <div>
+                        <strong>Em Andamento:</strong> {atendente.emAndamento || 0}
+                      </div>
+                      <div>
+                        <strong>Itens Vendidos:</strong> {atendente.itensVendidos || 0}
+                      </div>
+                    </div>
+                    
+                    <div style={{ 
+                      marginTop: '12px',
+                      padding: '8px',
+                      background: 'var(--color-bg-tertiary)',
+                      borderRadius: '6px',
+                      fontSize: 12
+                    }}>
+                      <div style={{ color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
+                        <strong>Financeiro:</strong>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span>Vendido: R$ {(atendente.totalVendido || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                        <span>Recebido: R$ {(atendente.totalRecebido || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                      </div>
                     </div>
                   </div>
                 ))}

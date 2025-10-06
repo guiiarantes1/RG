@@ -78,11 +78,28 @@ export const VendasPorTipoChart = ({ data }) => {
 
 // Gráfico de Barras - Conversão por Atendente
 export const ConversaoPorAtendenteChart = ({ data }) => {
+  // Função para determinar a cor baseada na taxa de conversão
+  const getBarColor = (taxa) => {
+    if (taxa >= 70) return '#10b981'; // Verde - Excelente
+    if (taxa >= 60) return '#f59e0b'; // Amarelo - Bom
+    if (taxa >= 50) return '#ef4444'; // Vermelho - Precisa melhorar
+    return '#6b7280'; // Cinza - Muito baixo
+  };
+
   const chartData = data.map(atendente => ({
     atendente: atendente.nome.split(' ')[0], // Pega só o primeiro nome
+    nomeCompleto: atendente.nome,
     taxa: atendente.taxa,
     conversoes: atendente.conversoes,
-    atendimentos: atendente.atendimentos
+    atendimentos: atendente.atendimentos,
+    totalAtendimentos: atendente.totalAtendimentos || atendente.atendimentos,
+    finalizados: atendente.finalizados || 0,
+    cancelados: atendente.cancelados || 0,
+    emAndamento: atendente.emAndamento || 0,
+    totalVendido: atendente.totalVendido || 0,
+    totalRecebido: atendente.totalRecebido || 0,
+    itensVendidos: atendente.itensVendidos || 0,
+    color: getBarColor(atendente.taxa)
   }));
 
   return (
@@ -95,7 +112,7 @@ export const ConversaoPorAtendenteChart = ({ data }) => {
         padding={0.3}
         valueScale={{ type: 'linear' }}
         indexScale={{ type: 'band', round: true }}
-        colors={['#1EC1BC']}
+        colors={(bar) => bar.data.color}
         borderColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
         axisTop={null}
         axisRight={null}
@@ -156,14 +173,47 @@ export const ConversaoPorAtendenteChart = ({ data }) => {
         tooltip={({ indexValue, data }) => (
           <div style={{
             background: 'var(--color-bg-card)',
-            padding: '9px 12px',
+            padding: '12px',
             borderRadius: '8px',
             boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-            border: '1px solid var(--color-border)'
+            border: '1px solid var(--color-border)',
+            minWidth: '200px'
           }}>
-            <strong>{indexValue}</strong>
-            <div>Taxa: {data.taxa.toFixed(1)}%</div>
-            <div>Conversões: {data.conversoes}/{data.atendimentos}</div>
+            <div style={{ 
+              fontWeight: 600, 
+              marginBottom: '8px', 
+              fontSize: '14px',
+              color: data.color 
+            }}>
+              {data.nomeCompleto}
+            </div>
+            <div style={{ marginBottom: '4px' }}>
+              <strong>Taxa de Conversão:</strong> {data.taxa.toFixed(1)}%
+            </div>
+            <div style={{ marginBottom: '4px' }}>
+              <strong>Conversões:</strong> {data.conversoes}/{data.atendimentos}
+            </div>
+            <div style={{ marginBottom: '4px' }}>
+              <strong>Total de Atendimentos:</strong> {data.totalAtendimentos}
+            </div>
+            <div style={{ marginBottom: '4px' }}>
+              <strong>Finalizados:</strong> {data.finalizados}
+            </div>
+            <div style={{ marginBottom: '4px' }}>
+              <strong>Cancelados:</strong> {data.cancelados}
+            </div>
+            <div style={{ marginBottom: '4px' }}>
+              <strong>Em Andamento:</strong> {data.emAndamento}
+            </div>
+            <div style={{ marginBottom: '4px' }}>
+              <strong>Total Vendido:</strong> R$ {data.totalVendido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            </div>
+            <div style={{ marginBottom: '4px' }}>
+              <strong>Total Recebido:</strong> R$ {data.totalRecebido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            </div>
+            <div>
+              <strong>Itens Vendidos:</strong> {data.itensVendidos}
+            </div>
           </div>
         )}
       />

@@ -63,6 +63,27 @@ export const dashboardService = {
       console.error('Erro ao buscar dados analíticos:', error);
       throw error;
     }
+  },
+
+  /**
+   * Busca métricas de atendentes
+   * @param {string} periodo - Período para filtrar os dados (dia, semana, mes)
+   * @returns {Promise<Object>} Dados de métricas dos atendentes
+   */
+  async getAttendantMetrics(periodo = 'mes') {
+    try {
+      let url = `/api/v1/service-orders/attendant-metrics/`;
+      
+      if (periodo) {
+        url += `?periodo=${periodo}`;
+      }
+
+      const response = await api.get(url);
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao buscar métricas de atendentes:', error);
+      throw error;
+    }
   }
 };
 
