@@ -314,13 +314,6 @@ const Home = () => {
               icon={<FontAwesomeIcon icon={faPercent} />}
               color="#a855f7"
             />
-            <StatCard
-              title="Satisfação do Cliente"
-              value={`${currentAnalyticsData.resumo.satisfacaoCliente}/5`}
-              subtitle={`NPS: ${currentAnalyticsData.resumo.nps}`}
-              icon={<FontAwesomeIcon icon={faStar} />}
-              color="#f59e0b"
-            />
           </div>
         </div>
 
@@ -502,42 +495,6 @@ const Home = () => {
                 <div style={{ fontSize: 24, fontWeight: 700, color: '#ef4444', marginTop: 4 }}>
                   {currentAnalyticsData.motivosRecusa.reduce((acc, item) => acc + item.quantidade, 0)}
                 </div>
-              </div>
-            </div>
-
-            <div className="reclamacoes-card">
-              <div className="reclamacoes-header">
-                <h3 className="reclamacoes-title">Reclamações</h3>
-                <div className="reclamacoes-stats">
-                  <div className="reclamacao-stat">
-                    <span className="reclamacao-stat-label">Total</span>
-                    <span className="reclamacao-stat-value">{currentAnalyticsData.reclamacoes.total}</span>
-                  </div>
-                  <div className="reclamacao-stat">
-                    <span className="reclamacao-stat-label">Resolvidas</span>
-                    <span className="reclamacao-stat-value success">{currentAnalyticsData.reclamacoes.resolvidas}</span>
-                  </div>
-                  <div className="reclamacao-stat">
-                    <span className="reclamacao-stat-label">Pendentes</span>
-                    <span className="reclamacao-stat-value error">{currentAnalyticsData.reclamacoes.pendentes}</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="reclamacoes-list">
-                {currentAnalyticsData.reclamacoes.porCategoria.map((reclamacao, index) => (
-                  <div key={index} className="reclamacao-item">
-                    <span className="reclamacao-categoria">{reclamacao.categoria}</span>
-                    <span className="reclamacao-quantidade">{reclamacao.quantidade}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="satisfaction-badge">
-                <FontAwesomeIcon icon={faSmile} className="satisfaction-badge-icon" />
-                <span className="satisfaction-badge-text">
-                  {currentAnalyticsData.reclamacoes.satisfacaoPos}% satisfeitos pós-resolução
-                </span>
               </div>
             </div>
           </div>
