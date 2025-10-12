@@ -6,6 +6,7 @@ import EditingProfile from './EditingProfile';
 import { useAuth } from '../hooks/useAuth';
 import { logout as logoutService } from '../services/authService';
 import { capitalizeText } from '../utils/capitalizeText';
+import logo from '../assets/logo.png';
 
 import '../styles/Sidebar.css';
 
@@ -179,7 +180,7 @@ const Sidebar = ({ setSideOpen }) => {
 
         {/* logo */}
         <div className="d-flex px-4 pb-2" style={{ justifyContent: 'center' }}>
-          <img src="/src/assets/logo.png" alt="Logo" style={{ width: !isCollapsed ? '50%' : '100%', margin: '0 auto', marginTop: '10px', transition: 'width 0.3s ease-in-out' }} />
+          <img src={logo} alt="Logo" style={{ width: !isCollapsed ? '50%' : '100%', margin: '0 auto', marginTop: '10px', transition: 'width 0.3s ease-in-out' }} />
         </div>
 
         {/* perfil */}
