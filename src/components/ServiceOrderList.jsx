@@ -41,6 +41,7 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
 
     const tabs = [
         { key: 'PENDENTE', label: 'PENDENTES', color: '#0095e2' },
+        { key: 'EM_PRODUCAO', label: 'EM PRODUÇÃO', color: '#FCB017' },
         { key: 'AGUARDANDO_RETIRADA', label: 'AGUARDANDO RETIRADA', color: '#e2d502' },
         { key: 'AGUARDANDO_DEVOLUCAO', label: 'AGUARDANDO DEVOLUÇÃO', color: '#1c3b4d' },
         { key: 'ATRASADO', label: 'ATRASADAS', color: '#f44336' },
@@ -208,6 +209,12 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
         navigate(`/ordens/${order.id}`);
     };
 
+    const handleEditOrder = (order, event) => {
+        event.stopPropagation(); // Previne que o clique propague para o card
+        // Navega para a rota de edição com o ID da ordem
+        navigate(`/ordens/${order.id}`);
+    };
+
     const handleMarkAsReturned = async (order, event) => {
         event.stopPropagation(); // Previne que o clique propague para o card
 
@@ -244,6 +251,49 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
                 await Swal.fire({
                     title: 'Erro!',
                     text: 'Não foi possível marcar a ordem como devolvida. Tente novamente.',
+                    icon: 'error',
+                    confirmButtonColor: '#f44336'
+                });
+            }
+        }
+    };
+
+    const handleMarkAsReady = async (order, event) => {
+        event.stopPropagation(); // Previne que o clique propague para o card
+
+        const result = await Swal.fire({
+            title: 'Confirmar produção',
+            text: `Deseja marcar a ordem de serviço #${order.id} como produzida?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#FCB017',
+            cancelButtonColor: '#ffff',
+            cancelButtonText: 'Cancelar',
+            confirmButtonText: 'Sim, marcar como produzida',
+            reverseButtons: true
+        });
+
+        if (result.isConfirmed) {
+            try {
+                await serviceOrderService.markAsReady(order.id);
+
+                // Mostra mensagem de sucesso
+                await Swal.fire({
+                    title: 'Sucesso!',
+                    text: 'Ordem de serviço marcada como produzida.',
+                    icon: 'success',
+                    confirmButtonColor: '#FCB017'
+                });
+
+                // Recarrega a lista de ordens
+                fetchOrders(activeTab);
+            } catch (error) {
+                console.error('Erro ao marcar como produzida:', error);
+
+                // Mostra mensagem de erro
+                await Swal.fire({
+                    title: 'Erro!',
+                    text: 'Não foi possível marcar a ordem como produzida. Tente novamente.',
                     icon: 'error',
                     confirmButtonColor: '#f44336'
                 });
@@ -443,11 +493,20 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
                         {orders.map((order) => (
                             <div
                                 key={order.id}
-                                className="order-card"
+                                className={`order-card ${order.esta_atrasada ? 'order-card-delayed' : ''}`}
                                 onClick={() => handleOrderClick(order)}
                             >
                                 <div className="order-header">
-                                    <div className="order-id">OS #{order.id}</div>
+                                    <div className="order-id">
+                                        OS #{order.id}
+                                        
+                                    </div>
+                                    {order.esta_atrasada && (
+                                            <span className="delayed-badge">
+                                                <i className="bi bi-exclamation-triangle-fill"></i>
+                                                ATRASADO
+                                            </span>
+                                        )}
                                     {getStatusBadge(activeTab)}
                                 </div>
 
@@ -458,22 +517,28 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
                                             <span className="value">{capitalizeText(order.client?.name)}</span>
                                         </div>
                                         {order.client?.contacts?.[0]?.phone && (
-                                        <div className="info-row">
-                                            <span className="label">Telefone:</span>
+                                            <div className="info-row">
+                                                <span className="label">Telefone:</span>
                                                 <span className="value">{mascaraTelefoneInternacional(order.client?.contacts?.[0]?.phone)}</span>
                                             </div>
                                         )}
                                         {order.event_name && (
-                                        <div className="info-row">
-                                            <span className="label">Evento:</span>
-                                            <span className="value">{capitalizeText(order.event_name)}</span>
-                                        </div>
+                                            <div className="info-row">
+                                                <span className="label">Evento:</span>
+                                                <span className="value">{capitalizeText(order.event_name)}</span>
+                                            </div>
                                         )}
-                                        {order.event_date && (
-                                        <div className="info-row">
-                                            <span className="label">Data do Evento:</span>
-                                            <span className="value">{formatDate(order.event_date)}</span>
-                                        </div>
+                                        {order.retirada_date && (
+                                            <div className="info-row">
+                                                <span className="label">Data da Retirada:</span>
+                                                <span className="value"  style={{color: order.esta_atrasada ? 'red' : 'var(--color-text-primary)'}}>{formatDate(order.retirada_date)}</span>
+                                            </div>
+                                        )}
+                                        {order.devolucao_date && (
+                                            <div className="info-row">
+                                                <span className="label">Data da Devolução:</span>
+                                                <span className="value">{formatDate(order.devolucao_date)}</span>
+                                            </div>
                                         )}
                                         <div className="info-row">
                                             <span className="label">Recepcionista:</span>
@@ -539,9 +604,45 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
                                                         <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
                                                     </svg>
                                                 </button>
-                                                <button className="action-btn edit">
+                                                <button
+                                                    className="action-btn edit"
+                                                    onClick={(e) => handleEditOrder(order, e)}
+                                                    title="Editar ordem"
+                                                >
                                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                                                         <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+                                                    </svg>
+                                                </button>
+                                            </>
+                                        )}
+                                        {activeTab === 'EM_PRODUCAO' && (
+                                            <>
+                                                <button
+                                                    className="action-btn refuse"
+                                                    onClick={(e) => handleRefuseOrder(order, e)}
+                                                    title="Cancelar ordem"
+                                                >
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                                                    </svg>
+                                                </button>
+                                                <button
+                                                    className="action-btn edit"
+                                                    onClick={(e) => handleEditOrder(order, e)}
+                                                    title="Editar ordem"
+                                                >
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+                                                    </svg>
+                                                </button>
+
+                                                <button
+                                                    className="action-btn pickup"
+                                                    title="Marcar como produzida"
+                                                    onClick={(e) => handleMarkAsReady(order, e)}
+                                                >
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
                                                     </svg>
                                                 </button>
                                             </>
@@ -557,7 +658,11 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
                                                         <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
                                                     </svg>
                                                 </button>
-                                                <button className="action-btn edit" title="Editar ordem">
+                                                <button
+                                                    className="action-btn edit"
+                                                    onClick={(e) => handleEditOrder(order, e)}
+                                                    title="Editar ordem"
+                                                >
                                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                                                         <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
                                                     </svg>
@@ -593,7 +698,11 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
                                                         <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
                                                     </svg>
                                                 </button>
-                                                <button className="action-btn edit" title="Editar ordem">
+                                                <button
+                                                    className="action-btn edit"
+                                                    onClick={(e) => handleEditOrder(order, e)}
+                                                    title="Editar ordem"
+                                                >
                                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                                                         <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
                                                     </svg>
@@ -679,11 +788,11 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
                 title="Confirmar Retirada"
                 bodyContent={
                     <div>
-                        <div style={{ 
-                            background: 'linear-gradient(135deg, #CBA135 0%, #e2d502 100%)', 
-                            color: 'white', 
-                            padding: '16px', 
-                            borderRadius: '8px', 
+                        <div style={{
+                            background: 'linear-gradient(135deg, #CBA135 0%, #e2d502 100%)',
+                            color: 'white',
+                            padding: '16px',
+                            borderRadius: '8px',
                             marginBottom: '20px',
                             textAlign: 'center'
                         }}>
@@ -696,37 +805,37 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
                         </div>
 
                         {pickupOrder?.remaining_payment > 0 && (
-                            <div style={{ 
-                                border: '2px solid #ff9800', 
-                                borderRadius: '8px', 
-                                padding: '16px', 
+                            <div style={{
+                                border: '2px solid #ff9800',
+                                borderRadius: '8px',
+                                padding: '16px',
                                 marginBottom: '20px',
                                 backgroundColor: '#fff8e1'
                             }}>
-                                <div style={{ 
-                                    display: 'flex', 
-                                    alignItems: 'center', 
+                                <div style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
                                     marginBottom: '12px',
                                     color: '#e65100'
                                 }}>
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '8px' }}>
-                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
                                     </svg>
                                     <strong>Valor Restante para Receber</strong>
                                 </div>
-                                <div style={{ 
-                                    fontSize: '20px', 
-                                    fontWeight: 'bold', 
+                                <div style={{
+                                    fontSize: '20px',
+                                    fontWeight: 'bold',
                                     color: '#e65100',
                                     marginBottom: '12px'
                                 }}>
                                     {formatCurrency(pickupOrder.remaining_payment)}
                                 </div>
-                                
+
                                 <div className="form-group mb-3">
-                                    <label style={{ 
-                                        display: 'flex', 
-                                        alignItems: 'center', 
+                                    <label style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
                                         cursor: 'pointer',
                                         fontSize: '14px',
                                         fontWeight: '500'
@@ -740,7 +849,7 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
                                                     setPaymentMethod('');
                                                 }
                                             }}
-                                            style={{ 
+                                            style={{
                                                 marginRight: '8px',
                                                 transform: 'scale(1.2)'
                                             }}
@@ -772,15 +881,15 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
                             </div>
                         )}
 
-                        <div style={{ 
-                            background: '#f5f5f5', 
-                            padding: '12px', 
-                            borderRadius: '6px', 
+                        <div style={{
+                            background: '#f5f5f5',
+                            padding: '12px',
+                            borderRadius: '6px',
                             marginBottom: '20px',
                             fontSize: '14px',
                             color: 'var(--color-text-secondary)'
                         }}>
-                            <strong>Confirmação:</strong> Ao confirmar, a ordem será marcada como retirada 
+                            <strong>Confirmação:</strong> Ao confirmar, a ordem será marcada como retirada
                             {pickupOrder?.remaining_payment > 0 && receiveRemainingPayment && ' e o pagamento restante será registrado'}.
                         </div>
 
@@ -796,7 +905,7 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
                                 text={isProcessingPickup ? "Processando..." : "Confirmar Retirada"}
                                 onClick={handlePickupSubmit}
                                 disabled={isProcessingPickup}
-                                style={{ 
+                                style={{
                                     background: 'linear-gradient(135deg, #CBA135 0%, #e2d502 100%)',
                                     border: 'none'
                                 }}

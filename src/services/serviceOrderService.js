@@ -153,5 +153,16 @@ export const serviceOrderService = {
             console.error('Erro ao buscar motivos de recusa:', error);
             throw error;
         }
+    },
+
+    // Marcar ordem como produzida (pronta)
+    markAsReady: async (id) => {
+        try {
+            const response = await api.post(`/api/v1/service-orders/${id}/mark-ready/`);
+            return response.data;
+        } catch (error) {
+            console.error('Erro ao marcar ordem como produzida:', error);
+            throw error;
+        }
     }
 }; 

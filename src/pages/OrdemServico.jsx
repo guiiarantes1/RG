@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Button from '../components/Button';
 import StepProgressBar from '../components/StepProgressBar';
 import '../styles/OrdemServico.css';
@@ -7,6 +7,7 @@ import Header from '../components/Header';
 import ServiceOrderList from '../components/ServiceOrderList';
 import { serviceOrderService } from '../services/serviceOrderService';
 import { clientService } from '../services/clientService';
+import { getEmployees } from '../services/employeeService';
 import { mascaraCPF, mascaraCEP, formatarParaExibicaoDecimal, formatarTelefoneParaExibicao } from '../utils/Mascaras';
 import { capitalizeText } from '../utils/capitalizeText';
 import PhoneInput from 'react-phone-number-input';
@@ -23,6 +24,7 @@ import CustomSelect from '../components/CustomSelect';
 
 const OrdemServico = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
     const [currentStep, setCurrentStep] = useState(0);
     const [showForm, setShowForm] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState(null);
@@ -30,6 +32,10 @@ const OrdemServico = () => {
     const [error, setError] = useState(null);
     const [validationErrors, setValidationErrors] = useState({});
     const [isLoadingOrders, setIsLoadingOrders] = useState(true);
+    const [atendentes, setAtendentes] = useState([]);
+    const [loadingAtendentes, setLoadingAtendentes] = useState(false);
+    const [atualizandoAtendente, setAtualizandoAtendente] = useState(false);
+    const [atendenteSelecionado, setAtendenteSelecionado] = useState('');
     const [formData, setFormData] = useState({
         // Cliente
         nome: '',
@@ -515,6 +521,70 @@ const OrdemServico = () => {
         }
     };
 
+    // Função para carregar atendentes da API
+    const carregarAtendentes = async () => {
+        setLoadingAtendentes(true);
+        try {
+            const funcionarios = await getEmployees();
+            // Garante que funcionarios sempre será um array
+            const listaFuncionarios = Array.isArray(funcionarios) ? funcionarios : [];
+            // Filtrar apenas funcionários com role ATENDENTE
+            const atendentesFiltrados = listaFuncionarios.filter(func => func.role === 'ATENDENTE' || func.role === 'ADMINISTRADOR');
+            setAtendentes(atendentesFiltrados);
+        } catch (error) {
+            console.error('Erro ao carregar atendentes:', error);
+        } finally {
+            setLoadingAtendentes(false);
+        }
+    };
+
+    // Função para atualizar o atendente da ordem de serviço
+    const handleAtualizarAtendente = async (employeeId) => {
+        if (!selectedOrder?.id) {
+            return;
+        }
+
+        setAtualizandoAtendente(true);
+        try {
+            const payload = {
+                ordem_servico: {
+                    employee_id: parseInt(employeeId)
+                }
+            };
+
+            await serviceOrderService.updateServiceOrder(selectedOrder.id, payload);
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Sucesso!',
+                text: 'Atendente atualizado com sucesso!',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#3085d6'
+            });
+
+            // Atualizar o selectedOrder com o novo employee_id
+            setSelectedOrder(prev => ({
+                ...prev,
+                ordem_servico: {
+                    ...prev.ordem_servico,
+                    employee_id: parseInt(employeeId)
+                }
+            }));
+
+        } catch (error) {
+            console.error('Erro ao atualizar atendente:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro!',
+                text: error.response?.data?.message || 'Erro ao atualizar atendente. Tente novamente.',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#d33'
+            });
+        } finally {
+            setAtualizandoAtendente(false);
+        }
+    };
+
     // Carregar ordens ao montar o componente
     useEffect(() => {
         if (id) {
@@ -525,6 +595,20 @@ const OrdemServico = () => {
             loadOrders();
         }
     }, [id]);
+
+    // Carregar atendentes ao montar o componente
+    useEffect(() => {
+        carregarAtendentes();
+    }, []);
+
+    // Atualizar atendente selecionado quando a ordem mudar
+    useEffect(() => {
+        if (selectedOrder?.ordem_servico?.employee_id) {
+            setAtendenteSelecionado(selectedOrder.ordem_servico.employee_id.toString());
+        } else {
+            setAtendenteSelecionado('');
+        }
+    }, [selectedOrder]);
 
 
 
@@ -725,6 +809,7 @@ const OrdemServico = () => {
         setShowForm(false);
         setSelectedOrder(null);
         setCurrentStep(0);
+        navigate('/ordens/')
     };
 
     // Função para finalizar a OS
@@ -2715,6 +2800,15 @@ const OrdemServico = () => {
         );
     };
 
+    // Opções para o select de atendentes
+    const opcoesAtendentes = [
+        { value: '', label: loadingAtendentes ? 'Carregando...' : 'Selecione um atendente' },
+        ...atendentes.map(atendente => ({
+            value: atendente.id,
+            label: capitalizeText(atendente.name)
+        }))
+    ];
+
     return (
         <>
             <Header nomeHeader={"Ordem de Serviço"} />
@@ -2738,6 +2832,35 @@ const OrdemServico = () => {
                             {/* Steps Navigation */}
                             <div className="steps-navigation">
                                 <StepProgressBar steps={steps} currentStep={currentStep} />
+                            </div>
+
+                            <div className='atendente-section mb-4'>
+                                <h3 className='mb-2' style={{fontSize:'24px', textAlign: 'center',    fontWeight: '600', }}>
+                                    Informações do responsável
+                                </h3>
+                                <div style={{ maxWidth: '400px' }}>
+                                    <label htmlFor="atendente" style={{ 
+                                        display: 'block', 
+                                        marginBottom: '8px', 
+                                        fontWeight: '500',
+                                        fontSize: '14px'
+                                    }}>
+                                        Atendente Responsável
+                                    </label>
+                                    <CustomSelect
+                                        options={opcoesAtendentes}
+                                        value={atendenteSelecionado}
+                                        onChange={(value) => {
+                                            setAtendenteSelecionado(value);
+                                            if (value) {
+                                                handleAtualizarAtendente(value);
+                                            }
+                                        }}
+                                        placeholder="Selecione um atendente"
+                                        disabled={loadingAtendentes || atualizandoAtendente || !selectedOrder?.id}
+                                        error={null}
+                                    />
+                                </div>
                             </div>
 
                             {/* Form Content */}
