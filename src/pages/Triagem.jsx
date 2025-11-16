@@ -112,6 +112,17 @@ const Triagem = () => {
 
     const opcoesOrigem = [
         { value: '', label: 'Selecione a origem' },
+        { value: 'cliente', label: 'Cliente' },
+        { value: 'site', label: 'Site' },
+        { value: 'instagram', label: 'Instagram' },        
+        { value: 'facebook', label: 'Facebook' },
+        { value: 'google', label: 'Google' },
+        { value: 'indicacao', label: 'Indicação' },
+        { value: 'outro', label: 'Outro' }
+    ];
+
+    const opcoesPapel = [
+        { value: '', label: 'Selecione o papel' },
         { value: 'noivo', label: 'Noivo' },
         { value: 'padrinho', label: 'Padrinho' },
         { value: 'pais_noivos', label: 'Pais Noivos' },
@@ -123,17 +134,6 @@ const Triagem = () => {
         { value: 'pais_debutante', label: 'Pais Debutante' },
         { value: 'uso_diario', label: 'Uso Diário' },
         { value: 'outro', label: 'Outros' }
-    ];
-
-    const opcoesPapel = [
-        { value: '', label: 'Selecione o papel' },
-        { value: 'noivo', label: 'Noivo' },
-        { value: 'padrinho', label: 'Padrinho' },
-        { value: 'pai', label: 'Pai' },
-        { value: 'convidado', label: 'Convidado' },
-        { value: 'pajem', label: 'Pajem' },
-        { value: 'familia', label: 'Família' },
-        { value: 'outro', label: 'Outro' }
     ];
 
     const opcoesEventos = [
@@ -184,9 +184,24 @@ const Triagem = () => {
     const validarCampos = () => {
         const novosErros = {};
 
-        // Apenas o nome do cliente é obrigatório
+        //cpf é obrigatório	
+        if (!formData.cpf.trim()) {
+            novosErros.cpf = 'CPF é obrigatório';
+        }
+
+        // Nome do cliente é obrigatório
         if (!formData.nomeCliente.trim()) {
             novosErros.nomeCliente = 'Nome do cliente é obrigatório';
+        }
+
+        // Origem é obrigatória
+        if (!formData.origem.trim()) {
+            novosErros.origem = 'Origem é obrigatória';
+        }
+
+        // Papel no evento é obrigatório
+        if (!formData.papelNoEvento.trim()) {
+            novosErros.papelNoEvento = 'Papel no evento é obrigatório';
         }
 
         // Validações opcionais (só validam se o campo estiver preenchido)
@@ -473,7 +488,7 @@ const Triagem = () => {
                             <div className="form-row">
                                 <div className="form-group">
                                     <label htmlFor="cpf" className="form-label">
-                                        CPF
+                                        CPF *
                                     </label>
                                     <div className="cpf-container">
                                         <input
@@ -620,7 +635,7 @@ const Triagem = () => {
                                 </div>
                                 <div className="form-group">
                                     <label htmlFor="origem" className="form-label">
-                                        Origem
+                                        Origem *
                                     </label>
                                     <CustomSelect
                                         options={opcoesOrigem}
@@ -670,7 +685,7 @@ const Triagem = () => {
                                 </div>
                                 <div className="form-group">
                                     <label htmlFor="papelNoEvento" className="form-label">
-                                        Papel no Evento
+                                        Papel no Evento *
                                     </label>
                                     <CustomSelect
                                         options={opcoesPapel}

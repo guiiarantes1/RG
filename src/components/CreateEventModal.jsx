@@ -53,13 +53,8 @@ const CreateEventModal = ({ show, onClose, onEventCreated }) => {
         if (!formData.name.trim()) {
             newErrors.name = 'Nome do evento é obrigatório';
         }
-
-        if (!formData.description.trim()) {
-            newErrors.description = 'Descrição é obrigatória';
-        }
-
         if (!formData.event_date) {
-            newErrors.event_date = 'Data do evento é obrigatória';
+            formData.event_date = null;
         } else {
             const eventDate = new Date(formData.event_date);
             const today = new Date();
@@ -141,7 +136,7 @@ const CreateEventModal = ({ show, onClose, onEventCreated }) => {
 
             <div className="form-group">
                 <label htmlFor="description" className="form-label">
-                    Descrição *
+                    Descrição
                 </label>
                 <textarea
                     id="description"
@@ -158,7 +153,7 @@ const CreateEventModal = ({ show, onClose, onEventCreated }) => {
 
             <div className="form-group">
                 <label htmlFor="event_date" className="form-label">
-                    Data do Evento *
+                    Data do Evento
                 </label>
                 <InputDate
                     selectedDate={selectedDate}
