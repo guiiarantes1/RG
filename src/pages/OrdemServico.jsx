@@ -241,7 +241,7 @@ const OrdemServico = () => {
                     restante: restante
                 }));
             }, 400);
-            
+
             // Limpar erro do campo se foi preenchido corretamente
             if (validationErrors[field]) {
                 const newErrors = { ...validationErrors };
@@ -250,51 +250,51 @@ const OrdemServico = () => {
             }
             return;
         }
-        
+
         setInputValues(prev => ({
             ...prev,
             [field]: value
         }));
-        
+
         // Limpar erro do campo se foi preenchido corretamente
         if (validationErrors[field]) {
             let shouldClear = false;
-            
+
             // Para campos obrigatórios simples
-            if (['nome', 'telefone', 'email', 'cpf', 'cep', 'rua', 'numero', 'bairro', 'cidade', 
-                 'paletoNumero', 'paletoCor', 'paletoManga', 'camisaNumero', 'camisaCor', 'camisaManga',
-                 'calcaNumero', 'calcaCor', 'calcaCintura', 'calcaPerna', 'cintoComprimento', 'dataPedido', 'dataEvento', 'dataRetirada'].includes(field)) {
+            if (['nome', 'telefone', 'email', 'cpf', 'cep', 'rua', 'numero', 'bairro', 'cidade',
+                'paletoNumero', 'paletoCor', 'paletoManga', 'camisaNumero', 'camisaCor', 'camisaManga',
+                'calcaNumero', 'calcaCor', 'calcaCintura', 'calcaPerna', 'cintoComprimento', 'dataPedido', 'dataEvento', 'dataRetirada'].includes(field)) {
                 shouldClear = value.trim() !== '';
             }
-            
+
             // Para campos de ajuste (só limpar se checkbox estiver marcado)
             if (['paletoAjusteValor', 'calcaAjusteCosValor', 'calcaAjusteComprimentoValor'].includes(field)) {
                 const checkboxField = field.replace('Valor', '');
                 shouldClear = inputValues[checkboxField] && value.trim() !== '';
             }
-            
+
             // Para campos de acessórios (só limpar se checkbox estiver marcado)
             if (['suspensorioCor', 'passanteCor', 'lencoCor'].includes(field)) {
                 const checkboxField = field.replace('Cor', '');
                 shouldClear = inputValues[checkboxField] && value.trim() !== '';
             }
-            
+
             // Para campos de acessórios com número e cor
             if (['gravataCor', 'gravataDescricao', 'cintoCor', 'sapatoCor', 'sapatoDescricao', 'coleteCor', 'coleteDescricao'].includes(field)) {
                 const baseField = field.replace(/Numero|Cor/, '');
                 shouldClear = inputValues[baseField] && value.trim() !== '';
             }
-            
+
             // Para campos de pagamento
             if (['total', 'sinal'].includes(field)) {
                 shouldClear = parseFloat(value) > 0;
             }
-            
+
             // Para forma de pagamento
             if (field === 'formaPagamento') {
                 shouldClear = value.trim() !== '';
             }
-            
+
             if (shouldClear) {
                 const newErrors = { ...validationErrors };
                 delete newErrors[field];
@@ -330,10 +330,10 @@ const OrdemServico = () => {
             try {
                 const cpfLimpo = value.replace(/\D/g, '');
                 const clienteEncontrado = await clientService.buscarPorCPF(cpfLimpo);
-                
+
                 if (clienteEncontrado && clienteEncontrado.length > 0) {
                     const cliente = clienteEncontrado[0];
-                    
+
                     // Preencher automaticamente os campos com os dados do cliente
                     // Usando a estrutura correta do response da API
                     const clienteData = {
@@ -347,12 +347,12 @@ const OrdemServico = () => {
                         bairro: cliente.addresses?.[0]?.bairro || '',
                         cidade: cliente.addresses?.[0]?.cidade?.name || ''
                     };
-                    
+
                     setInputValues(prev => ({
                         ...prev,
                         ...clienteData
                     }));
-                    
+
                     // Também atualizar o formData para garantir que os dados sejam enviados
                     setFormData(prev => ({
                         ...prev,
@@ -392,7 +392,7 @@ const OrdemServico = () => {
             ...prev,
             [field]: value
         }));
-        
+
         // Limpar erro do campo quando uma opção válida é selecionada
         if (value && validationErrors[field]) {
             setValidationErrors(prev => {
@@ -412,11 +412,11 @@ const OrdemServico = () => {
             ...prev,
             [field]: value
         }));
-        
+
         // Se desmarcou um checkbox, limpar erros dos campos relacionados
         if (!value) {
             const newErrors = { ...validationErrors };
-            
+
             // Mapear campos relacionados aos checkboxes
             const relatedFields = {
                 paletoAjuste: ['paletoAjusteValor'],
@@ -430,13 +430,13 @@ const OrdemServico = () => {
                 sapato: ['sapatoCor', 'sapatoDescricao'],
                 colete: ['coleteCor', 'coleteDescricao']
             };
-            
+
             if (relatedFields[field]) {
                 relatedFields[field].forEach(relatedField => {
                     delete newErrors[relatedField];
                 });
             }
-            
+
             setValidationErrors(newErrors);
         }
     };
@@ -689,7 +689,7 @@ const OrdemServico = () => {
             ? [
                 ...itens.filter((i) => i.venda).map((i) => i.tipo),
                 ...acessorios.filter((a) => a.venda).map((a) => a.tipo)
-              ]
+            ]
             : modalidade === 'Venda'
                 ? [
                     'paleto',
@@ -702,7 +702,7 @@ const OrdemServico = () => {
                     ...(cinto.tipo ? ['cinto'] : []),
                     ...(sapato.tipo ? ['sapato'] : []),
                     ...(colete.tipo ? ['colete'] : [])
-                  ]
+                ]
                 : [];
 
         // Mapear dados do cliente
@@ -976,7 +976,7 @@ const OrdemServico = () => {
                     }
                 });
             }
-            
+
             handleBackToList();
         } catch (error) {
             console.error('Erro ao salvar ordem de serviço:', error);
@@ -996,50 +996,50 @@ const OrdemServico = () => {
     const validateCurrentStep = () => {
         switch (currentStep) {
             case 0: // Cliente
-                return inputValues.nome.trim() !== '' && 
-                       inputValues.telefone.trim() !== '' && 
-                       inputValues.email.trim() !== '' && 
-                       inputValues.cpf.trim() !== '' && 
-                       inputValues.cep.trim() !== '' && 
-                       inputValues.rua.trim() !== '' && 
-                       inputValues.numero.trim() !== '' && 
-                       inputValues.bairro.trim() !== '' && 
-                       inputValues.cidade.trim() !== '';
-            
+                return inputValues.nome.trim() !== '' &&
+                    inputValues.telefone.trim() !== '' &&
+                    inputValues.email.trim() !== '' &&
+                    inputValues.cpf.trim() !== '' &&
+                    inputValues.cep.trim() !== '' &&
+                    inputValues.rua.trim() !== '' &&
+                    inputValues.numero.trim() !== '' &&
+                    inputValues.bairro.trim() !== '' &&
+                    inputValues.cidade.trim() !== '';
+
             case 1: // Paletó
                 // Se não incluir paletó, step é válido
                 if (!inputValues.incluirPaleto) return true;
-                
-                const paletoBaseValid = inputValues.paletoNumero.trim() !== '' && 
-                       inputValues.paletoCor.trim() !== '' && 
-                       inputValues.paletoManga.trim() !== '';
+
+                const paletoBaseValid = inputValues.paletoNumero.trim() !== '' &&
+                    inputValues.paletoCor.trim() !== '' &&
+                    inputValues.paletoManga.trim() !== '';
                 const paletoAjusteValid = !inputValues.paletoAjuste || inputValues.paletoAjusteValor.trim() !== '';
                 return paletoBaseValid && paletoAjusteValid;
-            
+
             case 2: // Camisa
                 // Se não incluir camisa, step é válido
                 if (!inputValues.incluirCamisa) return true;
-                
-                const camisaBaseValid = inputValues.camisaNumero.trim() !== '' && 
-                       inputValues.camisaCor.trim() !== '' && 
-                       inputValues.camisaManga.trim() !== '';
+
+                const camisaBaseValid = inputValues.camisaNumero.trim() !== '' &&
+                    inputValues.camisaCor.trim() !== '' &&
+                    inputValues.camisaManga.trim() !== '';
                 return camisaBaseValid;
-            
+
             case 3: // Calça
                 // Se não incluir calça, step é válido
                 if (!inputValues.incluirCalca) return true;
-                
-                const calcaBaseValid = inputValues.calcaNumero.trim() !== '' && 
-                       inputValues.calcaCor.trim() !== '' && 
-                       inputValues.calcaCintura.trim() !== '' && 
-                       inputValues.calcaPerna.trim() !== '';
-                
+
+                const calcaBaseValid = inputValues.calcaNumero.trim() !== '' &&
+                    inputValues.calcaCor.trim() !== '' &&
+                    inputValues.calcaCintura.trim() !== '' &&
+                    inputValues.calcaPerna.trim() !== '';
+
                 // Validar ajustes apenas se os checkboxes estiverem marcados
                 const calcaAjusteCosValid = !inputValues.calcaAjusteCos || inputValues.calcaAjusteCosValor.trim() !== '';
                 const calcaAjusteComprimentoValid = !inputValues.calcaAjusteComprimento || inputValues.calcaAjusteComprimentoValor.trim() !== '';
-                
+
                 return calcaBaseValid && calcaAjusteCosValid && calcaAjusteComprimentoValid;
-            
+
             case 4: // Acessórios
                 // Acessórios não são obrigatórios por padrão
                 // Se um checkbox estiver marcado, os campos correspondentes se tornam obrigatórios
@@ -1050,31 +1050,31 @@ const OrdemServico = () => {
                 const cintoValid = !inputValues.cinto || (inputValues.cintoCor.trim() !== '');
                 const sapatoValid = !inputValues.sapato || (inputValues.sapatoCor.trim() !== '' && inputValues.sapatoNumero.trim() !== '');
                 const coleteValid = !inputValues.colete || (inputValues.coleteCor.trim() !== '');
-                
+
                 const acessoriosValid = suspensorioValid && passanteValid && lencoValid && gravataValid && cintoValid && sapatoValid && coleteValid;
-                
+
                 // Debug: mostrar quais campos estão falhando
                 if (!acessoriosValid) {
                     console.log('Validação acessórios falhou:');
                     console.log('Suspensorio:', inputValues.suspensorio, 'Cor:', inputValues.suspensorioCor, 'Valid:', suspensorioValid);
                     console.log('Passante:', inputValues.passante, 'Cor:', inputValues.passanteCor, 'Valid:', passanteValid);
                     console.log('Lenço:', inputValues.lenco, 'Cor:', inputValues.lencoCor, 'Valid:', lencoValid);
-                                    console.log('Gravata:', inputValues.gravata, 'Cor:', inputValues.gravataCor, 'Descrição:', inputValues.gravataDescricao, 'Valid:', gravataValid);
-                console.log('Cinto:', inputValues.cinto, 'Cor:', inputValues.cintoCor, 'Valid:', cintoValid);
-                console.log('Sapato:', inputValues.sapato, 'Cor:', inputValues.sapatoCor, 'Número:', inputValues.sapatoNumero, 'Descrição:', inputValues.sapatoDescricao, 'Valid:', sapatoValid);
-                console.log('Colete:', inputValues.colete, 'Cor:', inputValues.coleteCor, 'Descrição:', inputValues.coleteDescricao, 'Valid:', coleteValid);
+                    console.log('Gravata:', inputValues.gravata, 'Cor:', inputValues.gravataCor, 'Descrição:', inputValues.gravataDescricao, 'Valid:', gravataValid);
+                    console.log('Cinto:', inputValues.cinto, 'Cor:', inputValues.cintoCor, 'Valid:', cintoValid);
+                    console.log('Sapato:', inputValues.sapato, 'Cor:', inputValues.sapatoCor, 'Número:', inputValues.sapatoNumero, 'Descrição:', inputValues.sapatoDescricao, 'Valid:', sapatoValid);
+                    console.log('Colete:', inputValues.colete, 'Cor:', inputValues.coleteCor, 'Descrição:', inputValues.coleteDescricao, 'Valid:', coleteValid);
                 }
-                
+
                 return acessoriosValid;
-            
+
             case 5: // Pagamento
-                const pagamentoBaseValid = inputValues.dataPedido.trim() !== '' && 
-                       inputValues.dataEvento.trim() !== '' && 
-                       inputValues.dataRetirada.trim() !== '' && 
-                       inputValues.formaPagamento.trim() !== '' &&
-                       parseFloat(inputValues.total) > 0 && 
-                       inputValues.sinal.trim() !== '';
-                
+                const pagamentoBaseValid = inputValues.dataPedido.trim() !== '' &&
+                    inputValues.dataEvento.trim() !== '' &&
+                    inputValues.dataRetirada.trim() !== '' &&
+                    inputValues.formaPagamento.trim() !== '' &&
+                    parseFloat(inputValues.total) > 0 &&
+                    inputValues.sinal.trim() !== '';
+
                 // Validar que a data de retirada não pode ser maior que a data do evento
                 let datasValid = true;
                 if (inputValues.dataEvento.trim() && inputValues.dataRetirada.trim()) {
@@ -1082,14 +1082,14 @@ const OrdemServico = () => {
                     const dataRetirada = new Date(inputValues.dataRetirada + 'T00:00:00');
                     datasValid = dataRetirada <= dataEvento;
                 }
-                
+
                 // Validar itens vendidos apenas se modalidade for Aluguel + Venda
-                const itensVendidosValid = inputValues.tipoPagamento === 'Aluguel + Venda' 
-                    ? inputValues.itensVendidos.length > 0 
+                const itensVendidosValid = inputValues.tipoPagamento === 'Aluguel + Venda'
+                    ? inputValues.itensVendidos.length > 0
                     : true;
-                
+
                 return pagamentoBaseValid && datasValid && itensVendidosValid;
-            
+
             default:
                 return true;
         }
@@ -1098,7 +1098,7 @@ const OrdemServico = () => {
     // Função para validar campos específicos e retornar erros
     const validateFields = () => {
         const errors = {};
-        
+
         switch (currentStep) {
             case 0: // Cliente
                 if (!inputValues.nome.trim()) errors.nome = 'Nome é obrigatório';
@@ -1111,7 +1111,7 @@ const OrdemServico = () => {
                 if (!inputValues.bairro.trim()) errors.bairro = 'Bairro é obrigatório';
                 if (!inputValues.cidade.trim()) errors.cidade = 'Cidade é obrigatória';
                 break;
-                
+
             case 1: // Paletó
                 // Só validar se incluir paletó estiver marcado
                 if (inputValues.incluirPaleto) {
@@ -1124,7 +1124,7 @@ const OrdemServico = () => {
                     if (!inputValues.paletoMarca.trim()) errors.paletoMarca = 'Marca é obrigatória';
                 }
                 break;
-                
+
             case 2: // Camisa
                 // Só validar se incluir camisa estiver marcado
                 if (inputValues.incluirCamisa) {
@@ -1134,7 +1134,7 @@ const OrdemServico = () => {
                     if (!inputValues.camisaMarca.trim()) errors.camisaMarca = 'Marca é obrigatória';
                 }
                 break;
-                
+
             case 3: // Calça
                 // Só validar se incluir calça estiver marcado
                 if (inputValues.incluirCalca) {
@@ -1151,7 +1151,7 @@ const OrdemServico = () => {
                     if (!inputValues.calcaMarca.trim()) errors.calcaMarca = 'Marca é obrigatória';
                 }
                 break;
-                
+
             case 4: // Acessórios
                 if (inputValues.suspensorio && !inputValues.suspensorioCor.trim()) {
                     errors.suspensorioCor = 'Cor do suspensório é obrigatória quando marcado';
@@ -1179,36 +1179,36 @@ const OrdemServico = () => {
                 if (inputValues.cinto && !inputValues.cintoMarca.trim()) errors.cintoMarca = 'Marca do cinto é obrigatória';
                 if (inputValues.sapato && !inputValues.sapatoMarca.trim()) errors.sapatoMarca = 'Marca do sapato é obrigatória';
                 break;
-                
+
             case 5: // Pagamento
                 if (!inputValues.dataPedido.trim()) errors.dataPedido = 'Data do pedido é obrigatória';
                 if (!inputValues.dataEvento.trim()) errors.dataEvento = 'Data do evento é obrigatória';
                 if (!inputValues.dataRetirada.trim()) errors.dataRetirada = 'Data da retirada é obrigatória';
                 if (!inputValues.formaPagamento.trim()) errors.formaPagamento = 'Forma de pagamento é obrigatória';
-                
+
                 // Validar que a data de retirada não pode ser maior que a data do evento
                 if (inputValues.dataEvento.trim() && inputValues.dataRetirada.trim()) {
                     const dataEvento = new Date(inputValues.dataEvento + 'T00:00:00');
                     const dataRetirada = new Date(inputValues.dataRetirada + 'T00:00:00');
-                    
+
                     if (dataRetirada > dataEvento) {
                         errors.dataRetirada = 'A data de retirada não pode ser maior que a data do evento';
                     }
                 }
-                
+
                 if (!inputValues.tipoPagamento.trim()) errors.tipoPagamento = 'Modalidade é obrigatória';
-                
+
                 // Validar itens vendidos apenas se modalidade for Aluguel + Venda
-                if (inputValues.tipoPagamento === 'Aluguel + Venda' && 
+                if (inputValues.tipoPagamento === 'Aluguel + Venda' &&
                     (!inputValues.itensVendidos || inputValues.itensVendidos.length === 0)) {
                     errors.itensVendidos = 'Selecione pelo menos um item vendido';
                 }
-                
+
                 if (!inputValues.total.trim() || parseFloat(inputValues.total) <= 0) errors.total = 'Total deve ser maior que zero';
                 if (!inputValues.sinal.trim()) errors.sinal = 'Sinal é obrigatório';
                 break;
         }
-        
+
         return errors;
     };
 
@@ -1383,7 +1383,7 @@ const OrdemServico = () => {
                 return (
                     <div className="step-content">
                         <h3>Detalhes do Paletó</h3>
-                        
+
                         {/* Checkbox para incluir paletó */}
                         <div className="form-group" style={{ marginBottom: '20px' }}>
                             <label className="checkbox-label">
@@ -1395,7 +1395,7 @@ const OrdemServico = () => {
                                 <span>Incluir Paletó</span>
                             </label>
                         </div>
-                        
+
                         <div className="form-grid">
                             <div className="form-group">
                                 <label>Número <span style={{ color: 'red' }}>*</span></label>
@@ -1549,7 +1549,7 @@ const OrdemServico = () => {
                                 {validationErrors.paletoManga && (
                                     <div className="error-message">{validationErrors.paletoManga}</div>
                                 )}
-                            </div>                           
+                            </div>
                             <div className="form-group">
                                 <label style={{ display: 'flex', alignItems: 'center' }}>
                                     <input
@@ -1613,7 +1613,7 @@ const OrdemServico = () => {
                 return (
                     <div className="step-content">
                         <h3>Detalhes da Camisa</h3>
-                        
+
                         {/* Checkbox para incluir camisa */}
                         <div className="form-group" style={{ marginBottom: '20px' }}>
                             <label className="checkbox-label">
@@ -1625,7 +1625,7 @@ const OrdemServico = () => {
                                 <span>Incluir Camisa</span>
                             </label>
                         </div>
-                        
+
                         <div className="form-grid">
                             <div className="form-group">
                                 <label>Número <span style={{ color: 'red' }}>*</span></label>
@@ -1773,7 +1773,7 @@ const OrdemServico = () => {
                                 {validationErrors.camisaManga && (
                                     <div className="error-message">{validationErrors.camisaManga}</div>
                                 )}
-                            </div>              
+                            </div>
                             <div className="form-group">
                                 <label>Marca <span style={{ color: 'red' }}>*</span></label>
                                 <CustomSelect
@@ -1813,7 +1813,7 @@ const OrdemServico = () => {
                 return (
                     <div className="step-content">
                         <h3>Detalhes da Calça</h3>
-                        
+
                         {/* Checkbox para incluir calça */}
                         <div className="form-group" style={{ marginBottom: '20px' }}>
                             <label className="checkbox-label">
@@ -1825,7 +1825,7 @@ const OrdemServico = () => {
                                 <span>Incluir Calça</span>
                             </label>
                         </div>
-                        
+
                         <div className="form-grid">
                             <div className="form-group">
                                 <label>Número <span style={{ color: 'red' }}>*</span></label>
@@ -1924,7 +1924,7 @@ const OrdemServico = () => {
                                     <div className="error-message">{validationErrors.calcaCintura}</div>
                                 )}
                             </div>
-                            
+
                             <div className="form-group">
                                 <label style={{ display: 'flex', alignItems: 'center' }}>
                                     <input
@@ -2081,17 +2081,17 @@ const OrdemServico = () => {
                             {/* Passante */}
                             <div className="form-group">
                                 <div>
-                                <label style={{ display: 'flex', alignItems: 'center' }}>
-                                    <input
-                                        type="checkbox"
-                                        checked={inputValues.passante}
-                                        onChange={(e) => handleCheckboxChange('passante', e.target.checked)}
-                                        style={{ marginRight: '8px' }}
-                                    />
-                                    Passante
-                                </label>
+                                    <label style={{ display: 'flex', alignItems: 'center' }}>
+                                        <input
+                                            type="checkbox"
+                                            checked={inputValues.passante}
+                                            onChange={(e) => handleCheckboxChange('passante', e.target.checked)}
+                                            style={{ marginRight: '8px' }}
+                                        />
+                                        Passante
+                                    </label>
 
-                                <label style={{ display: 'flex', alignItems: 'center' }}>
+                                    <label style={{ display: 'flex', alignItems: 'center' }}>
                                         <input
                                             type="checkbox"
                                             checked={inputValues.passanteExtensor}
@@ -2101,7 +2101,7 @@ const OrdemServico = () => {
                                         />
                                         Extensor
                                     </label>
-                                    </div>
+                                </div>
                                 <CustomSelect
                                     value={inputValues.passanteCor}
                                     onChange={(value) => handleSelectChange('passanteCor', value)}
@@ -2122,7 +2122,7 @@ const OrdemServico = () => {
                                     <div className="error-message">{validationErrors.passanteCor}</div>
                                 )}
                                 <div style={{ marginTop: '8px' }}>
-                           
+
                                 </div>
                             </div>
 
@@ -2214,20 +2214,20 @@ const OrdemServico = () => {
                                     Cinto
                                 </label>
                                 <div style={{ display: 'flex', gap: '10px' }}>
-                                 
+
                                     <CustomSelect
                                         value={inputValues.cintoCor}
-                                                                            onChange={(value) => handleSelectChange('cintoCor', value)}
-                                    options={[
-                                        { value: '', label: 'Selecione a cor' },
-                                        ...colors.map((c, idx) => ({
-                                            value: c.combined,
-                                            label: c.combined
-                                        }))
-                                    ]}
-                                    placeholder="Selecione a cor"
-                                    disabled={!inputValues.cinto || loadingColors}
-                                    error={!!validationErrors.cintoCor}
+                                        onChange={(value) => handleSelectChange('cintoCor', value)}
+                                        options={[
+                                            { value: '', label: 'Selecione a cor' },
+                                            ...colors.map((c, idx) => ({
+                                                value: c.combined,
+                                                label: c.combined
+                                            }))
+                                        ]}
+                                        placeholder="Selecione a cor"
+                                        disabled={!inputValues.cinto || loadingColors}
+                                        error={!!validationErrors.cintoCor}
                                     />
                                 </div>
                                 <CustomSelect
@@ -2351,7 +2351,7 @@ const OrdemServico = () => {
                                     Colete
                                 </label>
                                 <div style={{ display: 'flex', gap: '10px' }}>
-                                    
+
                                     <CustomSelect
                                         value={inputValues.coleteCor}
                                         onChange={(value) => handleSelectChange('coleteCor', value)}
@@ -2578,13 +2578,13 @@ const OrdemServico = () => {
         try {
             // Pequeno delay para garantir que o DOM esteja renderizado
             await new Promise(resolve => setTimeout(resolve, 100));
-            
+
             const previewElement = document.getElementById('os-preview');
             if (!previewElement) {
                 console.error('Elemento do preview não encontrado');
                 return;
             }
-            
+
             // Criar um container temporário para o PDF com dimensões fixas
             const tempContainer = document.createElement('div');
             tempContainer.style.cssText = `
@@ -2600,7 +2600,7 @@ const OrdemServico = () => {
                 transform: none !important;
                 overflow: visible !important;
             `;
-            
+
             // Clonar o elemento do preview
             const clonedPreview = previewElement.cloneNode(true);
             clonedPreview.setAttribute('data-pdf-target', 'true');
@@ -2621,14 +2621,14 @@ const OrdemServico = () => {
                 border: 1px solid #ddd !important;
                 border-radius: 0 !important;
             `;
-            
+
             // Adicionar ao container temporário
             tempContainer.appendChild(clonedPreview);
             document.body.appendChild(tempContainer);
-            
+
             // Forçar reflow
             tempContainer.offsetHeight;
-            
+
             // Delay para garantir que os estilos sejam aplicados
             await new Promise(resolve => setTimeout(resolve, 500));
 
@@ -2658,46 +2658,46 @@ const OrdemServico = () => {
             // Criar PDF em modo paisagem
             const imgData = canvas.toDataURL('image/png');
             const pdf = new jsPDF('l', 'mm', 'a4'); // 'l' = landscape
-            
+
             // Calcular dimensões para paisagem
             const pageWidth = 297; // A4 landscape width
             const pageHeight = 210; // A4 landscape height
             const margin = 10;
             const availableWidth = pageWidth - (2 * margin);
             const availableHeight = pageHeight - (2 * margin);
-            
+
             // Calcular dimensões para duas vias lado a lado
             const halfWidth = (availableWidth - margin) / 2; // Metade da largura disponível
             const imgWidth = halfWidth;
             const imgHeight = (canvas.height * imgWidth) / canvas.width;
-            
+
             // Calcular quantas páginas precisamos
             const pagesNeeded = Math.ceil(imgHeight / availableHeight);
-            
+
             // Gerar páginas com duas vias lado a lado
             for (let page = 0; page < pagesNeeded; page++) {
                 if (page > 0) pdf.addPage();
-                
+
                 const yPosition = page * availableHeight;
                 const remainingHeight = imgHeight - yPosition;
                 const heightToShow = Math.min(availableHeight, remainingHeight);
-                
+
                 // VIA DO CLIENTE (lado esquerdo)
                 pdf.addImage(imgData, 'PNG', margin, margin, imgWidth, heightToShow);
-                
+
                 // Título "VIA DO CLIENTE"
                 pdf.setFontSize(12);
                 pdf.setFont('helvetica', 'bold');
                 pdf.setTextColor(0, 0, 0);
                 pdf.text('VIA DO CLIENTE', margin, 8);
-                
+
                 // VIA DA LOJA (lado direito)
                 const rightX = margin + halfWidth + margin;
                 pdf.addImage(imgData, 'PNG', rightX, margin, imgWidth, heightToShow);
-                
+
                 // Título "VIA DA LOJA"
                 pdf.text('VIA DA LOJA', rightX, 8);
-                
+
                 // Linha divisória vertical no meio
                 const middleX = margin + halfWidth + (margin / 2);
                 pdf.setDrawColor(200, 200, 200);
@@ -2709,7 +2709,7 @@ const OrdemServico = () => {
             // Salvar PDF
             const fileName = `OS_${selectedOrder?.id || 'Nova'}_${new Date().toISOString().split('T')[0]}.pdf`;
             pdf.save(fileName);
-            
+
             // Limpar container temporário
             if (tempContainer && tempContainer.parentNode) {
                 tempContainer.parentNode.removeChild(tempContainer);
@@ -2724,7 +2724,7 @@ const OrdemServico = () => {
                 timer: 3000,
                 showConfirmButton: false
             });
-            
+
             // Limpar container temporário em caso de erro também
             if (tempContainer && tempContainer.parentNode) {
                 tempContainer.parentNode.removeChild(tempContainer);
@@ -2744,7 +2744,7 @@ const OrdemServico = () => {
     // Função para buscar nome da marca pelo ID
     const getBrandName = (brandId) => {
         if (!brandId || !brands || brands.length === 0) return 'Não informada';
-        
+
         const brand = brands.find(b => b.id.toString() === brandId.toString());
         return brand ? capitalizeText(brand.description) : 'Não informada';
     };
@@ -2752,15 +2752,15 @@ const OrdemServico = () => {
     // Função para determinar itens vendidos baseado na modalidade
     const getItensVendidos = () => {
         const modalidade = inputValues.tipoPagamento;
-        
+
         if (modalidade === 'Venda') {
             // Apenas os itens marcados para serem incluídos são vendidos
             const itensVendidos = [];
-            
+
             if (formData.incluirPaleto) itensVendidos.push('paleto');
             if (formData.incluirCamisa) itensVendidos.push('camisa');
             if (formData.incluirCalca) itensVendidos.push('calca');
-            
+
             // Adicionar acessórios se selecionados
             if (formData.suspensorio) itensVendidos.push('suspensorio');
             if (formData.passante) itensVendidos.push('passante');
@@ -2769,7 +2769,7 @@ const OrdemServico = () => {
             if (formData.cinto) itensVendidos.push('cinto');
             if (formData.sapato) itensVendidos.push('sapato');
             if (formData.colete) itensVendidos.push('colete');
-            
+
             return itensVendidos;
         } else if (modalidade === 'Aluguel') {
             // Nenhum item é vendido
@@ -2778,16 +2778,16 @@ const OrdemServico = () => {
             // Usar seleção manual do usuário
             return inputValues.itensVendidos || [];
         }
-        
+
         return [];
     };
 
     // Componente para exibir mensagens de erro
     const ValidationError = ({ errors }) => {
         if (Object.keys(errors).length === 0) return null;
-        
+
         const errorMessages = Object.values(errors);
-        
+
         return (
             <div className="validation-error">
                 <strong>Por favor, corrija os seguintes campos:</strong>
@@ -2813,7 +2813,7 @@ const OrdemServico = () => {
         <>
             <Header nomeHeader={"Ordem de Serviço"} />
             {!showForm ? (
-                <ServiceOrderList 
+                <ServiceOrderList
                     onSelectOrder={handleSelectOrder}
                     onCreateNew={handleCreateNew}
                     isLoading={isLoadingOrders}
@@ -2823,45 +2823,46 @@ const OrdemServico = () => {
             ) : (
                 <div className="ordem-servico-container">
                     <div className="ordem-servico-header mb-3">
-                       <Button text="Voltar à Lista" onClick={handleBackToList} variant="primary" className="action-btn1" disabled={loading} iconName="arrow-left" style={{ width: 'fit-content', padding: '5px 20px'}} />                       
-                      
+                        <Button text="Voltar à Lista" onClick={handleBackToList} variant="primary" className="action-btn1" disabled={loading} iconName="arrow-left" style={{ width: 'fit-content', padding: '5px 20px' }} />
+
                     </div>
-                    
+
                     <div className="ordem-servico-content">
                         <div className="form-section">
                             {/* Steps Navigation */}
                             <div className="steps-navigation">
                                 <StepProgressBar steps={steps} currentStep={currentStep} />
                             </div>
-
-                            <div className='atendente-section mb-4'>
-                                <h3 className='mb-2' style={{fontSize:'24px', textAlign: 'center',    fontWeight: '600', }}>
-                                    Informações do responsável
-                                </h3>
-                                <div style={{ maxWidth: '400px' }}>
-                                    <label htmlFor="atendente" style={{ 
-                                        display: 'block', 
-                                        marginBottom: '8px', 
-                                        fontWeight: '500',
-                                        fontSize: '14px'
-                                    }}>
-                                        Atendente Responsável
-                                    </label>
-                                    <CustomSelect
-                                        options={opcoesAtendentes}
-                                        value={atendenteSelecionado}
-                                        onChange={(value) => {
-                                            setAtendenteSelecionado(value);
-                                            if (value) {
-                                                handleAtualizarAtendente(value);
-                                            }
-                                        }}
-                                        placeholder="Selecione um atendente"
-                                        disabled={loadingAtendentes || atualizandoAtendente || !selectedOrder?.id}
-                                        error={null}
-                                    />
+                            {currentStep === 0 && (
+                                <div className='atendente-section mb-4'>
+                                    <h3 className='mb-2' style={{ fontSize: '24px', textAlign: 'center', fontWeight: '600', }}>
+                                        Informações do responsável
+                                    </h3>
+                                    <div style={{ maxWidth: '400px' }}>
+                                        <label htmlFor="atendente" style={{
+                                            display: 'block',
+                                            marginBottom: '8px',
+                                            fontWeight: '500',
+                                            fontSize: '14px'
+                                        }}>
+                                            Atendente Responsável
+                                        </label>
+                                        <CustomSelect
+                                            options={opcoesAtendentes}
+                                            value={atendenteSelecionado}
+                                            onChange={(value) => {
+                                                setAtendenteSelecionado(value);
+                                                if (value) {
+                                                    handleAtualizarAtendente(value);
+                                                }
+                                            }}
+                                            placeholder="Selecione um atendente"
+                                            disabled={loadingAtendentes || atualizandoAtendente || !selectedOrder?.id}
+                                            error={null}
+                                        />
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
                             {/* Form Content */}
                             <div className="form-content">
@@ -2894,7 +2895,7 @@ const OrdemServico = () => {
                                             variant="primary"
                                             className="action-btn1"
                                             disabled={loading}
-                                            style={{width: "fit-content"}}
+                                            style={{ width: "fit-content" }}
                                         />
                                     )}
                                 </div>
@@ -2909,219 +2910,219 @@ const OrdemServico = () => {
                                     <div className="os-number">OS #{selectedOrder?.id || 'Nova'}</div>
                                 </div>
 
-                            <div className="preview-section-group">
-                                <h4 style={{ display: 'flex', alignItems: 'center' }}>
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '8px', verticalAlign: 'middle' }}>
-                                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                                    </svg>
-                                    CLIENTE
-                                </h4>
-                                <div className="info-grid">
-                                    <div className="info-item">
-                                        <span className="label">Nome:</span>
-                                        <span className="value">{capitalizeText(formData.nome)}</span>
-                                    </div>
-                                    <div className="info-item">
-                                        <span className="label">Telefone:</span>
-                                        <span className="value">{formatarTelefoneParaExibicao(formData.telefone)}</span>
-                                    </div>
-                                    <div className="info-item">
-                                        <span className="label">Email:</span>
-                                        <span className="value">{formData.email}</span>
-                                    </div>
-                                    <div className="info-item">
-                                        <span className="label">CPF:</span>
-                                        <span className="value">{mascaraCPF(formData.cpf)}</span>
-                                    </div>
-                                    <div className="info-item">
-                                        <span className="label">CEP:</span>
-                                        <span className="value">{mascaraCEP(formData.cep)}</span>
-                                    </div>
-                                    <div className="info-item">
-                                        <span className="label">Endereço:</span>
-                                        <span className="value">{capitalizeText(formData.rua)}, {formData.numero} - {capitalizeText(formData.complemento)} - {capitalizeText(formData.bairro)}, {capitalizeText(formData.cidade)}</span>
+                                <div className="preview-section-group">
+                                    <h4 style={{ display: 'flex', alignItems: 'center' }}>
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '8px', verticalAlign: 'middle' }}>
+                                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                                        </svg>
+                                        CLIENTE
+                                    </h4>
+                                    <div className="info-grid">
+                                        <div className="info-item">
+                                            <span className="label">Nome:</span>
+                                            <span className="value">{capitalizeText(formData.nome)}</span>
+                                        </div>
+                                        <div className="info-item">
+                                            <span className="label">Telefone:</span>
+                                            <span className="value">{formatarTelefoneParaExibicao(formData.telefone)}</span>
+                                        </div>
+                                        <div className="info-item">
+                                            <span className="label">Email:</span>
+                                            <span className="value">{formData.email}</span>
+                                        </div>
+                                        <div className="info-item">
+                                            <span className="label">CPF:</span>
+                                            <span className="value">{mascaraCPF(formData.cpf)}</span>
+                                        </div>
+                                        <div className="info-item">
+                                            <span className="label">CEP:</span>
+                                            <span className="value">{mascaraCEP(formData.cep)}</span>
+                                        </div>
+                                        <div className="info-item">
+                                            <span className="label">Endereço:</span>
+                                            <span className="value">{capitalizeText(formData.rua)}, {formData.numero} - {capitalizeText(formData.complemento)} - {capitalizeText(formData.bairro)}, {capitalizeText(formData.cidade)}</span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div className="preview-section-group">
-                                <h4 style={{ display: 'flex', alignItems: 'center' }}>
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '8px', verticalAlign: 'middle' }}>
-                                        <path d="M21.6 18.2L13 11.75v-.91c1.65-.49 2.8-2.17 2.43-4.05-.26-1.31-1.3-2.4-2.61-2.7C10.54 3.57 8.5 5.3 8.5 7.5h2c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5c0 .84-.69 1.52-1.53 1.5-.54-.01-.97.45-.97.99v1.76L2.4 18.2c-.77.58-.36 1.8.6 1.8h18c.96 0 1.37-1.22.6-1.8zM6 18l6-4.5 6 4.5H6z"/>
-                                    </svg>
-                                    ITENS
-                                </h4>
-                                <div className="d-flex justify-content-between">
-                                    <div className="item-card">
-                                        <div className="item-header">
-                                            <span className="item-title">Paletó</span>
+                                <div className="preview-section-group">
+                                    <h4 style={{ display: 'flex', alignItems: 'center' }}>
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '8px', verticalAlign: 'middle' }}>
+                                            <path d="M21.6 18.2L13 11.75v-.91c1.65-.49 2.8-2.17 2.43-4.05-.26-1.31-1.3-2.4-2.61-2.7C10.54 3.57 8.5 5.3 8.5 7.5h2c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5c0 .84-.69 1.52-1.53 1.5-.54-.01-.97.45-.97.99v1.76L2.4 18.2c-.77.58-.36 1.8.6 1.8h18c.96 0 1.37-1.22.6-1.8zM6 18l6-4.5 6 4.5H6z" />
+                                        </svg>
+                                        ITENS
+                                    </h4>
+                                    <div className="d-flex justify-content-between">
+                                        <div className="item-card">
+                                            <div className="item-header">
+                                                <span className="item-title">Paletó</span>
+                                            </div>
+                                            <div className="item-details">
+                                                <span><strong>Nº:</strong> {formData.paletoNumero}</span>
+                                                <span><strong>Cor:</strong> {capitalizeText(formData.paletoCor)}</span>
+                                                <span><strong>Manga:</strong> {formData.paletoManga}</span>
+                                                <span><strong>Marca:</strong> {getBrandName(formData.paletoMarca)}</span>
+                                                <span><strong>Ajuste:</strong> {formData.paletoAjuste ? formData.paletoAjusteValor : 'Não'}</span>
+                                                <span><strong>Extras:</strong> {formData.paletoExtras}</span>
+                                            </div>
                                         </div>
-                                        <div className="item-details">
-                                            <span><strong>Nº:</strong> {formData.paletoNumero}</span>
-                                            <span><strong>Cor:</strong> {capitalizeText(formData.paletoCor)}</span>
-                                            <span><strong>Manga:</strong> {formData.paletoManga}</span>
-                                            <span><strong>Marca:</strong> {getBrandName(formData.paletoMarca)}</span>
-                                            <span><strong>Ajuste:</strong> {formData.paletoAjuste ? formData.paletoAjusteValor : 'Não'}</span>
-                                            <span><strong>Extras:</strong> {formData.paletoExtras}</span>
+
+                                        <div className="item-card">
+                                            <div className="item-header">
+                                                <span className="item-title">Camisa</span>
+                                            </div>
+                                            <div className="item-details">
+                                                <span><strong>Nº:</strong> {formData.camisaNumero}</span>
+                                                <span><strong>Cor:</strong> {capitalizeText(formData.camisaCor)}</span>
+                                                <span><strong>Manga:</strong> {formData.camisaManga}</span>
+                                                <span><strong>Marca:</strong> {getBrandName(formData.camisaMarca)}</span>
+                                                <span><strong>Extras:</strong> {formData.camisaExtras}</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="item-card">
+                                            <div className="item-header">
+                                                <span className="item-title">Calça</span>
+                                            </div>
+                                            <div className="item-details">
+                                                <span><strong>Nº:</strong> {formData.calcaNumero}</span>
+                                                <span><strong>Cor:</strong> {capitalizeText(formData.calcaCor)}</span>
+                                                <span><strong>Cós:</strong> {formData.calcaCintura}</span>
+                                                <span><strong>Comprimento:</strong> {formData.calcaPerna}</span>
+                                                <span><strong>Marca:</strong> {getBrandName(formData.calcaMarca)}</span>
+                                                {formData.calcaAjusteCos && (
+                                                    <span><strong>Ajuste Cós:</strong> {formData.calcaAjusteCosValor} cm</span>
+                                                )}
+                                                {formData.calcaAjusteComprimento && (
+                                                    <span><strong>Ajuste Comprimento:</strong> {formData.calcaAjusteComprimentoValor} cm</span>
+                                                )}
+                                                <span><strong>Extras:</strong> {formData.calcaExtras}</span>
+                                            </div>
                                         </div>
                                     </div>
+                                </div>
 
-                                    <div className="item-card">
-                                        <div className="item-header">
-                                            <span className="item-title">Camisa</span>
-                                        </div>
-                                        <div className="item-details">
-                                            <span><strong>Nº:</strong> {formData.camisaNumero}</span>
-                                            <span><strong>Cor:</strong> {capitalizeText(formData.camisaCor)}</span>
-                                            <span><strong>Manga:</strong> {formData.camisaManga}</span>
-                                            <span><strong>Marca:</strong> {getBrandName(formData.camisaMarca)}</span>
-                                            <span><strong>Extras:</strong> {formData.camisaExtras}</span>
-                                        </div>
-                                    </div>
+                                <div className="preview-section-group">
+                                    <h4 style={{ display: 'flex', alignItems: 'center' }}>
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '8px', verticalAlign: 'middle' }}>
+                                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                                        </svg>
+                                        ACESSÓRIOS
+                                    </h4>
+                                    <div className="accessories-grid">
+                                        {formData.suspensorio && (
+                                            <div className="accessory-item">
+                                                <span className="accessory-label">Suspensório:</span>
+                                                <span className="accessory-value">{capitalizeText(formData.suspensorioCor)}</span>
+                                            </div>
+                                        )}
+                                        {formData.passante && (
+                                            <div className="accessory-item">
+                                                <span className="accessory-label">Passante:</span>
+                                                <span className="accessory-value">{capitalizeText(formData.passanteCor)}</span>
+                                            </div>
+                                        )}
+                                        {formData.passante && formData.passanteExtensor && (
+                                            <div className="accessory-item">
+                                                <span className="accessory-label">Extensor:</span>
+                                                <span className="accessory-value">Sim</span>
+                                            </div>
+                                        )}
+                                        {formData.lenco && (
+                                            <div className="accessory-item">
+                                                <span className="accessory-label">Lenço:</span>
+                                                <span className="accessory-value">{capitalizeText(formData.lencoCor)}</span>
+                                            </div>
+                                        )}
+                                        {formData.gravata && (
+                                            <div className="accessory-item">
+                                                <span className="accessory-label">Gravata:</span>
+                                                <span className="accessory-value">{capitalizeText(formData.gravataCor)} - {formData.gravataDescricao}</span>
+                                            </div>
+                                        )}
+                                        {formData.cinto && (
+                                            <div className="accessory-item">
+                                                <span className="accessory-label">Cinto:</span>
+                                                <span className="accessory-value">{capitalizeText(formData.cintoCor)} - {formData.cintoComprimento}cm {formData.cintoMarca && `(${getBrandName(formData.cintoMarca)})`}</span>
+                                            </div>
+                                        )}
+                                        {formData.sapato && (
+                                            <div className="accessory-item">
+                                                <span className="accessory-label">Sapato:</span>
+                                                <span className="accessory-value">{capitalizeText(formData.sapatoCor)} - Número {formData.sapatoNumero} - {formData.sapatoDescricao} {formData.sapatoMarca && `(${getBrandName(formData.sapatoMarca)})`}</span>
+                                            </div>
+                                        )}
+                                        {formData.colete && (
+                                            <div className="accessory-item">
+                                                <span className="accessory-label">Colete:</span>
+                                                <span className="accessory-value">{capitalizeText(formData.coleteCor)} - {formData.coleteDescricao}</span>
+                                            </div>
+                                        )}
 
-                                    <div className="item-card">
-                                        <div className="item-header">
-                                            <span className="item-title">Calça</span>
-                                        </div>
-                                        <div className="item-details">
-                                            <span><strong>Nº:</strong> {formData.calcaNumero}</span>
-                                            <span><strong>Cor:</strong> {capitalizeText(formData.calcaCor)}</span>
-                                            <span><strong>Cós:</strong> {formData.calcaCintura}</span>
-                                            <span><strong>Comprimento:</strong> {formData.calcaPerna}</span>
-                                            <span><strong>Marca:</strong> {getBrandName(formData.calcaMarca)}</span>
-                                            {formData.calcaAjusteCos && (
-                                                <span><strong>Ajuste Cós:</strong> {formData.calcaAjusteCosValor} cm</span>
+                                        {!formData.suspensorio && !formData.passante && !formData.lenco &&
+                                            !formData.gravata && !formData.cinto && !formData.sapato && !formData.colete && (
+                                                <div className="accessory-item full-width" style={{
+                                                    textAlign: 'center',
+                                                    color: 'var(--color-text-muted)',
+                                                    fontStyle: 'italic'
+                                                }}>
+                                                    <span>Nenhum acessório escolhido</span>
+                                                </div>
                                             )}
-                                            {formData.calcaAjusteComprimento && (
-                                                <span><strong>Ajuste Comprimento:</strong> {formData.calcaAjusteComprimentoValor} cm</span>
-                                            )}
-                                            <span><strong>Extras:</strong> {formData.calcaExtras}</span>
-                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div className="preview-section-group">
-                                <h4 style={{ display: 'flex', alignItems: 'center' }}>
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '8px', verticalAlign: 'middle' }}>
-                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                                    </svg>
-                                    ACESSÓRIOS
-                                </h4>
-                                <div className="accessories-grid">
-                                    {formData.suspensorio && (
-                                        <div className="accessory-item">
-                                            <span className="accessory-label">Suspensório:</span>
-                                            <span className="accessory-value">{capitalizeText(formData.suspensorioCor)}</span>
+                                <div className="preview-section-group">
+                                    <h4 style={{ display: 'flex', alignItems: 'center' }}>
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '8px', verticalAlign: 'middle' }}>
+                                            <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z" />
+                                        </svg>
+                                        PAGAMENTO
+                                    </h4>
+                                    <div className="payment-grid">
+                                        <div className="payment-item">
+                                            <span className="payment-label">Data Pedido:</span>
+                                            <span className="payment-value">{formData.dataPedido ? new Date(formData.dataPedido + 'T00:00:00').toLocaleDateString('pt-BR') : ''}</span>
                                         </div>
-                                    )}
-                                    {formData.passante && (
-                                        <div className="accessory-item">
-                                            <span className="accessory-label">Passante:</span>
-                                            <span className="accessory-value">{capitalizeText(formData.passanteCor)}</span>
+                                        <div className="payment-item">
+                                            <span className="payment-label">Data Evento:</span>
+                                            <span className="payment-value">{formData.dataEvento ? new Date(formData.dataEvento + 'T00:00:00').toLocaleDateString('pt-BR') : ''}</span>
                                         </div>
-                                    )}
-                                    {formData.passante && formData.passanteExtensor && (
-                                        <div className="accessory-item">
-                                            <span className="accessory-label">Extensor:</span>
-                                            <span className="accessory-value">Sim</span>
+                                        <div className="payment-item">
+                                            <span className="payment-label">Data da Retirada:</span>
+                                            <span className="payment-value">{formData.dataRetirada ? new Date(formData.dataRetirada + 'T00:00:00').toLocaleDateString('pt-BR') : ''}</span>
                                         </div>
-                                    )}
-                                    {formData.lenco && (
-                                        <div className="accessory-item">
-                                            <span className="accessory-label">Lenço:</span>
-                                            <span className="accessory-value">{capitalizeText(formData.lencoCor)}</span>
+                                        <div className="payment-item">
+                                            <span className="payment-label">Data da Devolução:</span>
+                                            <span className="payment-value">{formData.dataDevolucao ? new Date(formData.dataDevolucao + 'T00:00:00').toLocaleDateString('pt-BR') : ''}</span>
                                         </div>
-                                    )}
-                                    {formData.gravata && (
-                                        <div className="accessory-item">
-                                            <span className="accessory-label">Gravata:</span>
-                                            <span className="accessory-value">{capitalizeText(formData.gravataCor)} - {formData.gravataDescricao}</span>
-                                        </div>
-                                    )}
-                                    {formData.cinto && (
-                                        <div className="accessory-item">
-                                            <span className="accessory-label">Cinto:</span>
-                                            <span className="accessory-value">{capitalizeText(formData.cintoCor)} - {formData.cintoComprimento}cm {formData.cintoMarca && `(${getBrandName(formData.cintoMarca)})`}</span>
-                                        </div>
-                                    )}
-                                    {formData.sapato && (
-                                        <div className="accessory-item">
-                                            <span className="accessory-label">Sapato:</span>
-                                            <span className="accessory-value">{capitalizeText(formData.sapatoCor)} - Número {formData.sapatoNumero} - {formData.sapatoDescricao} {formData.sapatoMarca && `(${getBrandName(formData.sapatoMarca)})`}</span>
-                                        </div>
-                                    )}
-                                    {formData.colete && (
-                                        <div className="accessory-item">
-                                            <span className="accessory-label">Colete:</span>
-                                            <span className="accessory-value">{capitalizeText(formData.coleteCor)} - {formData.coleteDescricao}</span>
-                                        </div>
-                                    )}
-                                    
-                                    {!formData.suspensorio && !formData.passante && !formData.lenco && 
-                                     !formData.gravata && !formData.cinto && !formData.sapato && !formData.colete && (
-                                        <div className="accessory-item full-width" style={{ 
-                                            textAlign: 'center', 
-                                            color: 'var(--color-text-muted)',
-                                            fontStyle: 'italic'
-                                        }}>
-                                            <span>Nenhum acessório escolhido</span>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
 
-                            <div className="preview-section-group">
-                                <h4 style={{ display: 'flex', alignItems: 'center' }}>
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '8px', verticalAlign: 'middle' }}>
-                                        <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>
-                                    </svg>
-                                    PAGAMENTO
-                                </h4>
-                                <div className="payment-grid">
-                                    <div className="payment-item">
-                                        <span className="payment-label">Data Pedido:</span>
-                                        <span className="payment-value">{formData.dataPedido ? new Date(formData.dataPedido + 'T00:00:00').toLocaleDateString('pt-BR') : ''}</span>
-                                    </div>
-                                    <div className="payment-item">
-                                        <span className="payment-label">Data Evento:</span>
-                                        <span className="payment-value">{formData.dataEvento ? new Date(formData.dataEvento + 'T00:00:00').toLocaleDateString('pt-BR') : ''}</span>
-                                    </div>
-                                    <div className="payment-item">
-                                        <span className="payment-label">Data da Retirada:</span>
-                                        <span className="payment-value">{formData.dataRetirada ? new Date(formData.dataRetirada + 'T00:00:00').toLocaleDateString('pt-BR') : ''}</span>
-                                    </div>
-                                    <div className="payment-item">
-                                        <span className="payment-label">Data da Devolução:</span>
-                                        <span className="payment-value">{formData.dataDevolucao ? new Date(formData.dataDevolucao + 'T00:00:00').toLocaleDateString('pt-BR') : ''}</span>
-                                    </div>
-
-                                    <div className="payment-item">
-                                        <span className="payment-label">Tipo:</span>
-                                        <span className="payment-value">{formData.tipoPagamento}</span>
-                                    </div>
-                                    <div className="payment-item">
-                                        <span className="payment-label">Forma de Pagamento:</span>
-                                        <span className="payment-value">{formData.formaPagamento ? capitalizeText(formData.formaPagamento) : 'Não informada'}</span>
-                                    </div>
-                                    <div className="payment-item highlight total">
-                                        <span className="payment-label">Total:</span>
-                                        <span className="payment-value">{formatCurrency(Number(formData.total) || 0)}</span>
-                                    </div>
-                                    <div className="payment-item highlight sinal">
-                                        <span className="payment-label">Sinal:</span>
-                                        <span className="payment-value">{formatCurrency(Number(formData.sinal) || 0)}</span>
-                                    </div>
-                                    <div className="payment-item highlight restante">
-                                        <span className="payment-label">Restante:</span>
-                                        <span className="payment-value">{formatCurrency(Number(formData.restante) || 0)}</span>
+                                        <div className="payment-item">
+                                            <span className="payment-label">Tipo:</span>
+                                            <span className="payment-value">{formData.tipoPagamento}</span>
+                                        </div>
+                                        <div className="payment-item">
+                                            <span className="payment-label">Forma de Pagamento:</span>
+                                            <span className="payment-value">{formData.formaPagamento ? capitalizeText(formData.formaPagamento) : 'Não informada'}</span>
+                                        </div>
+                                        <div className="payment-item highlight total">
+                                            <span className="payment-label">Total:</span>
+                                            <span className="payment-value">{formatCurrency(Number(formData.total) || 0)}</span>
+                                        </div>
+                                        <div className="payment-item highlight sinal">
+                                            <span className="payment-label">Sinal:</span>
+                                            <span className="payment-value">{formatCurrency(Number(formData.sinal) || 0)}</span>
+                                        </div>
+                                        <div className="payment-item highlight restante">
+                                            <span className="payment-label">Restante:</span>
+                                            <span className="payment-value">{formatCurrency(Number(formData.restante) || 0)}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
             )}
         </>
     );
