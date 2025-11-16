@@ -457,26 +457,34 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
                                             <span className="label">Cliente:</span>
                                             <span className="value">{capitalizeText(order.client?.name)}</span>
                                         </div>
+                                        {order.client?.contacts?.[0]?.phone && (
                                         <div className="info-row">
                                             <span className="label">Telefone:</span>
-                                            <span className="value">{mascaraTelefoneInternacional(order.client?.contacts?.[0]?.phone)}</span>
-                                        </div>
+                                                <span className="value">{mascaraTelefoneInternacional(order.client?.contacts?.[0]?.phone)}</span>
+                                            </div>
+                                        )}
+                                        {order.event_name && (
                                         <div className="info-row">
                                             <span className="label">Evento:</span>
                                             <span className="value">{capitalizeText(order.event_name)}</span>
                                         </div>
+                                        )}
+                                        {order.event_date && (
                                         <div className="info-row">
                                             <span className="label">Data do Evento:</span>
                                             <span className="value">{formatDate(order.event_date)}</span>
                                         </div>
+                                        )}
                                         <div className="info-row">
                                             <span className="label">Recepcionista:</span>
                                             <span className="value">{capitalizeText(order.attendant_name)}</span>
                                         </div>
-                                        <div className="info-row">
-                                            <span className="label">Atendente Responsável:</span>
-                                            <span className="value">{capitalizeText(order.employee_name)}</span>
-                                        </div>
+                                        {order.employee_name && (
+                                            <div className="info-row">
+                                                <span className="label">Atendente Responsável:</span>
+                                                <span className="value">{capitalizeText(order.employee_name)}</span>
+                                            </div>
+                                        )}
                                         {activeTab === 'RECUSADA' && order.justification_reason && (
                                             <>
                                                 <div className="info-row">

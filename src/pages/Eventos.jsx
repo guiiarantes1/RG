@@ -78,7 +78,7 @@ const Eventos = () => {
 
     const formatStatus = (status) => {
         if (!status) return 'Status não definido';
-        
+
         // Mapear status do backend para classes CSS
         const statusMap = {
             'SEM DATA': 'sem-data',
@@ -87,7 +87,7 @@ const Eventos = () => {
             'FINALIZADO': 'finalizado',
             'POSSUI PENDÊNCIAS': 'pendencias'
         };
-        
+
         return statusMap[status] || 'unknown';
     };
 
@@ -98,7 +98,7 @@ const Eventos = () => {
 
         // Busca no status
         const statusMatch = evento.status && evento.status.toLowerCase().includes(searchLower);
-        
+
         return nameMatch || descriptionMatch || statusMatch;
     });
 
@@ -170,45 +170,49 @@ const Eventos = () => {
                         ) : (
                             <div className="eventos-grid">
                                 {filteredEventos.map(evento => (
-                                    <div
-                                        key={evento.id}
-                                        className="evento-card"
-                                        onClick={() => handleEventoClick(evento.id)}
-                                    >
-                                        <div className="evento-card-header">
-                                            <h3 className="evento-title">
-                                                {evento.name ? capitalizeText(evento.name) : 'Evento sem nome'}
-                                            </h3>
-                                        </div>
-
-                                        <div className="evento-card-body">
-                                            <p className="evento-description">
-                                                {evento.description || 'Sem descrição disponível'}
-                                            </p>
-
-                                            <div className="evento-details">
-                                                <div className="evento-detail">
-                                                    <i className="bi bi-calendar-event"></i>
-                                                    <span>{formatEventDate(evento.event_date)}</span>
+                                    <>
+                                        {evento.event_date && (
+                                            <div
+                                                key={evento.id}
+                                                className="evento-card"
+                                                onClick={() => handleEventoClick(evento.id)}
+                                            >
+                                                <div className="evento-card-header">
+                                                    <h3 className="evento-title">
+                                                        {evento.name ? capitalizeText(evento.name) : 'Evento sem nome'}
+                                                    </h3>
                                                 </div>
-                                                <div className="evento-detail">
-                                                    <i className="bi bi-clipboard-check"></i>
-                                                    <span>{formatServiceOrdersCount(evento.service_orders_count)}</span>
+
+                                                <div className="evento-card-body">
+                                                    <p className="evento-description">
+                                                        {evento.description || 'Sem descrição disponível'}
+                                                    </p>
+
+                                                    <div className="evento-details">
+                                                        <div className="evento-detail">
+                                                            <i className="bi bi-calendar-event"></i>
+                                                            <span>{formatEventDate(evento.event_date)}</span>
+                                                        </div>
+                                                        <div className="evento-detail">
+                                                            <i className="bi bi-clipboard-check"></i>
+                                                            <span>{formatServiceOrdersCount(evento.service_orders_count)}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="evento-card-footer">
+                                                    <div className="evento-status">
+                                                        <span className={`status-badge status-${formatStatus(evento.status)}`}>
+                                                            {evento.status || 'Status não definido'}
+                                                        </span>
+                                                    </div>
+                                                    <div className="evento-arrow">
+                                                        <i className="bi bi-arrow-right"></i>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-
-                                        <div className="evento-card-footer">
-                                            <div className="evento-status">
-                                                <span className={`status-badge status-${formatStatus(evento.status)}`}>
-                                                    {evento.status || 'Status não definido'}
-                                                </span>
-                                            </div>
-                                            <div className="evento-arrow">
-                                                <i className="bi bi-arrow-right"></i>
-                                            </div>
-                                        </div>
-                                    </div>
+                                        )}
+                                    </>
                                 ))}
                             </div>
                         )}
