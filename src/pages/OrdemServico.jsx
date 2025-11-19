@@ -1182,7 +1182,7 @@ const OrdemServico = () => {
 
             case 5: // Pagamento
                 if (!inputValues.dataPedido.trim()) errors.dataPedido = 'Data do pedido é obrigatória';
-                if (!inputValues.dataEvento.trim()) errors.dataEvento = 'Data do evento é obrigatória';
+                if (!inputValues.dataEvento.trim()) formData.dataEvento = null;
                 if (!inputValues.dataRetirada.trim()) errors.dataRetirada = 'Data da retirada é obrigatória';
                 if (!inputValues.formaPagamento.trim()) errors.formaPagamento = 'Forma de pagamento é obrigatória';
 
@@ -2833,36 +2833,7 @@ const OrdemServico = () => {
                             <div className="steps-navigation">
                                 <StepProgressBar steps={steps} currentStep={currentStep} />
                             </div>
-                            {currentStep === 0 && (
-                                <div className='atendente-section mb-4'>
-                                    <h3 className='mb-2' style={{ fontSize: '24px', textAlign: 'center', fontWeight: '600', }}>
-                                        Informações do responsável
-                                    </h3>
-                                    <div style={{ maxWidth: '400px' }}>
-                                        <label htmlFor="atendente" style={{
-                                            display: 'block',
-                                            marginBottom: '8px',
-                                            fontWeight: '500',
-                                            fontSize: '14px'
-                                        }}>
-                                            Atendente Responsável
-                                        </label>
-                                        <CustomSelect
-                                            options={opcoesAtendentes}
-                                            value={atendenteSelecionado}
-                                            onChange={(value) => {
-                                                setAtendenteSelecionado(value);
-                                                if (value) {
-                                                    handleAtualizarAtendente(value);
-                                                }
-                                            }}
-                                            placeholder="Selecione um atendente"
-                                            disabled={loadingAtendentes || atualizandoAtendente || !selectedOrder?.id}
-                                            error={null}
-                                        />
-                                    </div>
-                                </div>
-                            )}
+                            {/* Informações do responsável removidas daqui — atribuição passa a ser feita na lista de ordens */}
 
                             {/* Form Content */}
                             <div className="form-content">

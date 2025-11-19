@@ -10,6 +10,7 @@ import InputDate from './InputDate';
 import CustomSelect from './CustomSelect';
 import Modal from './Modal';
 import Swal from 'sweetalert2';
+import { getEmployees } from '../services/employeeService';
 
 const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetry }) => {
     const navigate = useNavigate();
@@ -31,6 +32,13 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
     const [receiveRemainingPayment, setReceiveRemainingPayment] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState('');
     const [isProcessingPickup, setIsProcessingPickup] = useState(false);
+    // Estados para o modal de atribuição de atendente
+    const [showAssignModal, setShowAssignModal] = useState(false);
+    const [assignOrder, setAssignOrder] = useState(null);
+    const [atendentesAssign, setAtendentesAssign] = useState([]);
+    const [assignSelected, setAssignSelected] = useState('');
+    const [loadingAtendentesAssign, setLoadingAtendentesAssign] = useState(false);
+    const [isAssigning, setIsAssigning] = useState(false);
 
     // Estados para busca
     const [showSearchPanel, setShowSearchPanel] = useState(false);
@@ -373,6 +381,83 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
         openRefusalModal(order);
     };
 
+    // Abre modal de atribuição de atendente (usado em PENDENTE)
+    const handleAssignAttendant = async (order, event) => {
+        event.stopPropagation();
+        setAssignOrder(order);
+        setAssignSelected(order.employee_id ? order.employee_id.toString() : '');
+        setShowAssignModal(true);
+        setLoadingAtendentesAssign(true);
+        try {
+            const funcionarios = await getEmployees();
+            const listaFuncionarios = Array.isArray(funcionarios) ? funcionarios : [];
+            const atendentes = listaFuncionarios.filter(func => func.role === 'ATENDENTE' || func.role === 'ADMINISTRADOR');
+            setAtendentesAssign(atendentes);
+        } catch (err) {
+            console.error('Erro ao carregar atendentes para atribuição:', err);
+            await Swal.fire({
+                icon: 'error',
+                title: 'Erro',
+                text: 'Não foi possível carregar os atendentes. Tente novamente.',
+                confirmButtonColor: '#d33'
+            });
+        } finally {
+            setLoadingAtendentesAssign(false);
+        }
+    };
+
+    const closeAssignModal = () => {
+        setShowAssignModal(false);
+        setAssignOrder(null);
+        setAtendentesAssign([]);
+        setAssignSelected('');
+        setIsAssigning(false);
+        setLoadingAtendentesAssign(false);
+    };
+
+    const handleAssignSubmit = async () => {
+        if (!assignOrder) return;
+        if (!assignSelected) {
+            await Swal.fire({
+                icon: 'warning',
+                title: 'Atendente obrigatório',
+                text: 'Selecione um atendente para continuar.',
+                confirmButtonColor: '#f44336'
+            });
+            return;
+        }
+
+        setIsAssigning(true);
+        try {
+            const payload = {
+                ordem_servico: {
+                    employee_id: parseInt(assignSelected)
+                }
+            };
+
+            await serviceOrderService.updateServiceOrder(assignOrder.id, payload);
+
+            closeAssignModal();
+            await Swal.fire({
+                icon: 'success',
+                title: 'Sucesso!',
+                text: 'Atendente atribuído com sucesso.',
+                confirmButtonColor: '#3085d6'
+            });
+
+            fetchOrders(activeTab);
+        } catch (error) {
+            console.error('Erro ao atribuir atendente:', error);
+            await Swal.fire({
+                icon: 'error',
+                title: 'Erro!',
+                text: 'Não foi possível atribuir o atendente. Tente novamente.',
+                confirmButtonColor: '#d33'
+            });
+            setIsAssigning(false);
+        }
+    };
+
     return (
         <div className="service-order-list-container">
 
@@ -499,14 +584,14 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
                                 <div className="order-header">
                                     <div className="order-id">
                                         OS #{order.id}
-                                        
+
                                     </div>
                                     {order.esta_atrasada && (
-                                            <span className="delayed-badge">
-                                                <i className="bi bi-exclamation-triangle-fill"></i>
-                                                ATRASADO
-                                            </span>
-                                        )}
+                                        <span className="delayed-badge">
+                                            <i className="bi bi-exclamation-triangle-fill"></i>
+                                            ATRASADO
+                                        </span>
+                                    )}
                                     {getStatusBadge(activeTab)}
                                 </div>
 
@@ -531,7 +616,7 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
                                         {order.retirada_date && (
                                             <div className="info-row">
                                                 <span className="label">Data da Retirada:</span>
-                                                <span className="value"  style={{color: order.esta_atrasada ? 'red' : 'var(--color-text-primary)'}}>{formatDate(order.retirada_date)}</span>
+                                                <span className="value" style={{ color: order.esta_atrasada ? 'red' : 'var(--color-text-primary)' }}>{formatDate(order.retirada_date)}</span>
                                             </div>
                                         )}
                                         {order.devolucao_date && (
@@ -605,6 +690,13 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
                                                     </svg>
                                                 </button>
                                                 <button
+                                                    className="action-btn assign"
+                                                    onClick={(e) => handleAssignAttendant(order, e)}
+                                                    title="Atribuir atendente"
+                                                >
+                                                    <i className='bi bi-person-plus' style={{ fontSize: '14px', color:'green' }}></i>
+                                                </button>
+                                                <button
                                                     className="action-btn edit"
                                                     onClick={(e) => handleEditOrder(order, e)}
                                                     title="Editar ordem"
@@ -613,6 +705,7 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
                                                         <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
                                                     </svg>
                                                 </button>
+
                                             </>
                                         )}
                                         {activeTab === 'EM_PRODUCAO' && (
@@ -761,6 +854,7 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
                                 value={refusalJustification}
                                 onChange={(e) => setRefusalJustification(e.target.value)}
                                 rows={4}
+                                style={{backgroundColor: "var(--background-inputs)"}}
                             />
                         </div>
 
@@ -774,6 +868,53 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
                                 variant="danger"
                                 text="Sim, cancelar ordem"
                                 onClick={handleRefusalSubmit}
+                            />
+                        </div>
+                    </div>
+                }
+            />
+
+            {/* Modal de Atribuição de Atendente */}
+            <Modal
+                show={showAssignModal}
+                onClose={closeAssignModal}
+                onCloseX={closeAssignModal}
+                title={assignOrder ? `Atribuir atendente à OS #${assignOrder.id}` : 'Atribuir atendente'}
+                bodyContent={
+                    <div>
+                        <p style={{ marginBottom: '12px', color: 'var(--color-text-secondary)' }}>
+                            Selecione o atendente responsável pela ordem.
+                        </p>
+
+                        <div className="form-group mb-3">
+                            <label className="form-label">Atendente</label>
+                            <CustomSelect
+                                options={[
+                                    { value: '', label: 'Selecione um atendente' },
+                                    ...atendentesAssign.map(f => ({
+                                        value: f.id.toString(),
+                                        label: f.person?.name || f.name || `#${f.id}`
+                                    }))
+                                ]}
+                                value={assignSelected}
+                                onChange={setAssignSelected}
+                                placeholder="Selecione um atendente"
+                                disabled={loadingAtendentesAssign || isAssigning}
+                            />
+                        </div>
+
+                        <div className="form-actions">
+                            <Button
+                                variant="outline"
+                                text="Cancelar"
+                                onClick={closeAssignModal}
+                                disabled={isAssigning}
+                            />
+                            <Button
+                                variant="primary"
+                                text={isAssigning ? 'Atribuindo...' : 'Atribuir atendente'}
+                                onClick={handleAssignSubmit}
+                                disabled={isAssigning}
                             />
                         </div>
                     </div>
