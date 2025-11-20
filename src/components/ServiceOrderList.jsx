@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { serviceOrderService } from '../services/serviceOrderService';
 import '../styles/ServiceOrderList.css';
@@ -8,6 +8,15 @@ import { parseCurrency } from '../utils/parseCurrency';
 import Button from './Button';
 import InputDate from './InputDate';
 import CustomSelect from './CustomSelect';
+// Material React Table + MUI (requer instalar: @mui/material @mui/icons-material material-react-table)
+import { MaterialReactTable } from 'material-react-table';
+import { Box, IconButton } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import CheckIcon from '@mui/icons-material/Check';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import AssignmentReturnedIcon from '@mui/icons-material/AssignmentReturned';
+import CloseIcon from '@mui/icons-material/Close';
 import Modal from './Modal';
 import Swal from 'sweetalert2';
 import { getEmployees } from '../services/employeeService';
@@ -46,6 +55,8 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
     const [initialDate, setInitialDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
     const [isSearching, setIsSearching] = useState(false);
+    // Modo de visualização: 'cards' (padrão) ou 'table'
+    const [viewMode, setViewMode] = useState('cards');
 
     const tabs = [
         { key: 'PENDENTE', label: 'PENDENTES', color: '#0095e2' },
@@ -458,6 +469,124 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
         }
     };
 
+    // Tabela memoizada com MaterialReactTable (hook chamado no topo do componente)
+    const materialTable = useMemo(() => {
+        const cols = [
+            {
+                accessorKey: 'id',
+                header: 'OS',
+                Cell: ({ cell }) => `#${cell.getValue()}`
+            },
+            {
+                accessorFn: row => capitalizeText(row.client?.name || '-'),
+                id: 'client',
+                header: 'Cliente'
+            },
+            {
+                accessorFn: row => row.client?.contacts?.[0]?.phone ? mascaraTelefoneInternacional(row.client?.contacts?.[0]?.phone) : '-',
+                id: 'phone',
+                header: 'Telefone'
+            },
+            {
+                accessorFn: row => row.event_name ? capitalizeText(row.event_name) : '-',
+                id: 'event',
+                header: 'Evento'
+            },
+            {
+                accessorFn: row => row.retirada_date ? formatDate(row.retirada_date) : '-',
+                id: 'retirada',
+                header: 'Retirada',
+                Cell: ({ cell, row }) => <span style={{ color: row.original.esta_atrasada ? 'red' : 'inherit' }}>{cell.getValue()}</span>
+            },
+            {
+                accessorFn: row => row.devolucao_date ? formatDate(row.devolucao_date) : '-',
+                id: 'devolucao',
+                header: 'Devolução'
+            },
+            {
+                accessorFn: row => capitalizeText(row.attendant_name) || '-',
+                id: 'recepcionista',
+                header: 'Recepcionista'
+            },
+            {
+                accessorFn: row => row.employee_name ? capitalizeText(row.employee_name) : '-',
+                id: 'atendente',
+                header: 'Atendente'
+            },
+            {
+                accessorFn: row => formatCurrency(row.total_value),
+                id: 'total',
+                header: 'Total'
+            },
+            {
+                accessorFn: row => formatCurrency(row.advance_payment),
+                id: 'sinal',
+                header: 'Sinal'
+            },
+            {
+                accessorFn: row => formatCurrency(row.remaining_payment),
+                id: 'restante',
+                header: 'Restante'
+            },
+            {
+                accessorFn: () => getStatusBadge(activeTab),
+                id: 'status',
+                header: 'Status',
+                Cell: ({ cell }) => cell.getValue()
+            },
+            {
+                id: 'actions',
+                header: 'Ações',
+                enableSorting: false,
+                Cell: ({ row }) => (
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+             
+                        <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleRefuseOrder(row.original, e); }} title="Cancelar">
+                            <CloseIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleEditOrder(row.original, e); }} title="Editar">
+                            <EditIcon fontSize="small" />
+                        </IconButton>
+                        {activeTab === 'PENDENTE' && (
+                            <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleAssignAttendant(row.original, e); }} title="Atribuir atendente">
+                                <PersonAddIcon fontSize="small" />
+                            </IconButton>
+                        )}
+                        {activeTab === 'EM_PRODUCAO' && (
+                            <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleMarkAsReady(row.original, e); }} title="Marcar produzida">
+                                <CheckIcon fontSize="small" />
+                            </IconButton>
+                        )}
+                        {activeTab === 'AGUARDANDO_RETIRADA' && (
+                            <IconButton size="small" onClick={(e) => { e.stopPropagation(); openPickupModal(row.original, e); }} title="Marcar retirada">
+                                <ExitToAppIcon fontSize="small" />
+                            </IconButton>
+                        )}
+                        {activeTab === 'AGUARDANDO_DEVOLUCAO' && (
+                            <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleMarkAsReturned(row.original, e); }} title="Marcar devolvida">
+                                <AssignmentReturnedIcon fontSize="small" />
+                            </IconButton>
+                        )}
+                    </Box>
+                )
+            }
+        ];
+
+        return (
+            <div className="orders-table-wrapper">
+                <MaterialReactTable
+                    columns={cols}
+                    data={orders}
+                    enableSorting={false}
+                    muiTableBodyRowProps={({ row }) => ({
+                        onClick: () => handleOrderClick(row.original),
+                        sx: { cursor: 'pointer' }
+                    })}
+                />
+            </div>
+        );
+    }, [orders, activeTab]);
+
     return (
         <div className="service-order-list-container">
 
@@ -490,7 +619,19 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
             </div>
             <div className="search-toggle-btn-container mb-3">
                 <div className="search-toggle-btn-container-content d-flex justify-content-end">
-                    <Button variant="primary" text={`${showSearchPanel ? 'Ocultar Busca' : 'Buscar'}`} iconName={`${showSearchPanel ? 'x-circle' : 'search'}`} iconPosition="left" onClick={toggleSearchPanel} style={{ width: 'fit-content' }} />
+                    <div style={{ width: 200, marginRight: 'auto' }}>
+                        <label>Modo de visualização</label>
+                        <CustomSelect
+                            options={[
+                                { value: 'cards', label: 'Cards' },
+                                { value: 'table', label: 'List' }
+                            ]}
+                            value={viewMode}
+                            onChange={setViewMode}
+                            placeholder="Visualização"
+                        />
+                    </div>
+                    <Button variant="primary" text={`${showSearchPanel ? 'Ocultar Busca' : 'Buscar'}`} iconName={`${showSearchPanel ? 'x-circle' : 'search'}`} iconPosition="left" onClick={toggleSearchPanel} style={{ width: 'fit-content', height:'min-content', marginTop: 'auto', marginBottom: 'auto'}} />
                 </div>
                 {/* Painel de Busca */}
                 {showSearchPanel && (
@@ -573,7 +714,7 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
                         <h3>Nenhuma ordem encontrada</h3>
                         <p>Não há ordens de serviço na fase "{activeTab}"</p>
                     </div>
-                ) : (
+                ) : viewMode === 'cards' ? (
                     <div className="orders-grid">
                         {orders.map((order) => (
                             <div
@@ -816,7 +957,7 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
                             </div>
                         ))}
                     </div>
-                )}
+                ) : materialTable }
             </div>
 
             {/* Modal de Recusa */}

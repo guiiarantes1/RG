@@ -533,6 +533,46 @@
 
 .action-btn i { color: inherit; }
 
+.MuiTableRow-head{
+    background-color: var(--color-accent) !important;
+}
+.MuiTableCell-head{
+    color: white !important;
+}
+
+.css-1tbggly, .css-1768eoe-MuiTableBody-root{
+    background-color: var(--background-inputs) !important;
+}
+
+.css-1768eoe-MuiTableBody-root tr td{
+    background-color: var(--background-inputs) !important;
+    color: var(--color-text-primary) !important;
+}
+
+.css-10gei56{
+    background-color: var(--background-inputs) !important;
+    color: var(--color-text-primary) !important;
+}
+
+.css-exd1zr label{
+    color: var(--color-text-primary) !important;
+}
+
+.MuiSelect-select{
+    color: var(--color-text-primary) !important;
+}
+
+#main > div.service-order-list-container > div.list-content > div > div > div.MuiBox-root.css-10gei56 > div > div > div > div.MuiBox-root.css-exd1zr > div > svg > path{
+    color: var(--color-text-primary) !important;
+}
+
+.css-192dx0w span > button > svg > path{
+    color: var(--color-text-primary) !important;
+}
+
+.css-di3982 > button > svg > path{
+    color: var(--color-text-primary) !important;
+}
 /* Responsive */
 @media (max-width: 768px) {
     .service-order-list-container {
