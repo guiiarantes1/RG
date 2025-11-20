@@ -461,6 +461,24 @@ const OrdemServico = () => {
             copy[index] = { ...copy[index], [field]: value };
             return copy;
         });
+        // limpar erro específico da forma de pagamento quando o usuário preencher valor ou escolher forma
+        if (field === 'forma_pagamento' && value) {
+            setValidationErrors(prev => {
+                if (!prev) return prev;
+                const copy = { ...prev };
+                delete copy[`sinalForma_${index}`];
+                return copy;
+            });
+        }
+        if (field === 'amount') {
+            // se zerou ou alterou, remover erro da forma (será revalidado no submit)
+            setValidationErrors(prev => {
+                if (!prev) return prev;
+                const copy = { ...prev };
+                delete copy[`sinalForma_${index}`];
+                return copy;
+            });
+        }
     };
 
     const removeSinalForm = (index) => {
@@ -1155,10 +1173,11 @@ const OrdemServico = () => {
                 return acessoriosValid;
 
             case 5: // Pagamento
-            const pagamentoBaseValid = inputValues.dataPedido.trim() !== '' &&
-                inputValues.dataEvento.trim() !== '' &&
-                inputValues.dataRetirada.trim() !== '' &&
-                parseFloat(inputValues.total) > 0;
+                const pagamentoBaseValid = inputValues.dataPedido.trim() !== '' &&
+                    inputValues.dataEvento.trim() !== '' &&
+                    inputValues.dataRetirada.trim() !== '' &&
+                    inputValues.dataDevolucao.trim() !== '' &&
+                    parseFloat(inputValues.total) > 0;
 
                 // Validar que a data de retirada não pode ser maior que a data do evento
                 let datasValid = true;
@@ -1267,8 +1286,9 @@ const OrdemServico = () => {
 
             case 5: // Pagamento
                 if (!inputValues.dataPedido.trim()) errors.dataPedido = 'Data do pedido é obrigatória';
-                if (!inputValues.dataEvento.trim()) formData.dataEvento = null;
+                if (!inputValues.dataEvento.trim()) errors.dataEvento = 'Data do evento é obrigatória';
                 if (!inputValues.dataRetirada.trim()) errors.dataRetirada = 'Data da retirada é obrigatória';
+                if (!inputValues.dataDevolucao.trim()) errors.dataDevolucao = 'Data da devolução é obrigatória';
 
                 // Validar que a data de retirada não pode ser maior que a data do evento
                 if (inputValues.dataEvento.trim() && inputValues.dataRetirada.trim()) {
@@ -1290,8 +1310,18 @@ const OrdemServico = () => {
 
                 if (!inputValues.total.trim() || parseFloat(inputValues.total) <= 0) errors.total = 'Total deve ser maior que zero';
                 const sinalTotal = computeSinalTotal(sinalForms);
-                if (sinalTotal <= 0) errors.sinal = 'Sinal é obrigatório';
-                if (sinalTotal > parseFloat(inputValues.total || 0)) errors.sinal = 'Soma dos sinais não pode exceder o total';
+                // Se houver valor de sinal (>0), então exigir forma para cada linha com valor > 0
+                if (sinalTotal > 0) {
+                    if (sinalTotal > parseFloat(inputValues.total || 0)) {
+                        errors.sinal = 'Soma dos sinais não pode exceder o total';
+                    }
+                    (sinalForms || []).forEach((f, i) => {
+                        const amt = parseFloat(String(f.amount || '').replace(',', '.')) || 0;
+                        if (amt > 0 && (!f.forma_pagamento || String(f.forma_pagamento).trim() === '')) {
+                            errors[`sinalForma_${i}`] = 'Forma de pagamento é obrigatória';
+                        }
+                    });
+                }
                 break;
         }
 
@@ -2547,8 +2577,8 @@ const OrdemServico = () => {
                                     placeholderText="Selecione a data da prova"
                                 />
                             </div>
-                            <div className="form-group">
-                                <label>Data da Devolução</label>
+                            <div className={`form-group ${validationErrors.dataDevolucao ? 'error' : ''}`}>
+                                <label>Data da Devolução <span style={{ color: 'red' }}>*</span></label>
                                 <InputDate
                                     selectedDate={inputValues.dataDevolucao ? new Date(inputValues.dataDevolucao + 'T00:00:00') : null}
                                     onDateChange={(date) => {
@@ -2557,7 +2587,11 @@ const OrdemServico = () => {
                                         handleInputBlur('dataDevolucao', isoDate);
                                     }}
                                     placeholderText="Selecione a data da devolução"
+                                    className={validationErrors.dataDevolucao ? 'error' : ''}
                                 />
+                                {validationErrors.dataDevolucao && (
+                                    <div className="error-message">{validationErrors.dataDevolucao}</div>
+                                )}
                             </div>
 
                             <div className="form-group">
@@ -2621,48 +2655,55 @@ const OrdemServico = () => {
                             </div>
                             <div className="form-group">
                                 {(sinalForms || []).map((f, idx) => (
-                                    <div key={idx} style={{ display: 'flex', gap: '8px',alignItems: 'center' }}>
-                                        <div style={{width: '50%'}}>
-                                        <label>Valor do Sinal</label>
-                                        <input
-                                            ref={el => sinalAmountRefs.current[idx] = el}
-                                            type="text"
-                                            value={f.amount !== '' ? formatCurrency(Number(f.amount)) : ''}
-                                            onChange={(e) => {
-                                                let raw = e.target.value.replace(/[^\d]/g, '');
-                                                if (raw === '') raw = '0';
-                                                const valor = (Number(raw) / 100).toFixed(2);
-                                                updateSinalForm(idx, 'amount', valor);
-                                            }}
-                                            placeholder="Valor"
-                                            style={{ flex: 1 }}
-                                        />
+                                    <>
+                                        <div key={idx} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                            <div style={{ width: '50%' }}>
+                                                <label>Valor do Sinal</label>
+                                                <input
+                                                    ref={el => sinalAmountRefs.current[idx] = el}
+                                                    type="text"
+                                                    value={f.amount !== '' ? formatCurrency(Number(f.amount)) : ''}
+                                                    onChange={(e) => {
+                                                        let raw = e.target.value.replace(/[^\d]/g, '');
+                                                        if (raw === '') raw = '0';
+                                                        const valor = (Number(raw) / 100).toFixed(2);
+                                                        updateSinalForm(idx, 'amount', valor);
+                                                    }}
+                                                    placeholder="Valor"
+                                                    style={{ flex: 1 }}
+                                                />
+                                            </div>
+                                            <div style={{ width: '50%' }}>
+                                                <label>Forma de Pagamento</label>
+                                                <CustomSelect
+                                                    value={f.forma_pagamento || ''}
+                                                    onChange={(v) => updateSinalForm(idx, 'forma_pagamento', v)}
+                                                    options={[
+                                                        { value: '', label: 'Forma Pgt.' },
+                                                        { value: 'credito', label: 'Crédito' },
+                                                        { value: 'debito', label: 'Débito' },
+                                                        { value: 'pix', label: 'PIX' },
+                                                        { value: 'dinheiro', label: 'Dinheiro' },
+                                                        { value: 'voucher', label: 'Voucher' }
+                                                    ]}
+                                                    placeholder="Selecione"
+                                                    error={!!validationErrors[`sinalForma_${idx}`]}
+                                                />
+
+                                            </div>
                                         </div>
-                                        <div style={{width: '50%'}}>
-                                            <label>Forma de Pagamento</label>
-                                            <CustomSelect
-                                                value={f.forma_pagamento || ''}
-                                                onChange={(v) => updateSinalForm(idx, 'forma_pagamento', v)}
-                                                options={[
-                                                    { value: '', label: 'Forma Pgt.' },
-                                                    { value: 'credito', label: 'Crédito' },
-                                                    { value: 'debito', label: 'Débito' },
-                                                    { value: 'pix', label: 'PIX' },
-                                                    { value: 'dinheiro', label: 'Dinheiro' },
-                                                    { value: 'voucher', label: 'Voucher' }
-                                                ]}
-                                                placeholder="Selecione"
-                                            />
-                                        </div>
-                                    </div>
+                                        {validationErrors[`sinalForma_${idx}`] && (
+                                            <div className="error-message">{validationErrors[`sinalForma_${idx}`]}</div>
+                                        )}
+                                    </>
                                 ))}
 
-                                <div style={{display: 'flex', width: "100%", justifyContent: "flex-end"}}>
+                                <div style={{ display: 'flex', width: "100%", justifyContent: "flex-end" }}>
                                     <small
-                                        style={{ cursor: 'pointer', color: 'var(--color-accent)', display: 'inline-block', marginBottom: '8px', fontSize:'12px' }}
+                                        style={{ cursor: 'pointer', color: 'var(--color-accent)', display: 'inline-block', marginBottom: '8px', fontSize: '12px' }}
                                         onClick={toggleSecondSinalForm}
                                     >
-                                        { (sinalForms || []).length < 2 ? 'Combinar forma de pagamento' : 'Remover meio de pagamento' }
+                                        {(sinalForms || []).length < 2 ? 'Combinar forma de pagamento' : 'Remover meio de pagamento'}
                                     </small>
                                 </div>
                                 {validationErrors.sinal && (
@@ -2676,6 +2717,7 @@ const OrdemServico = () => {
                                     value={inputValues.restante !== '' ? formatCurrency(Number(inputValues.restante)) : ''}
                                     readOnly
                                     placeholder="Valor restante"
+                                    style={{ cursor: 'not-allowed' }}
                                 />
                             </div>
                         </div>
