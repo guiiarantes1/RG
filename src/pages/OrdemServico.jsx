@@ -116,6 +116,7 @@ const OrdemServico = () => {
         sinal: '',
         restante: '',
         dataRetirada: '',
+        dataProva: '',
         dataDevolucao: ''
     });
 
@@ -200,8 +201,15 @@ const OrdemServico = () => {
         sinal: '',
         restante: '',
         dataRetirada: '',
+        dataProva: '',
         dataDevolucao: ''
     });
+
+    // Lista simples de formas de pagamento do sinal (UI: valor + forma)
+    const [sinalForms, setSinalForms] = useState([
+        { amount: '', forma_pagamento: '' }
+    ]);
+    const sinalAmountRefs = useRef([]);
 
     // Ref para debounce do cálculo do restante
     const debounceTimeout = useRef();
@@ -290,10 +298,7 @@ const OrdemServico = () => {
                 shouldClear = parseFloat(value) > 0;
             }
 
-            // Para forma de pagamento
-            if (field === 'formaPagamento') {
-                shouldClear = value.trim() !== '';
-            }
+            // Para forma de pagamento (campo removido) — nada a limpar aqui
 
             if (shouldClear) {
                 const newErrors = { ...validationErrors };
@@ -401,6 +406,70 @@ const OrdemServico = () => {
                 return newErrors;
             });
         }
+    };
+
+    // Helpers para Sinal (simples: lista de pares valor+forma)
+    const parseCurrencyValue = (rawStr) => {
+        if (rawStr == null) return 0;
+        const num = parseFloat(String(rawStr).replace(',', '.')) || 0;
+        return num;
+    };
+
+    const computeSinalTotal = (forms) => {
+        if (!forms || forms.length === 0) return 0;
+        return forms.reduce((sum, f) => sum + (parseCurrencyValue(f.amount) || 0), 0);
+    };
+
+    // Atualiza restante e sincroniza formData.sinal
+    useEffect(() => {
+        const total = parseFloat(inputValues.total) || 0;
+        const sinalTotal = computeSinalTotal(sinalForms);
+        const restante = (total - sinalTotal);
+        const restanteStr = restante.toFixed(2);
+        // atualizar estados
+        setInputValues(prev => ({ ...prev, restante: restanteStr, sinal: sinalTotal.toFixed(2) }));
+        setFormData(prev => ({ ...prev, restante: restanteStr, sinal: sinalTotal.toFixed(2) }));
+    }, [sinalForms, inputValues.total]);
+
+    const addSinalForm = () => {
+        setSinalForms(prev => ([...prev, { amount: '', forma_pagamento: '' }]));
+    };
+
+    // Toggle: se houver apenas 1 forma, adiciona segunda; se já houver 2, remove a segunda
+    const toggleSecondSinalForm = () => {
+        setSinalForms(prev => {
+            const copy = [...prev];
+            if (copy.length < 2) {
+                const newArr = [...copy, { amount: '', forma_pagamento: '' }];
+                // foco automático no novo input de valor após render
+                setTimeout(() => {
+                    const idx = newArr.length - 1;
+                    const el = sinalAmountRefs.current[idx];
+                    if (el && typeof el.focus === 'function') el.focus();
+                }, 50);
+                return newArr;
+            } else {
+                // manter apenas a primeira
+                return [copy[0]];
+            }
+        });
+    };
+
+    const updateSinalForm = (index, field, value) => {
+        setSinalForms(prev => {
+            const copy = [...prev];
+            copy[index] = { ...copy[index], [field]: value };
+            return copy;
+        });
+    };
+
+    const removeSinalForm = (index) => {
+        setSinalForms(prev => {
+            const copy = [...prev];
+            if (copy.length <= 1) return copy;
+            copy.splice(index, 1);
+            return copy;
+        });
     };
 
     const handleCheckboxChange = (field, value) => {
@@ -792,14 +861,26 @@ const OrdemServico = () => {
             tipoPagamento: modalidade,
             formaPagamento: os.forma_pagamento || pagamento.forma_pagamento || '',
             total: (pagamento.total ?? order.total_value ?? '') !== '' ? String(pagamento.total ?? order.total_value) : '',
-            sinal: (pagamento.sinal ?? order.advance_payment ?? '') !== '' ? String(pagamento.sinal ?? order.advance_payment) : '',
+            // sinalForms: mapear pagamentos existentes para UI (valor + forma)
+            sinal: (pagamento.sinal && typeof pagamento.sinal === 'number') ? String(pagamento.sinal) : (pagamento.sinal ?? order.advance_payment ?? '') !== '' ? String(pagamento.sinal ?? order.advance_payment) : '',
+            sinalForms: (pagamento.sinal && Array.isArray(pagamento.sinal.pagamentos))
+                ? pagamento.sinal.pagamentos.map(p => ({ amount: p.amount != null ? String(p.amount) : '', forma_pagamento: p.forma_pagamento || '' }))
+                : ((pagamento.sinal != null && typeof pagamento.sinal !== 'object') ? [{ amount: String(pagamento.sinal), forma_pagamento: pagamento.forma_pagamento || '' }] : ((order.advance_payment) ? [{ amount: String(order.advance_payment), forma_pagamento: pagamento.forma_pagamento || '' }] : [{ amount: '', forma_pagamento: '' }])),
             restante: (pagamento.restante ?? order.remaining_payment ?? '') !== '' ? String(pagamento.restante ?? order.remaining_payment) : '',
             dataRetirada: os.data_retirada || order.retirada_date || '',
+            // Data da prova (opcional)
+            dataProva: os.data_prova || order.prova_date || order.proof_date || '',
             dataDevolucao: os.data_devolucao || order.devolucao_date || ''
         };
 
         setFormData(mappedData);
         setInputValues(mappedData);
+        // sincronizar sinalForms com dados mapeados
+        if (mappedData.sinalForms && Array.isArray(mappedData.sinalForms)) {
+            setSinalForms(mappedData.sinalForms);
+        } else {
+            setSinalForms([{ amount: mappedData.sinal || '', forma_pagamento: mappedData.formaPagamento || '' }]);
+        }
         setCurrentStep(0);
         setShowForm(true);
     };
@@ -828,6 +909,7 @@ const OrdemServico = () => {
                     data_pedido: formData.dataPedido,
                     data_evento: formData.dataEvento,
                     data_retirada: formData.dataRetirada,
+                    data_prova: formData.dataProva,
                     data_devolucao: formData.dataDevolucao,
                     ocasiao: formData.ocasiao,
                     modalidade: formData.tipoPagamento,
@@ -911,9 +993,14 @@ const OrdemServico = () => {
                     ],
                     pagamento: {
                         total: parseFloat(formData.total) || 0,
-                        sinal: parseFloat(formData.sinal) || 0,
-                        restante: parseFloat(formData.restante) || 0,
-                        forma_pagamento: formData.formaPagamento
+                        sinal: {
+                            total: parseFloat(computeSinalTotal(sinalForms) || 0) || 0,
+                            pagamentos: (sinalForms || []).map(p => ({
+                                amount: parseFloat(p.amount) || 0,
+                                forma_pagamento: p.forma_pagamento || null
+                            }))
+                        },
+                        restante: parseFloat(formData.restante) || 0
                     }
                 },
                 cliente: {
@@ -1068,12 +1155,10 @@ const OrdemServico = () => {
                 return acessoriosValid;
 
             case 5: // Pagamento
-                const pagamentoBaseValid = inputValues.dataPedido.trim() !== '' &&
-                    inputValues.dataEvento.trim() !== '' &&
-                    inputValues.dataRetirada.trim() !== '' &&
-                    inputValues.formaPagamento.trim() !== '' &&
-                    parseFloat(inputValues.total) > 0 &&
-                    inputValues.sinal.trim() !== '';
+            const pagamentoBaseValid = inputValues.dataPedido.trim() !== '' &&
+                inputValues.dataEvento.trim() !== '' &&
+                inputValues.dataRetirada.trim() !== '' &&
+                parseFloat(inputValues.total) > 0;
 
                 // Validar que a data de retirada não pode ser maior que a data do evento
                 let datasValid = true;
@@ -1184,7 +1269,6 @@ const OrdemServico = () => {
                 if (!inputValues.dataPedido.trim()) errors.dataPedido = 'Data do pedido é obrigatória';
                 if (!inputValues.dataEvento.trim()) formData.dataEvento = null;
                 if (!inputValues.dataRetirada.trim()) errors.dataRetirada = 'Data da retirada é obrigatória';
-                if (!inputValues.formaPagamento.trim()) errors.formaPagamento = 'Forma de pagamento é obrigatória';
 
                 // Validar que a data de retirada não pode ser maior que a data do evento
                 if (inputValues.dataEvento.trim() && inputValues.dataRetirada.trim()) {
@@ -1205,7 +1289,9 @@ const OrdemServico = () => {
                 }
 
                 if (!inputValues.total.trim() || parseFloat(inputValues.total) <= 0) errors.total = 'Total deve ser maior que zero';
-                if (!inputValues.sinal.trim()) errors.sinal = 'Sinal é obrigatório';
+                const sinalTotal = computeSinalTotal(sinalForms);
+                if (sinalTotal <= 0) errors.sinal = 'Sinal é obrigatório';
+                if (sinalTotal > parseFloat(inputValues.total || 0)) errors.sinal = 'Soma dos sinais não pode exceder o total';
                 break;
         }
 
@@ -2450,6 +2536,18 @@ const OrdemServico = () => {
                                 )}
                             </div>
                             <div className="form-group">
+                                <label>Data da Prova</label>
+                                <InputDate
+                                    selectedDate={inputValues.dataProva ? new Date(inputValues.dataProva + 'T00:00:00') : null}
+                                    onDateChange={(date) => {
+                                        const isoDate = date ? date.toISOString().split('T')[0] : '';
+                                        handleInputChange('dataProva', isoDate);
+                                        handleInputBlur('dataProva', isoDate);
+                                    }}
+                                    placeholderText="Selecione a data da prova"
+                                />
+                            </div>
+                            <div className="form-group">
                                 <label>Data da Devolução</label>
                                 <InputDate
                                     selectedDate={inputValues.dataDevolucao ? new Date(inputValues.dataDevolucao + 'T00:00:00') : null}
@@ -2476,27 +2574,7 @@ const OrdemServico = () => {
                                     searchPlaceholder="Pesquisar modalidade..."
                                 />
                             </div>
-                            <div className="form-group">
-                                <label>Forma de Pagamento <span style={{ color: 'red' }}>*</span></label>
-                                <CustomSelect
-                                    value={inputValues.formaPagamento}
-                                    onChange={(value) => handleSelectChange('formaPagamento', value)}
-                                    options={[
-                                        { value: '', label: 'Selecione a forma de pagamento' },
-                                        { value: 'credito', label: 'Crédito' },
-                                        { value: 'debito', label: 'Débito' },
-                                        { value: 'pix', label: 'PIX' },
-                                        { value: 'dinheiro', label: 'Dinheiro' },
-                                        { value: 'voucher', label: 'Voucher' }
-                                    ]}
-                                    placeholder="Selecione a forma de pagamento"
-                                    searchPlaceholder="Pesquisar forma de pagamento..."
-                                    error={!!validationErrors.formaPagamento}
-                                />
-                                {validationErrors.formaPagamento && (
-                                    <div className="error-message">{validationErrors.formaPagamento}</div>
-                                )}
-                            </div>
+                            {/* Campo 'Forma de Pagamento' removido — uso das formas agora ocorre por linha em 'Sinal' */}
                             {inputValues.tipoPagamento === 'Aluguel + Venda' && (
                                 <div className="form-group">
                                     <label>Itens Vendidos <span style={{ color: 'red' }}>*</span></label>
@@ -2542,17 +2620,53 @@ const OrdemServico = () => {
                                 )}
                             </div>
                             <div className="form-group">
-                                <label>Sinal <span style={{ color: 'red' }}>*</span></label>
-                                <input
-                                    type="text"
-                                    value={inputValues.sinal !== '' ? formatCurrency(Number(inputValues.sinal)) : ''}
-                                    onChange={(e) => handleInputChange('sinal', e.target.value)}
-                                    onBlur={(e) => handleInputBlur('sinal', inputValues.sinal)}
-                                    placeholder="Valor do sinal"
-                                    className={validationErrors.sinal ? 'error' : ''}
-                                />
+                                {(sinalForms || []).map((f, idx) => (
+                                    <div key={idx} style={{ display: 'flex', gap: '8px',alignItems: 'center' }}>
+                                        <div style={{width: '50%'}}>
+                                        <label>Valor do Sinal</label>
+                                        <input
+                                            ref={el => sinalAmountRefs.current[idx] = el}
+                                            type="text"
+                                            value={f.amount !== '' ? formatCurrency(Number(f.amount)) : ''}
+                                            onChange={(e) => {
+                                                let raw = e.target.value.replace(/[^\d]/g, '');
+                                                if (raw === '') raw = '0';
+                                                const valor = (Number(raw) / 100).toFixed(2);
+                                                updateSinalForm(idx, 'amount', valor);
+                                            }}
+                                            placeholder="Valor"
+                                            style={{ flex: 1 }}
+                                        />
+                                        </div>
+                                        <div style={{width: '50%'}}>
+                                            <label>Forma de Pagamento</label>
+                                            <CustomSelect
+                                                value={f.forma_pagamento || ''}
+                                                onChange={(v) => updateSinalForm(idx, 'forma_pagamento', v)}
+                                                options={[
+                                                    { value: '', label: 'Forma Pgt.' },
+                                                    { value: 'credito', label: 'Crédito' },
+                                                    { value: 'debito', label: 'Débito' },
+                                                    { value: 'pix', label: 'PIX' },
+                                                    { value: 'dinheiro', label: 'Dinheiro' },
+                                                    { value: 'voucher', label: 'Voucher' }
+                                                ]}
+                                                placeholder="Selecione"
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+
+                                <div style={{display: 'flex', width: "100%", justifyContent: "flex-end"}}>
+                                    <small
+                                        style={{ cursor: 'pointer', color: 'var(--color-accent)', display: 'inline-block', marginBottom: '8px', fontSize:'12px' }}
+                                        onClick={toggleSecondSinalForm}
+                                    >
+                                        { (sinalForms || []).length < 2 ? 'Combinar forma de pagamento' : 'Remover meio de pagamento' }
+                                    </small>
+                                </div>
                                 {validationErrors.sinal && (
-                                    <div className="error-message">{validationErrors.sinal}</div>
+                                    <div className="error-message" style={{ marginTop: '8px' }}>{validationErrors.sinal}</div>
                                 )}
                             </div>
                             <div className="form-group">
@@ -3064,6 +3178,10 @@ const OrdemServico = () => {
                                             <span className="payment-value">{formData.dataRetirada ? new Date(formData.dataRetirada + 'T00:00:00').toLocaleDateString('pt-BR') : ''}</span>
                                         </div>
                                         <div className="payment-item">
+                                            <span className="payment-label">Data da Prova:</span>
+                                            <span className="payment-value">{formData.dataProva ? new Date(formData.dataProva + 'T00:00:00').toLocaleDateString('pt-BR') : ''}</span>
+                                        </div>
+                                        <div className="payment-item">
                                             <span className="payment-label">Data da Devolução:</span>
                                             <span className="payment-value">{formData.dataDevolucao ? new Date(formData.dataDevolucao + 'T00:00:00').toLocaleDateString('pt-BR') : ''}</span>
                                         </div>
@@ -3072,10 +3190,7 @@ const OrdemServico = () => {
                                             <span className="payment-label">Tipo:</span>
                                             <span className="payment-value">{formData.tipoPagamento}</span>
                                         </div>
-                                        <div className="payment-item">
-                                            <span className="payment-label">Forma de Pagamento:</span>
-                                            <span className="payment-value">{formData.formaPagamento ? capitalizeText(formData.formaPagamento) : 'Não informada'}</span>
-                                        </div>
+                                        {/* Forma de Pagamento removida — agora as formas são especificadas por linha no Sinal */}
                                         <div className="payment-item highlight total">
                                             <span className="payment-label">Total:</span>
                                             <span className="payment-value">{formatCurrency(Number(formData.total) || 0)}</span>
