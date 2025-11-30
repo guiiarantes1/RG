@@ -116,8 +116,11 @@ const Financeiro = () => {
   const [message, setMessage] = useState(null);
 
   const personType = user?.person?.person_type?.type;
+  const isAdministrator = personType === 'ADMINISTRADOR';
 
   const fetchSummary = useCallback(async () => {
+    if (!isAdministrator) return;
+    
     setLoadingSummary(true);
     setMessage(null);
     try {
@@ -134,11 +137,13 @@ const Financeiro = () => {
     } finally {
       setLoadingSummary(false);
     }
-  }, [date, monthYear, tab]);
+  }, [date, monthYear, tab, isAdministrator]);
 
   useEffect(() => {
-    fetchSummary();
-  }, [fetchSummary]);
+    if (isAdministrator) {
+      fetchSummary();
+    }
+  }, [fetchSummary, isAdministrator]);
 
   const methodEntries = useMemo(() => {
     if (!summary?.totals_by_method) return [];
@@ -147,18 +152,37 @@ const Financeiro = () => {
 
   const transactions = summary?.transactions ?? [];
 
+  // Verificação de carregamento
   if (isLoading) {
-    return <div className="financeiro-page">Carregando...</div>;
+    return (
+      <>
+        <Header nomeHeader="Financeiro" />
+        <div className="financeiro-page">
+          <div>Carregando...</div>
+        </div>
+      </>
+    );
   }
 
-  if (personType !== 'ADMINISTRADOR') {
+  // Verificação de permissão - deve ser feita antes de renderizar qualquer conteúdo
+  if (!isAdministrator) {
     return (
-      <div className="financeiro-page">
-        <h2>Financeiro</h2>
-        <div className="card blocked">
-          <p>Você não tem permissão para acessar esta área. Contate um administrador.</p>
+      <>
+        <Header nomeHeader="Financeiro" />
+        <div className="financeiro-page">
+          <div className="card blocked">
+            <h3 style={{ marginTop: 0, marginBottom: '12px', color: '#b42318' }}>
+              Acesso Restrito
+            </h3>
+            <p style={{ margin: 0, color: '#6b7280', lineHeight: '1.6' }}>
+              Você não tem permissão para acessar esta área. Apenas usuários com perfil de <strong>ADMINISTRADOR</strong> podem visualizar as informações financeiras.
+            </p>
+            <p style={{ marginTop: '12px', marginBottom: 0, color: '#6b7280', fontSize: '14px' }}>
+              Se você acredita que deveria ter acesso a esta funcionalidade, entre em contato com um administrador do sistema.
+            </p>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
