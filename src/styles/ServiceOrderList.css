@@ -206,7 +206,7 @@
     align-items: center;
     justify-content: center;
     padding: 60px 20px;
-    color: #6c757d;
+    color: var(--color-text-primary);
 }
 
 .loading-spinner {
@@ -274,7 +274,7 @@
     align-items: center;
     justify-content: center;
     padding: 60px 20px;
-    color: #6c757d;
+    color: var(--color-text-primary);
     text-align: center;
 }
 
@@ -285,7 +285,7 @@
 
 .empty-state h3 {
     margin: 0 0 8px 0;
-    color: #495057;
+    color: var(--color-text-primary);
 }
 
 .empty-state p {
@@ -301,7 +301,7 @@
 }
 
 .order-card {
-    background: var(--color-bg-card2) !important;
+    background: var(--color-bg-primary) !important;
     border-radius: 12px;
     padding: 24px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
@@ -576,6 +576,10 @@
 .css-1bug3cd-MuiButtonBase-root-MuiPaginationItem-root.Mui-selected{
     background-color: var(--color-accent) !important;
     border-radius: 4px;
+}
+
+.css-8uzxat-MuiSvgIcon-root-MuiPaginationItem-icon{
+    fill: var(--color-text-primary) !important;
 }
 /* Responsive */
 @media (max-width: 768px) {

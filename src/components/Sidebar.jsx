@@ -45,8 +45,20 @@ const Sidebar = ({ setSideOpen }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Obtém o tipo de pessoa (ATENDENTE, ADMINISTRADOR, etc.)
+  const getPersonType = () => {
+    if (isLoading || !user) {
+      return null;
+    }
+    
+    if (user?.person?.person_type?.type) {
+      return user.person.person_type.type;
+    }
+    return null;
+  };
+
   // Links de navegação
-  const navLinks = [
+  const allNavLinks = [
     { to: "/dashboard", iconBoot: "graph-up", label: "Dashboard" },
     { to: "/triagem", iconBoot: "clipboard-check", label: "Triagem" },
     { to: "/ordens", iconBoot: "list-check", label: "Ordens de serviço" },
@@ -54,9 +66,17 @@ const Sidebar = ({ setSideOpen }) => {
     { to: "/clientes", iconBoot: "people", label: "Clientes" },
     { to: "/funcionarios", iconBoot: "person-lines-fill", label: "Funcionários" },
     { to: "/produtos", iconBoot: "box", label: "Produtos" },
-    // Financeiro: visualização de vendas por tipo e fechamento de caixa
     { to: "/financeiro", iconBoot: "currency-dollar", label: "Financeiro" },
   ];
+
+  // Filtra os links baseado na role do usuário
+  const navLinks = allNavLinks.filter(link => {
+    // Financeiro só pode ser visto por ADMINISTRADOR
+    if (link.to === "/financeiro") {
+      return getPersonType() === 'ADMINISTRADOR';
+    }
+    return true;
+  });
 
   // Número de links visíveis em telas pequenas
   const getVisibleLinksCount = () => {
@@ -173,17 +193,6 @@ const Sidebar = ({ setSideOpen }) => {
     return 'Usuário';
   };
 
-  // Obtém o tipo de pessoa (ATENDENTE, etc.)
-  const getPersonType = () => {
-    if (isLoading || !user) {
-      return null;
-    }
-    
-    if (user?.person?.person_type?.type) {
-      return user.person.person_type.type;
-    }
-    return null;
-  };
 
   // Obtém as iniciais do nome do usuário (primeira letra do nome + primeira letra do sobrenome)
   const getUserInitials = () => {

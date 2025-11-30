@@ -130,7 +130,7 @@ export const serviceOrderService = {
             }
 
             const queryString = params.toString();
-            const url = `/api/v1/service-orders/phase/${phase}/${queryString ? `?${queryString}` : ''}`;
+            const url = `/api/v1/service-orders/v2/phase/${phase}/${queryString ? `?${queryString}` : ''}`;
             
             const response = await api.get(url);
             return response.data;

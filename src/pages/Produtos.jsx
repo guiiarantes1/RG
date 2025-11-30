@@ -6,6 +6,9 @@ import CustomSelect from '../components/CustomSelect';
 import { productService } from '../services/productService';
 import Swal from 'sweetalert2';
 import Button from '../components/Button';
+import paletoImg from '../assets/paleto.png';
+import calcaImg from '../assets/calca.png';
+import coleteImg from '../assets/colete.png';
 
 const Produtos = () => {
   const [produtos, setProdutos] = useState([]);
@@ -159,13 +162,13 @@ const Produtos = () => {
     const getDefaultImage = (tipo) => {
       switch (tipo.toLowerCase()) {
         case 'paletó':
-          return '/src/assets/paleto.png';
+          return paletoImg;
         case 'calça':
-          return '/src/assets/calca.png';
+          return calcaImg;
         case 'colete':
-          return '/src/assets/colete.png';
+          return coleteImg;
         default:
-          return '/src/assets/calca.png'; // Imagem padrão para outros tipos
+          return calcaImg; // Imagem padrão para outros tipos
       }
     };
 

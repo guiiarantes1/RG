@@ -47,7 +47,7 @@ const Header = ({ nomeHeader }) => {
       <div className="titulo">
         <h1 className="mb-2">{nomeHeader}</h1>
       </div>
-      <div className="actions">
+      {/* <div className="actions">
         <div className="form-check form-switch">
           <input 
             className="form-check-input" 
@@ -59,7 +59,7 @@ const Header = ({ nomeHeader }) => {
             onChange={toggleTheme} 
           />
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

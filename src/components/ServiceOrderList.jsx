@@ -43,7 +43,7 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
     // Estados para o modal de retirada
     const [showPickupModal, setShowPickupModal] = useState(false);
     const [pickupOrder, setPickupOrder] = useState(null);
-    const [receiveRemainingPayment, setReceiveRemainingPayment] = useState(false);
+    const [receiveRemainingPayment, setReceiveRemainingPayment] = useState(true);
     const [paymentMethod, setPaymentMethod] = useState('');
     const [isProcessingPickup, setIsProcessingPickup] = useState(false);
     // Estados para o modal de atribuição de atendente
@@ -408,6 +408,7 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
             // Chama o serviço para marcar como retirada com dados de pagamento
             await serviceOrderService.pickUpServiceOrder(pickupOrder.id, paymentData);
 
+            closePickupModal();
             await Swal.fire({
                 title: 'Retirada confirmada!',
                 text: `Ordem #${pickupOrder.id} marcada como retirada${receiveRemainingPayment ? ` e valor restante recebido via ${paymentMethod}` : ''}.`,
@@ -415,7 +416,6 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
                 confirmButtonColor: '#CBA135'
             });
 
-            closePickupModal();
             fetchOrders(activeTab);
         } catch (error) {
             console.error('Erro ao marcar como retirada:', error);
@@ -814,7 +814,6 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
                             <div
                                 key={order.id}
                                 className={`order-card ${order.esta_atrasada ? 'order-card-delayed' : ''}`}
-                                onClick={() => handleOrderClick(order)}
                             >
                                 <div className="order-header">
                                     <div className="order-id">
@@ -894,11 +893,11 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
 
                                     <div className="order-payment">
                                         <div className="payment-row">
-                                            <span className="label">Total:</span>
+                                            <span className="label">Valor Total:</span>
                                             <span className="value total">{formatCurrency(order.total_value)}</span>
                                         </div>
                                         <div className="payment-row">
-                                            <span className="label">Sinal:</span>
+                                            <span className="label">Pago:</span>
                                             <span className="value">{formatCurrency(order.advance_payment)}</span>
                                         </div>
                                         <div className="payment-row">
@@ -1180,35 +1179,19 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
                 title="Confirmar Retirada"
                 bodyContent={
                     <div>
-                        <div style={{
-                            background: 'linear-gradient(135deg, #CBA135 0%, #e2d502 100%)',
-                            color: 'white',
-                            padding: '16px',
-                            borderRadius: '8px',
-                            marginBottom: '20px',
-                            textAlign: 'center'
-                        }}>
-                            <h4 style={{ margin: '0 0 8px 0', fontSize: '18px' }}>
-                                🎉 Ordem #{pickupOrder?.id} - Retirada
-                            </h4>
-                            <p style={{ margin: '0', fontSize: '14px', opacity: '0.9' }}>
-                                Cliente: {capitalizeText(pickupOrder?.client?.name)}
-                            </p>
-                        </div>
-
                         {pickupOrder?.remaining_payment > 0 && (
                             <div style={{
-                                border: '2px solid #ff9800',
+                                border: '2px solid #cba135',
                                 borderRadius: '8px',
                                 padding: '16px',
                                 marginBottom: '20px',
-                                backgroundColor: '#fff8e1'
+                                backgroundColor: 'var(--color-bg-secondary)'
                             }}>
                                 <div style={{
                                     display: 'flex',
                                     alignItems: 'center',
                                     marginBottom: '12px',
-                                    color: '#e65100'
+                                    color: '#cba135'
                                 }}>
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '8px' }}>
                                         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
@@ -1218,37 +1201,13 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
                                 <div style={{
                                     fontSize: '20px',
                                     fontWeight: 'bold',
-                                    color: '#e65100',
+                                    color: '#cba135',
                                     marginBottom: '12px'
                                 }}>
                                     {formatCurrency(pickupOrder.remaining_payment)}
                                 </div>
 
-                                <div className="form-group mb-3">
-                                    <label style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        cursor: 'pointer',
-                                        fontSize: '14px',
-                                        fontWeight: '500'
-                                    }}>
-                                        <input
-                                            type="checkbox"
-                                            checked={receiveRemainingPayment}
-                                            onChange={(e) => {
-                                                setReceiveRemainingPayment(e.target.checked);
-                                                if (!e.target.checked) {
-                                                    setPaymentMethod('');
-                                                }
-                                            }}
-                                            style={{
-                                                marginRight: '8px',
-                                                transform: 'scale(1.2)'
-                                            }}
-                                        />
-                                        <span>Receber valor restante agora</span>
-                                    </label>
-                                </div>
+
 
                                 {receiveRemainingPayment && (
                                     <div className="form-group">
@@ -1260,11 +1219,11 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
                                             onChange={setPaymentMethod}
                                             options={[
                                                 { value: '', label: 'Selecione a forma de pagamento' },
-                                                { value: 'credito', label: '💳 Crédito' },
-                                                { value: 'debito', label: '💳 Débito' },
-                                                { value: 'pix', label: '📱 PIX' },
-                                                { value: 'dinheiro', label: '💵 Dinheiro' },
-                                                { value: 'voucher', label: '🎫 Voucher' }
+                                                { value: 'credito', label: 'Crédito' },
+                                                { value: 'debito', label: 'Débito' },
+                                                { value: 'pix', label: 'PIX' },
+                                                { value: 'dinheiro', label: 'Dinheiro' },
+                                                { value: 'voucher', label: 'Voucher' }
                                             ]}
                                             placeholder="Selecione a forma de pagamento"
                                         />
@@ -1274,12 +1233,12 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
                         )}
 
                         <div style={{
-                            background: '#f5f5f5',
+                            background: 'var(--color-bg-secondary)',
                             padding: '12px',
                             borderRadius: '6px',
                             marginBottom: '20px',
                             fontSize: '14px',
-                            color: 'var(--color-text-secondary)'
+                            color: 'var(--color-text-primary)'
                         }}>
                             <strong>Confirmação:</strong> Ao confirmar, a ordem será marcada como retirada
                             {pickupOrder?.remaining_payment > 0 && receiveRemainingPayment && ' e o pagamento restante será registrado'}.
