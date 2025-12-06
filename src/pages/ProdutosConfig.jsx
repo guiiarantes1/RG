@@ -105,11 +105,8 @@ const ProdutosConfig = () => {
 
     try {
       if (marcaForm.id) {
-        // TODO: Atualizar marca na API
-        // await api.put(`/marcas/${marcaForm.id}`, { name: marcaForm.nome });
-        setMarcas(prev => prev.map(m => 
-          m.id === marcaForm.id ? { ...m, name: marcaForm.nome } : m
-        ));
+        // Atualizar marca na API
+        await brandService.updateBrand(marcaForm.id, marcaForm.nome);
         Swal.fire({
           icon: 'success',
           title: 'Sucesso!',

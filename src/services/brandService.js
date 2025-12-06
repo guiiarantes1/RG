@@ -29,6 +29,17 @@ const brandService = {
     const response = await api.post('/api/v1/brands/', { description });
     return response.data;
   },
+
+  /**
+   * Atualiza uma marca existente
+   * @param {number} id - ID da marca
+   * @param {string} description - Nova descrição da marca
+   * @returns {Promise<{id: number, description: string}>}
+   */
+  async updateBrand(id, description) {
+    const response = await api.patch(`/api/v1/brands/${id}/`, { description });
+    return response.data;
+  },
 };
 
 export default brandService;
