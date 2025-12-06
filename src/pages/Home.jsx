@@ -42,14 +42,22 @@ const Home = () => {
   const [customDate, setCustomDate] = useState(null);
   const [customType, setCustomType] = useState(null);
   
+
   // Obter data de hoje no formato YYYY-MM-DD
   const getTodayDate = () => {
     const today = new Date();
-    // Ajustar para o timezone local
     const year = today.getFullYear();
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
+  };
+
+  // Obter o primeiro dia do mês atual no formato YYYY-MM-DD
+  const getFirstDayOfMonth = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    return `${year}-${month}-01`;
   };
 
   const [selectedFilters, setSelectedFilters] = useState({
@@ -57,7 +65,7 @@ const Home = () => {
     tipoCliente: null,
     formaPagamento: null,
     canalOrigem: null,
-    dataInicio: getTodayDate(),
+    dataInicio: getFirstDayOfMonth(),
     dataFim: getTodayDate()
   });
 
