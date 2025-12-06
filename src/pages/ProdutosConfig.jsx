@@ -10,6 +10,7 @@ import { Box, IconButton, Tooltip } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import brandService from '../services/brandService';
+import colorService from '../services/colorService';
 
 const ProdutosConfig = () => {
   const navigate = useNavigate();
@@ -36,6 +37,8 @@ const ProdutosConfig = () => {
     pageSize: 10,
   });
   const [totalCores, setTotalCores] = useState(0);
+  const [searchCor, setSearchCor] = useState('');
+  const [debouncedSearchCor, setDebouncedSearchCor] = useState('');
 
   // ==================== MARCAS ====================
   // Debounce para searchMarca
@@ -178,36 +181,23 @@ const ProdutosConfig = () => {
   }, [buscarMarcas, paginationMarcas, debouncedSearchMarca]);
 
   // ==================== CORES ====================
+  // Debounce para searchCor
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchCor(searchCor);
+      // Resetar para a primeira página quando a busca mudar
+      setPaginationCores(prev => ({ ...prev, pageIndex: 0 }));
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchCor]);
+
   // Carregar cores com useCallback
-  const buscarCores = useCallback(async (pageIndex = 0, pageSize = 10) => {
+  const buscarCores = useCallback(async (pageIndex = 0, pageSize = 10, search = '') => {
     setLoadingCores(true);
     try {
-      // TODO: Trocar por chamada real na API com paginação
-      // const response = await api.get(`/cores?page=${pageIndex + 1}&page_size=${pageSize}`);
-      // setCores(response.data.results);
-      // setTotalCores(response.data.count);
-      
-      const todosDados = [
-        { id: 1, description: 'Preto' },
-        { id: 2, description: 'Branco' },
-        { id: 3, description: 'Azul' },
-        { id: 4, description: 'Vermelho' },
-        { id: 5, description: 'Verde' },
-        { id: 6, description: 'Amarelo' },
-        { id: 7, description: 'Laranja' },
-        { id: 8, description: 'Roxo' },
-        { id: 9, description: 'Rosa' },
-        { id: 10, description: 'Cinza' },
-        { id: 11, description: 'Marrom' },
-        { id: 12, description: 'Bege' }
-      ];
-      
-      const startIndex = pageIndex * pageSize;
-      const endIndex = startIndex + pageSize;
-      const paginatedData = todosDados.slice(startIndex, endIndex);
-      
-      setCores(paginatedData);
-      setTotalCores(todosDados.length);
+      const data = await colorService.getColors(pageIndex, pageSize, search);
+      setCores(data.results);
+      setTotalCores(data.count);
     } catch (err) {
       console.error('Erro ao buscar cores:', err);
       Swal.fire({
@@ -221,10 +211,10 @@ const ProdutosConfig = () => {
     }
   }, []);
 
-  // Carregar cores quando a paginação mudar
+  // Carregar cores quando a paginação ou busca mudar
   useEffect(() => {
-    buscarCores(paginationCores.pageIndex, paginationCores.pageSize);
-  }, [paginationCores, buscarCores]);
+    buscarCores(paginationCores.pageIndex, paginationCores.pageSize, debouncedSearchCor);
+  }, [paginationCores, debouncedSearchCor, buscarCores]);
 
   // Abrir modal de cor (criar ou editar)
   const handleAbrirModalCor = useCallback((cor = null) => {
@@ -256,11 +246,8 @@ const ProdutosConfig = () => {
 
     try {
       if (corForm.id) {
-        // TODO: Atualizar cor na API
-        // await api.put(`/cores/${corForm.id}`, { description: corForm.nome });
-        setCores(prev => prev.map(c => 
-          c.id === corForm.id ? { ...c, description: corForm.nome } : c
-        ));
+        // Atualizar cor na API
+        await colorService.updateColor(corForm.id, corForm.nome);
         Swal.fire({
           icon: 'success',
           title: 'Sucesso!',
@@ -269,10 +256,8 @@ const ProdutosConfig = () => {
           showConfirmButton: false
         });
       } else {
-        // TODO: Criar cor na API
-        // const response = await api.post('/cores', { description: corForm.nome });
-        const novoId = Math.max(...cores.map(c => c.id), 0) + 1;
-        setCores(prev => [...prev, { id: novoId, description: corForm.nome }]);
+        // Criar cor na API
+        await colorService.createColor(corForm.nome);
         Swal.fire({
           icon: 'success',
           title: 'Sucesso!',
@@ -282,7 +267,7 @@ const ProdutosConfig = () => {
         });
       }
       handleFecharModalCor();
-      buscarCores(paginationCores.pageIndex, paginationCores.pageSize);
+      buscarCores(paginationCores.pageIndex, paginationCores.pageSize, debouncedSearchCor);
     } catch (err) {
       console.error('Erro ao salvar cor:', err);
       Swal.fire({
@@ -292,7 +277,7 @@ const ProdutosConfig = () => {
         confirmButtonText: 'OK'
       });
     }
-  }, [corForm, cores, handleFecharModalCor, buscarCores, paginationCores]);
+  }, [corForm, handleFecharModalCor, buscarCores, paginationCores, debouncedSearchCor]);
 
   // Excluir cor
   const handleExcluirCor = useCallback(async (id) => {
@@ -311,9 +296,8 @@ const ProdutosConfig = () => {
 
     if (result.isConfirmed) {
       try {
-        // TODO: Excluir cor na API
-        // await api.delete(`/cores/${id}`);
-        setCores(prev => prev.filter(c => c.id !== id));
+        // Excluir cor na API
+        await colorService.deleteColor(id);
         Swal.fire({
           icon: 'success',
           title: 'Excluída!',
@@ -321,7 +305,7 @@ const ProdutosConfig = () => {
           timer: 2000,
           showConfirmButton: false
         });
-        buscarCores(paginationCores.pageIndex, paginationCores.pageSize);
+        buscarCores(paginationCores.pageIndex, paginationCores.pageSize, debouncedSearchCor);
       } catch (err) {
         console.error('Erro ao excluir cor:', err);
         Swal.fire({
@@ -332,7 +316,7 @@ const ProdutosConfig = () => {
         });
       }
     }
-  }, [buscarCores, paginationCores]);
+  }, [buscarCores, paginationCores, debouncedSearchCor]);
 
   // ==================== COLUNAS DAS TABELAS ====================
   // Memoizar colunas para evitar recriações desnecessárias
@@ -607,10 +591,13 @@ const ProdutosConfig = () => {
               state={{
                 isLoading: loadingCores,
                 pagination: paginationCores,
+                globalFilter: searchCor,
               }}
               manualPagination
+              manualGlobalFilter
               rowCount={totalCores}
               onPaginationChange={setPaginationCores}
+              onGlobalFilterChange={setSearchCor}
               enableSorting={false}
               enableColumnActions={false}
               enableColumnFilters={false}
