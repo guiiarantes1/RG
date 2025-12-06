@@ -19,6 +19,16 @@ const brandService = {
     const response = await api.get(url);
     return response.data;
   },
+
+  /**
+   * Cria uma nova marca
+   * @param {string} description - Descrição da marca
+   * @returns {Promise<{id: number, description: string}>}
+   */
+  async createBrand(description) {
+    const response = await api.post('/api/v1/brands/', { description });
+    return response.data;
+  },
 };
 
 export default brandService;

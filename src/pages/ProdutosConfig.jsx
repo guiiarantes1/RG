@@ -50,7 +50,7 @@ const ProdutosConfig = () => {
 
   // Carregar marcas com useCallback para evitar recriação desnecessária
   const buscarMarcas = useCallback(async (pageIndex = 0, pageSize = 10, search = '') => {
-    setLoadingMarcas(true);
+    setLoadingMarcas(false);
     try {
       const data = await brandService.getBrands(pageIndex, pageSize, search);
       // A API retorna { id, description }, mas a tabela espera { id, name }
@@ -118,10 +118,8 @@ const ProdutosConfig = () => {
           showConfirmButton: false
         });
       } else {
-        // TODO: Criar marca na API
-        // const response = await api.post('/marcas', { name: marcaForm.nome });
-        const novoId = Math.max(...marcas.map(m => m.id), 0) + 1;
-        setMarcas(prev => [...prev, { id: novoId, name: marcaForm.nome }]);
+        // Criar marca na API
+        await brandService.createBrand(marcaForm.nome);
         Swal.fire({
           icon: 'success',
           title: 'Sucesso!',
@@ -131,7 +129,7 @@ const ProdutosConfig = () => {
         });
       }
       handleFecharModalMarca();
-      buscarMarcas(paginationMarcas.pageIndex, paginationMarcas.pageSize);
+      buscarMarcas(paginationMarcas.pageIndex, paginationMarcas.pageSize, debouncedSearchMarca);
     } catch (err) {
       console.error('Erro ao salvar marca:', err);
       Swal.fire({
