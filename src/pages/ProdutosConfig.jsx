@@ -9,6 +9,7 @@ import { MaterialReactTable } from 'material-react-table';
 import { Box, IconButton, Tooltip } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import brandService from '../services/brandService';
 
 const ProdutosConfig = () => {
   const navigate = useNavigate();
@@ -22,6 +23,8 @@ const ProdutosConfig = () => {
     pageSize: 10,
   });
   const [totalMarcas, setTotalMarcas] = useState(0);
+  const [searchMarca, setSearchMarca] = useState('');
+  const [debouncedSearchMarca, setDebouncedSearchMarca] = useState('');
 
   // Estado para Cores
   const [cores, setCores] = useState([]);
@@ -35,36 +38,25 @@ const ProdutosConfig = () => {
   const [totalCores, setTotalCores] = useState(0);
 
   // ==================== MARCAS ====================
+  // Debounce para searchMarca
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchMarca(searchMarca);
+      // Resetar para a primeira página quando a busca mudar
+      setPaginationMarcas(prev => ({ ...prev, pageIndex: 0 }));
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchMarca]);
+
   // Carregar marcas com useCallback para evitar recriação desnecessária
-  const buscarMarcas = useCallback(async (pageIndex = 0, pageSize = 10) => {
+  const buscarMarcas = useCallback(async (pageIndex = 0, pageSize = 10, search = '') => {
     setLoadingMarcas(true);
     try {
-      // TODO: Trocar por chamada real na API com paginação
-      // const response = await api.get(`/marcas?page=${pageIndex + 1}&page_size=${pageSize}`);
-      // setMarcas(response.data.results);
-      // setTotalMarcas(response.data.count);
-      
-      const todosDados = [
-        { id: 1, name: 'Marca A' },
-        { id: 2, name: 'Marca B' },
-        { id: 3, name: 'Marca C' },
-        { id: 4, name: 'Marca D' },
-        { id: 5, name: 'Marca E' },
-        { id: 6, name: 'Marca F' },
-        { id: 7, name: 'Marca G' },
-        { id: 8, name: 'Marca H' },
-        { id: 9, name: 'Marca I' },
-        { id: 10, name: 'Marca J' },
-        { id: 11, name: 'Marca K' },
-        { id: 12, name: 'Marca L' }
-      ];
-      
-      const startIndex = pageIndex * pageSize;
-      const endIndex = startIndex + pageSize;
-      const paginatedData = todosDados.slice(startIndex, endIndex);
-      
-      setMarcas(paginatedData);
-      setTotalMarcas(todosDados.length);
+      const data = await brandService.getBrands(pageIndex, pageSize, search);
+      // A API retorna { id, description }, mas a tabela espera { id, name }
+      const marcasFormatadas = data.results.map(m => ({ id: m.id, name: m.description }));
+      setMarcas(marcasFormatadas);
+      setTotalMarcas(data.count);
     } catch (err) {
       console.error('Erro ao buscar marcas:', err);
       Swal.fire({
@@ -78,10 +70,10 @@ const ProdutosConfig = () => {
     }
   }, []);
 
-  // Carregar marcas quando a paginação mudar
+  // Carregar marcas quando a paginação ou busca mudar
   useEffect(() => {
-    buscarMarcas(paginationMarcas.pageIndex, paginationMarcas.pageSize);
-  }, [paginationMarcas, buscarMarcas]);
+    buscarMarcas(paginationMarcas.pageIndex, paginationMarcas.pageSize, debouncedSearchMarca);
+  }, [paginationMarcas, debouncedSearchMarca, buscarMarcas]);
 
   // Abrir modal de marca (criar ou editar)
   const handleAbrirModalMarca = useCallback((marca = null) => {
@@ -534,10 +526,13 @@ const ProdutosConfig = () => {
               state={{
                 isLoading: loadingMarcas,
                 pagination: paginationMarcas,
+                globalFilter: searchMarca,
               }}
               manualPagination
+              manualGlobalFilter
               rowCount={totalMarcas}
               onPaginationChange={setPaginationMarcas}
+              onGlobalFilterChange={setSearchMarca}
               enableSorting={false}
               enableColumnActions={false}
               enableColumnFilters={false}
