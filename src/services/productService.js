@@ -15,7 +15,7 @@ export const productService = {
     // Buscar marcas
     buscarMarcas: async () => {
         try {
-            const response = await api.get('/api/v1/brands/');
+            const response = await api.get('/api/v1/brands/no-pagination/');
             return response.data;
         } catch (error) {
             console.error('Erro ao buscar marcas:', error);

@@ -1686,7 +1686,7 @@ const OrdemServico = () => {
                                     onChange={(value) => handleSelectChange('paletoMarca', value)}
                                     options={[
                                         { value: '', label: 'Selecione uma marca' },
-                                        ...brands.map((brand) => ({
+                                        ...(Array.isArray(brands) ? brands : []).map((brand) => ({
                                             value: brand.id.toString(),
                                             label: brand.description
                                         }))
@@ -1886,7 +1886,7 @@ const OrdemServico = () => {
                                     onChange={(value) => handleSelectChange('camisaMarca', value)}
                                     options={[
                                         { value: '', label: 'Selecione uma marca' },
-                                        ...brands.map((brand) => ({
+                                        ...(Array.isArray(brands) ? brands : []).map((brand) => ({
                                             value: brand.id.toString(),
                                             label: brand.description
                                         }))
@@ -2047,9 +2047,13 @@ const OrdemServico = () => {
                                     onBlur={(value) => handleInputBlur('calcaAjusteCosValor', value)}
                                     options={[
                                         { value: '', label: 'Selecione o ajuste' },
-                                        ...Array.from({ length: 4 }, (_, i) => i + 1).map(num => ({
+                                        ...Array.from({ length: 4 }, (_, i) => -4 + i).map(num => ({
                                             value: num.toString(),
                                             label: num.toString()
+                                        })),
+                                        ...Array.from({ length: 4 }, (_, i) => i + 1).map(num => ({
+                                            value: num.toString(),
+                                            label: `+${num}`
                                         }))
                                     ]}
                                     placeholder="Selecione o ajuste"
@@ -2098,9 +2102,13 @@ const OrdemServico = () => {
                                     onBlur={(value) => handleInputBlur('calcaAjusteComprimentoValor', value)}
                                     options={[
                                         { value: '', label: 'Selecione o ajuste' },
-                                        ...Array.from({ length: 50 }, (_, i) => i + 1).map(num => ({
+                                        ...Array.from({ length: 50 }, (_, i) => -50 + i).map(num => ({
                                             value: num.toString(),
                                             label: num.toString()
+                                        })),
+                                        ...Array.from({ length: 50 }, (_, i) => i + 1).map(num => ({
+                                            value: num.toString(),
+                                            label: `+${num}`
                                         }))
                                     ]}
                                     placeholder="Selecione o ajuste"
@@ -2118,7 +2126,7 @@ const OrdemServico = () => {
                                     onChange={(value) => handleSelectChange('calcaMarca', value)}
                                     options={[
                                         { value: '', label: 'Selecione uma marca' },
-                                        ...brands.map((brand) => ({
+                                        ...(Array.isArray(brands) ? brands : []).map((brand) => ({
                                             value: brand.id.toString(),
                                             label: brand.description
                                         }))
@@ -2354,7 +2362,7 @@ const OrdemServico = () => {
                                     onChange={(value) => handleSelectChange('cintoMarca', value)}
                                     options={[
                                         { value: '', label: 'Selecione uma marca' },
-                                        ...brands.map((brand) => ({
+                                        ...(Array.isArray(brands) ? brands : []).map((brand) => ({
                                             value: brand.id.toString(),
                                             label: brand.description
                                         }))
@@ -2405,7 +2413,7 @@ const OrdemServico = () => {
                                     onChange={(value) => handleSelectChange('sapatoMarca', value)}
                                     options={[
                                         { value: '', label: 'Selecione uma marca' },
-                                        ...brands.map((brand) => ({
+                                        ...(Array.isArray(brands) ? brands : []).map((brand) => ({
                                             value: brand.id.toString(),
                                             label: brand.description
                                         }))
