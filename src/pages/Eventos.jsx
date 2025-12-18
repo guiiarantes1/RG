@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Pagination } from '@mui/material';
 import '../styles/Eventos.css';
 import Header from '../components/Header';
 import eventService from '../services/eventService';
@@ -14,24 +15,52 @@ const Eventos = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [showCreateModal, setShowCreateModal] = useState(false);
     const navigate = useNavigate();
+    
+    // Estados de paginação
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [pageSize] = useState(50);
+    const [totalCount, setTotalCount] = useState(0);
 
-    useEffect(() => {
-        loadEventos();
-    }, []);
-
-    const loadEventos = async () => {
+    const loadEventos = useCallback(async (page = 1, search = '') => {
         setIsLoading(true);
         setError(null);
         try {
-            const data = await eventService.listarEventosAbertos();
-            setEventos(Array.isArray(data) ? data : []);
+            const params = {
+                page,
+                page_size: pageSize,
+            };
+            if (search.trim()) {
+                params.search = search.trim();
+            }
+            
+            const data = await eventService.listarEventosAbertos(params);
+            
+            // Verifica se a resposta é paginada
+            if (data && typeof data === 'object' && Array.isArray(data.events)) {
+                setEventos(data.events);
+                setCurrentPage(data.page || page);
+                setTotalPages(data.total_pages || 1);
+                setTotalCount(data.count || 0);
+            } else {
+                // Compatibilidade: se retornou array simples
+                setEventos(Array.isArray(data) ? data : []);
+                setCurrentPage(1);
+                setTotalPages(1);
+                setTotalCount(Array.isArray(data) ? data.length : 0);
+            }
         } catch (error) {
             console.error('Erro ao carregar eventos:', error);
             setError('Não foi possível carregar a lista de eventos. Tente novamente.');
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [pageSize]);
+
+    // Carregar eventos na montagem do componente
+    useEffect(() => {
+        loadEventos(1, '');
+    }, [loadEventos]);
 
     const handleEventoClick = (eventoId) => {
         navigate(`/eventos/${eventoId}`);
@@ -47,7 +76,8 @@ const Eventos = () => {
 
     const handleEventCreated = () => {
         // Recarregar a lista de eventos após criar um novo
-        loadEventos();
+        setCurrentPage(1);
+        loadEventos(1, searchTerm);
     };
 
     const formatDate = (dateString) => {
@@ -91,16 +121,21 @@ const Eventos = () => {
         return statusMap[status] || 'unknown';
     };
 
-    const filteredEventos = eventos.filter(evento => {
-        const searchLower = searchTerm.toLowerCase();
-        const nameMatch = evento.name && evento.name.toLowerCase().includes(searchLower);
-        const descriptionMatch = evento.description && evento.description.toLowerCase().includes(searchLower);
+    // Debounce para busca
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            setCurrentPage(1);
+            loadEventos(1, searchTerm);
+        }, 500);
+        
+        return () => clearTimeout(timeoutId);
+    }, [searchTerm]);
 
-        // Busca no status
-        const statusMatch = evento.status && evento.status.toLowerCase().includes(searchLower);
-
-        return nameMatch || descriptionMatch || statusMatch;
-    });
+    // Handler para mudança de página
+    const handlePageChange = (event, value) => {
+        setCurrentPage(value);
+        loadEventos(value, searchTerm);
+    };
 
     return (
         <>
@@ -109,7 +144,6 @@ const Eventos = () => {
                 {/* Header da Lista */}
                 <div className="list-section">
                     <div className="list-header">
-
                         <div className="search-container">
                             <input
                                 type="text"
@@ -121,6 +155,7 @@ const Eventos = () => {
                             />
                             <i className="bi bi-search search-icon"></i>
                         </div>
+                        
                         <div className="btn-container">
                             <Button
                                 text="Criar Evento"
@@ -158,18 +193,19 @@ const Eventos = () => {
                                     iconName="arrow-clockwise"
                                     iconPosition="left"
                                     text="Tentar novamente"
-                                    onClick={loadEventos}
+                                    onClick={() => loadEventos(currentPage, searchTerm)}
                                     disabled={isLoading}
                                 />
                             </div>
-                        ) : filteredEventos.length === 0 ? (
+                        ) : eventos.length === 0 ? (
                             <div className="no-results">
                                 <i className="bi bi-calendar-event" style={{ color: 'var(--color-accent)' }}></i>
                                 <p>Nenhum evento encontrado</p>
                             </div>
                         ) : (
+                            <>
                             <div className="eventos-grid">
-                                {filteredEventos.map(evento => (
+                                {eventos.map(evento => (
                                     <>
                                         {evento.event_date && (
                                             <div
@@ -215,6 +251,25 @@ const Eventos = () => {
                                     </>
                                 ))}
                             </div>
+                            
+                            {/* Paginação */}
+                            {totalPages > 1 && (
+                                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', marginTop: '24px', flexWrap: 'wrap' }}>
+                                    <Pagination
+                                        count={totalPages}
+                                        page={currentPage}
+                                        onChange={handlePageChange}
+                                        color="primary"
+                                        disabled={isLoading}
+                                        showFirstButton
+                                        showLastButton
+                                    />
+                                    <span style={{ color: 'var(--color-text-secondary)', fontSize: '14px' }}>
+                                        {totalCount} evento{totalCount !== 1 ? 's' : ''} encontrado{totalCount !== 1 ? 's' : ''}
+                                    </span>
+                                </div>
+                            )}
+                            </>
                         )}
                     </div>
                 </div>

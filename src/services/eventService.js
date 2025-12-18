@@ -1,10 +1,17 @@
 import api from './api';
 
 const eventService = {
-  // Listar eventos em aberto
-   listarEventosAbertos: async () => {
+  // Listar eventos em aberto com paginação e filtros
+  listarEventosAbertos: async (params = {}) => {
     try {
-      const response = await api.get('/api/v1/events/list-with-status/');
+      const queryParams = new URLSearchParams();
+      if (params.page) queryParams.append('page', params.page);
+      if (params.page_size) queryParams.append('page_size', params.page_size);
+      if (params.search) queryParams.append('search', params.search);
+      
+      const queryString = queryParams.toString();
+      const url = `/api/v1/events/list-with-status/${queryString ? `?${queryString}` : ''}`;
+      const response = await api.get(url);
       return response.data;
     } catch (error) {
       console.error('Erro ao listar eventos abertos:', error);
