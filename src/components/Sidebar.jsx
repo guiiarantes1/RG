@@ -84,7 +84,7 @@ const Sidebar = ({ setSideOpen }) => {
     if (window.innerWidth < 450) return 3;
     if (window.innerWidth < 520) return 4;
     if (window.innerWidth < 610) return 5;
-    if (window.innerWidth < 650) return 6;
+    if (window.innerWidth < 695) return 6;
     return navLinks.length;
   };
 
@@ -94,7 +94,7 @@ const Sidebar = ({ setSideOpen }) => {
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth < 1000;
-      const smallMobile = window.innerWidth < 690;
+      const smallMobile = window.innerWidth < 695;
       setIsMobile(mobile);
       setIsSmallMobile(smallMobile);
       setVisibleLinksCount(getVisibleLinksCount());

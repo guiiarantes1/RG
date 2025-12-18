@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { serviceOrderService } from '../services/serviceOrderService';
 import api from '../services/api';
@@ -64,6 +64,41 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
     const [viewMode, setViewMode] = useState('cards');
     // Filtro de data ao lado do select de modo de visualização (todos | hoje)
     const [dateFilter, setDateFilter] = useState('todos');
+
+    // Ref para o scroll dos tabs
+    const tabsContainerRef = useRef(null);
+    const [canScrollLeft, setCanScrollLeft] = useState(false);
+    const [canScrollRight, setCanScrollRight] = useState(false);
+
+    // Função para verificar se pode scrollar
+    const checkTabsScroll = () => {
+        const container = tabsContainerRef.current;
+        if (container) {
+            setCanScrollLeft(container.scrollLeft > 0);
+            setCanScrollRight(
+                container.scrollLeft < container.scrollWidth - container.clientWidth - 1
+            );
+        }
+    };
+
+    // Função para scrollar os tabs
+    const scrollTabs = (direction) => {
+        const container = tabsContainerRef.current;
+        if (container) {
+            const scrollAmount = 200;
+            container.scrollBy({
+                left: direction === 'left' ? -scrollAmount : scrollAmount,
+                behavior: 'smooth'
+            });
+        }
+    };
+
+    // Verificar scroll ao montar e redimensionar
+    useEffect(() => {
+        checkTabsScroll();
+        window.addEventListener('resize', checkTabsScroll);
+        return () => window.removeEventListener('resize', checkTabsScroll);
+    }, []);
 
     const tabs = [
         { key: 'PENDENTE', label: 'PENDENTES', color: '#0095e2' },
@@ -694,19 +729,41 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
             </div>
 
             {/* Tabs */}
-            <div className="tabs-container mb-3">
-                {tabs.map((tab) => (
-                    <button
-                        key={tab.key}
-                        className={`tab ${activeTab === tab.key ? 'active' : ''}`}
-                        onClick={() => handleTabChange(tab.key)}
-                        style={{
-                            borderBottomColor: activeTab === tab.key ? tab.color : 'transparent'
-                        }}
-                    >
-                        {tab.label}
-                    </button>
-                ))}
+            <div className="tabs-wrapper mb-3">
+                <button 
+                    className="tabs-nav-btn" 
+                    onClick={() => scrollTabs('left')}
+                    disabled={!canScrollLeft}
+                    aria-label="Scroll tabs para esquerda"
+                >
+                    <i className="bi bi-chevron-left"></i>
+                </button>
+                <div 
+                    className="tabs-container" 
+                    ref={tabsContainerRef}
+                    onScroll={checkTabsScroll}
+                >
+                    {tabs.map((tab) => (
+                        <button
+                            key={tab.key}
+                            className={`tab ${activeTab === tab.key ? 'active' : ''}`}
+                            onClick={() => handleTabChange(tab.key)}
+                            style={{
+                                borderBottomColor: activeTab === tab.key ? tab.color : 'transparent'
+                            }}
+                        >
+                            {tab.label}
+                        </button>
+                    ))}
+                </div>
+                <button 
+                    className="tabs-nav-btn" 
+                    onClick={() => scrollTabs('right')}
+                    disabled={!canScrollRight}
+                    aria-label="Scroll tabs para direita"
+                >
+                    <i className="bi bi-chevron-right"></i>
+                </button>
             </div>
             <div className="search-toggle-btn-container mb-3">
                 <div className="search-toggle-btn-container-content d-flex justify-content-end">
