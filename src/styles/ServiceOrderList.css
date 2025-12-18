@@ -211,6 +211,7 @@
   scroll-behavior: smooth;
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE e Edge */
+  width: 100%;
   flex: 1;
 }
 
@@ -219,7 +220,7 @@
 }
 
 .tab {
-  flex: 0 0 auto;
+  flex: 1;
   padding: 16px 24px;
   border: none;
   background: transparent;
@@ -232,6 +233,7 @@
   border-bottom: 3px solid transparent;
   margin: 0 10px;
   white-space: nowrap;
+  text-align: center;
 }
 
 .tab:hover {
@@ -258,6 +260,7 @@
   }
 
   .tab {
+    flex: 0 0 auto;
     padding: 14px 20px;
     font-size: 13px;
     margin: 0 6px;
