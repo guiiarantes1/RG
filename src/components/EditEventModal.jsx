@@ -179,7 +179,7 @@ const EditEventModal = ({ show, onClose, eventData, onEventUpdated }) => {
                 <Button
                     type="button"
                     text="Cancelar"
-                    variant="outline"
+                    variant="light"
                     onClick={handleClose}
                     disabled={isLoading}
                 />

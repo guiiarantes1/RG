@@ -175,7 +175,7 @@ const CreateEventModal = ({ show, onClose, onEventCreated }) => {
                 <Button
                     type="button"
                     text="Cancelar"
-                    variant="outline"
+                    variant="light"
                     onClick={handleClose}
                     disabled={isLoading}
                 />

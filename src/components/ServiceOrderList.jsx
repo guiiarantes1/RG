@@ -779,7 +779,7 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
 
                         <div className="search-actions">
                             <Button
-                                variant="outline"
+                                variant="light"
                                 text="Limpar"
                                 iconName="x-circle"
                                 iconPosition="left"
@@ -1123,7 +1123,7 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
 
                         <div className="form-actions">
                             <Button
-                                variant="outline"
+                                variant="light"
                                 text="Cancelar"
                                 onClick={closeRefusalModal}
                             />
@@ -1168,7 +1168,7 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
 
                         <div className="form-actions">
                             <Button
-                                variant="outline"
+                                variant="light"
                                 text="Cancelar"
                                 onClick={closeAssignModal}
                                 disabled={isAssigning}
@@ -1259,7 +1259,7 @@ const ServiceOrderList = ({ onSelectOrder, onCreateNew, isLoading, error, onRetr
 
                         <div className="form-actions">
                             <Button
-                                variant="outline"
+                                variant="light"
                                 text="Cancelar"
                                 onClick={closePickupModal}
                                 disabled={isProcessingPickup}
