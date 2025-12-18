@@ -23,10 +23,17 @@ export const clientService = {
         }
     },
 
-    // Listar todos os clientes
-    listarTodos: async () => {
+    // Listar todos os clientes com paginação e busca
+    listarTodos: async (params = {}) => {
         try {
-            const response = await api.get('/api/v1/clients/list/');
+            const queryParams = new URLSearchParams();
+            if (params.page) queryParams.append('page', params.page);
+            if (params.page_size) queryParams.append('page_size', params.page_size);
+            if (params.search) queryParams.append('search', params.search);
+            
+            const queryString = queryParams.toString();
+            const url = `/api/v1/clients/list/${queryString ? `?${queryString}` : ''}`;
+            const response = await api.get(url);
             return response.data;
         } catch (error) {
             console.error('Erro ao listar clientes:', error);

@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { mascaraCPF, mascaraTelefone, removerMascara, formatarTelefoneParaExibicao } from '../utils/Mascaras';
 import { capitalizeText } from '../utils/capitalizeText';
 import PhoneInput from 'react-phone-number-input';
 import ptBR from 'react-phone-number-input/locale/pt-BR';
 import Swal from 'sweetalert2';
+import { Pagination } from '@mui/material';
 import '../styles/Clientes.css';
 import Header from '../components/Header';
 import Button from '../components/Button';
@@ -31,27 +32,52 @@ const Clientes = () => {
   const [isLoadingClientes, setIsLoadingClientes] = useState(true);
   const [isLoadingCep, setIsLoadingCep] = useState(false);
   const [error, setError] = useState(null);
+  
+  // Estados de paginação
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [pageSize] = useState(50);
+  const [totalCount, setTotalCount] = useState(0);
 
-  useEffect(() => {
-    // Carregar dados da API
-    loadClientes();
-  }, []);
-
-  const loadClientes = async () => {
+  const loadClientes = useCallback(async (page = 1, search = '') => {
     setIsLoadingClientes(true);
     setError(null);
     try {
-      const data = await clientService.listarTodos();
-      // Garante que clientes sempre será um array
-      setClientes(Array.isArray(data) ? data : []);
+      const params = {
+        page,
+        page_size: pageSize,
+      };
+      if (search.trim()) {
+        params.search = search.trim();
+      }
+      
+      const data = await clientService.listarTodos(params);
+      
+      // Verifica se a resposta é paginada
+      if (data && typeof data === 'object' && Array.isArray(data.clients)) {
+        setClientes(data.clients);
+        setCurrentPage(data.page || page);
+        setTotalPages(data.total_pages || 1);
+        setTotalCount(data.count || 0);
+      } else {
+        // Compatibilidade: se retornou array simples
+        setClientes(Array.isArray(data) ? data : []);
+        setCurrentPage(1);
+        setTotalPages(1);
+        setTotalCount(Array.isArray(data) ? data.length : 0);
+      }
     } catch (error) {
       console.error('Erro ao carregar clientes:', error);
       setError('Não foi possível carregar a lista de clientes. Tente novamente.');
-    
     } finally {
       setIsLoadingClientes(false);
     }
-  };
+  }, [pageSize]);
+
+  // Carregar clientes na montagem do componente
+  useEffect(() => {
+    loadClientes(1, '');
+  }, [loadClientes]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -211,8 +237,8 @@ const Clientes = () => {
       }
 
       // Recarregar lista de clientes
-      setIsLoadingClientes(true);
-      await loadClientes();
+      setCurrentPage(1);
+      await loadClientes(1, searchTerm);
 
       // Limpar formulário
       setFormData({
@@ -295,22 +321,21 @@ const Clientes = () => {
     return parts.length > 0 ? parts.join(', ') : '-';
   };
 
-  const filteredClientes = clientes.filter(cliente => {
-    const searchLower = searchTerm.toLowerCase();
-    const nameMatch = cliente.name && cliente.name.toLowerCase().includes(searchLower);
-    const emailMatch = cliente.email && cliente.email.toLowerCase().includes(searchLower);
-    const cpfMatch = cliente.cpf && cliente.cpf.toLowerCase().includes(searchLower);
-    const phoneMatch = cliente.phone && cliente.phone.toLowerCase().includes(searchLower);
+  // Debounce para busca
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setCurrentPage(1);
+      loadClientes(1, searchTerm);
+    }, 500);
     
-    // Busca no endereço
-    let addressMatch = false;
-    if (cliente.address) {
-      const addressString = `${cliente.address.street || ''} ${cliente.address.number || ''} ${cliente.address.complemento || ''} ${cliente.address.neighborhood || ''} ${cliente.address.city || ''} ${cliente.address.cep || ''}`.toLowerCase();
-      addressMatch = addressString.includes(searchLower);
-    }
-    
-    return nameMatch || emailMatch || cpfMatch || phoneMatch || addressMatch;
-  });
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm]);
+
+  // Handler para mudança de página
+  const handlePageChange = (event, value) => {
+    setCurrentPage(value);
+    loadClientes(value, searchTerm);
+  };
 
   return (
     <>
@@ -568,14 +593,15 @@ const Clientes = () => {
                 <i className="bi bi-exclamation-triangle"></i>
                 <h3>Erro ao carregar clientes</h3>
                 <p>{error}</p>
-                <Button variant="primary" text="Tentar novamente" iconName="arrow-clockwise" iconPosition="left" onClick={loadClientes} disabled={isLoadingClientes} style={{ width: 'fit-content' }} />
+                <Button variant="primary" text="Tentar novamente" iconName="arrow-clockwise" iconPosition="left" onClick={() => loadClientes(currentPage, searchTerm)} disabled={isLoadingClientes} style={{ width: 'fit-content' }} />
               </div>
-            ) : filteredClientes.length === 0 ? (
+            ) : clientes.length === 0 ? (
               <div className="no-results">
                 <i className="bi bi-people" style={{ color: 'var(--color-accent)'}}></i>
                 <p>Nenhum cliente encontrado</p>
               </div>
             ) : (
+              <>
               <div className="clientes-table">
                 <div className="table-header">
                   <div className="header-cell">Nome</div>
@@ -585,7 +611,7 @@ const Clientes = () => {
                   <div className="header-cell">Endereço</div>
                   <div className="header-cell">Editar/Histórico</div>
                 </div>
-                {filteredClientes.map(cliente => (
+                {clientes.map(cliente => (
                   <div key={cliente.id} className="table-row">
                                          <div className="table-cell">
                        <div className="cliente-info">
@@ -628,6 +654,22 @@ const Clientes = () => {
                   </div>
                 ))}
               </div>
+              
+              {/* Paginação */}
+              {totalPages > 1 && (
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', marginTop: '24px', flexWrap: 'wrap' }}>
+                  <Pagination
+                    count={totalPages}
+                    page={currentPage}
+                    onChange={handlePageChange}
+                    color="primary"
+                    disabled={isLoadingClientes}
+                    showFirstButton
+                    showLastButton
+                  />
+                </div>
+              )}
+              </>
             )}
           </div>
         </div>
