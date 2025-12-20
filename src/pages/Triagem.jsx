@@ -120,6 +120,7 @@ const Triagem = () => {
         { value: 'facebook', label: 'Facebook' },
         { value: 'google', label: 'Google' },
         { value: 'indicacao', label: 'Indicação' },
+        { value: 'lista', label: 'Lista' },
         { value: 'outro', label: 'Outro' }
     ];
 
@@ -135,6 +136,8 @@ const Triagem = () => {
         { value: 'principe', label: 'Príncipe' },
         { value: 'pais_debutante', label: 'Pais Debutante' },
         { value: 'uso_diario', label: 'Uso Diário' },
+        { value: 'feminino', label: 'Feminino' },
+        { value: 'fotos', label: 'Fotos' },
         { value: 'outro', label: 'Outros' }
     ];
 
