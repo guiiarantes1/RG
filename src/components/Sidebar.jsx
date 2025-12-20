@@ -364,7 +364,7 @@ const Sidebar = ({ setSideOpen }) => {
           {!isMobile && (
             <div className="mt-auto mb-3" style={{ width: '100%', justifyContent: 'center', display: 'flex' }}>
               <span className="version" style=
-                {{ color: 'white', fontSize: '12px', textAlign: 'center', cursor: 'default' }} >Roupa de Gala® - 2025</span>
+                {{ color: 'white', fontSize: '12px', textAlign: 'center', cursor: 'default' }} >Roupa de Gala® - 2026</span>
             </div>
           )}
         </div>
