@@ -54,7 +54,7 @@ const CreateEventModal = ({ show, onClose, onEventCreated }) => {
             newErrors.name = 'Nome do evento é obrigatório';
         }
         if (!formData.event_date) {
-            formData.event_date = null;
+            newErrors.event_date = 'Data do evento é obrigatória';
         } else {
             const eventDate = new Date(formData.event_date);
             const today = new Date();
@@ -153,7 +153,7 @@ const CreateEventModal = ({ show, onClose, onEventCreated }) => {
 
             <div className="form-group">
                 <label htmlFor="event_date" className="form-label">
-                    Data do Evento
+                    Data do Evento *
                 </label>
                 <InputDate
                     selectedDate={selectedDate}
