@@ -30,8 +30,13 @@ const ClienteHistorico = () => {
         setError(null);
         try {
             // Carregar lista de clientes e encontrar o cliente específico
-            const clientes = await clientService.listarTodos();
-            const clientData = clientes.find(cliente => cliente.id === parseInt(id));
+            const response = await clientService.listarTodos({ page_size: 1000 }); // Buscar todos
+            
+            // Verificar se a resposta é paginada
+            const clientes = response.clients || response;
+            const clientData = Array.isArray(clientes) 
+                ? clientes.find(cliente => cliente.id === parseInt(id))
+                : null;
 
             if (!clientData) {
                 throw new Error('Cliente não encontrado');
