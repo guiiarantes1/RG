@@ -75,8 +75,13 @@ export const serviceOrderService = {
             // Se há dados de pagamento, inclui no request
             if (paymentData && paymentData.receiveRemainingPayment) {
                 requestData.receive_remaining_payment = true;
-                requestData.payment_method = paymentData.paymentMethod;
                 requestData.remaining_amount = paymentData.remainingAmount;
+                
+                // Enviar array de formas de pagamento
+                requestData.payment_forms = paymentData.paymentForms.map(form => ({
+                    amount: form.amount,
+                    forma_pagamento: form.forma_pagamento
+                }));
             }
             
             const response = await api.post(`/api/v1/service-orders/${id}/mark-retrieved/`, requestData);
@@ -169,6 +174,17 @@ export const serviceOrderService = {
             return response.data;
         } catch (error) {
             console.error('Erro ao marcar ordem como produzida:', error);
+            throw error;
+        }
+    },
+
+    // Retornar ordem recusada para pendente
+    returnToPending: async (id) => {
+        try {
+            const response = await api.post(`/api/v1/service-orders/${id}/return-to-pending/`);
+            return response.data;
+        } catch (error) {
+            console.error('Erro ao retornar ordem para pendente:', error);
             throw error;
         }
     }
