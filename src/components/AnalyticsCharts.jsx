@@ -3,6 +3,7 @@ import { ResponsiveBar } from "@nivo/bar";
 import { ResponsiveLine } from "@nivo/line";
 import "../styles/AnalyticsCharts.css";
 
+
 // Gráfico de Taxa de Conversão por Atendente
 export const TaxaConversaoChart = ({ data = [] }) => {
   if (!data || data.length === 0) {
@@ -24,10 +25,10 @@ export const TaxaConversaoChart = ({ data = [] }) => {
   }));
 
   const margins = isSmallScreen 
-    ? { top: 15, right: 15, bottom: 60, left: 50 }
+    ? { top: 15, right: 15, bottom: 70, left: 50 }
     : isMobile
-    ? { top: 15, right: 20, bottom: 70, left: 60 }
-    : { top: 20, right: 30, bottom: 80, left: 70 };
+    ? { top: 15, right: 20, bottom: 80, left: 60 }
+    : { top: 20, right: 30, bottom: 90, left: 70 };
 
   return (
     <div className="chart-container">
@@ -40,9 +41,25 @@ export const TaxaConversaoChart = ({ data = [] }) => {
         colors={["var(--color-accent)"]}
         borderColor={{ from: "color", modifiers: [["darker", 1.6]] }}
         axisBottom={{
-          tickRotation: -45,
-          tickPadding: 5,
+          tickRotation: -35,
+          tickPadding: 8,
           tickSize: 5,
+          renderTick: (tick) => (
+            <g transform={`translate(${tick.x},${tick.y})`}>
+              <text
+                transform={`rotate(-35)`}
+                textAnchor="end"
+                dominantBaseline="middle"
+                style={{
+                  fontSize: 11,
+                  fill: '#555',
+                }}
+                title={tick.value}
+              >
+                {tick.value}
+              </text>
+            </g>
+          ),
         }}
         axisLeft={{
           tickSize: 5,
@@ -63,9 +80,11 @@ export const TaxaConversaoChart = ({ data = [] }) => {
               color: "#FFFFFF",
               fontSize: "12px",
               border: "1px solid #555",
+              width: 'max-content',
             }}
           >
-            {props.value}%
+            <div style={{ marginBottom: '4px', fontWeight: '600' }}>{props.indexValue}</div>
+            <div>Taxa de Conversão: {props.value}%</div>
           </div>
         )}
         theme={{
@@ -125,10 +144,10 @@ export const TotalVendidoChart = ({ data = [] }) => {
   }));
 
   const margins = isSmallScreen 
-    ? { top: 15, right: 15, bottom: 60, left: 50 }
+    ? { top: 15, right: 15, bottom: 70, left: 50 }
     : isMobile
-    ? { top: 15, right: 20, bottom: 70, left: 60 }
-    : { top: 20, right: 30, bottom: 80, left: 90 };
+    ? { top: 15, right: 20, bottom: 80, left: 60 }
+    : { top: 20, right: 30, bottom: 90, left: 90 };
 
   return (
     <div className="chart-container">
@@ -141,9 +160,25 @@ export const TotalVendidoChart = ({ data = [] }) => {
         colors={["var(--color-accent)"]}
         borderColor={{ from: "color", modifiers: [["darker", 1.6]] }}
         axisBottom={{
-          tickRotation: -45,
-          tickPadding: 5,
+          tickRotation: -35,
+          tickPadding: 8,
           tickSize: 5,
+          renderTick: (tick) => (
+            <g transform={`translate(${tick.x},${tick.y})`}>
+              <text
+                transform={`rotate(-35)`}
+                textAnchor="end"
+                dominantBaseline="middle"
+                style={{
+                  fontSize: 11,
+                  fill: '#555',
+                }}
+                title={tick.value}
+              >
+                {tick.value}
+              </text>
+            </g>
+          ),
         }}
         axisLeft={{
           tickSize: 5,
@@ -165,9 +200,11 @@ export const TotalVendidoChart = ({ data = [] }) => {
               color: "#FFFFFF",
               fontSize: "12px",
               border: "1px solid #555",
+               width: 'max-content',
             }}
           >
-            R${props.value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+            <div style={{ marginBottom: '4px', fontWeight: '600' }}>{props.indexValue}</div>
+            <div>Total Vendido: R$ {props.value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</div>
           </div>
         )}
         theme={{
@@ -226,10 +263,10 @@ export const NumAtendimentosChart = ({ data = [] }) => {
   }));
 
   const margins = isSmallScreen 
-    ? { top: 15, right: 15, bottom: 60, left: 50 }
+    ? { top: 15, right: 15, bottom: 70, left: 50 }
     : isMobile
-    ? { top: 15, right: 20, bottom: 70, left: 60 }
-    : { top: 20, right: 30, bottom: 80, left: 70 };
+    ? { top: 15, right: 20, bottom: 80, left: 60 }
+    : { top: 20, right: 30, bottom: 90, left: 70 };
 
   return (
     <div className="chart-container">
@@ -242,9 +279,25 @@ export const NumAtendimentosChart = ({ data = [] }) => {
         colors={["var(--color-accent)"]}
         borderColor={{ from: "color", modifiers: [["darker", 1.6]] }}
         axisBottom={{
-          tickRotation: -45,
-          tickPadding: 5,
+          tickRotation: -35,
+          tickPadding: 8,
           tickSize: 5,
+          renderTick: (tick) => (
+            <g transform={`translate(${tick.x},${tick.y})`}>
+              <text
+                transform={`rotate(-35)`}
+                textAnchor="end"
+                dominantBaseline="middle"
+                style={{
+                  fontSize: 11,
+                  fill: '#555',
+                }}
+                title={tick.value}
+              >
+                {tick.value}
+              </text>
+            </g>
+          ),
         }}
         axisLeft={{
           tickSize: 5,
@@ -265,9 +318,11 @@ export const NumAtendimentosChart = ({ data = [] }) => {
               color: "#FFFFFF",
               fontSize: "12px",
               border: "1px solid #555",
+               width: 'max-content',
             }}
           >
-            {props.value} atendimento{props.value !== 1 ? 's' : ''}
+            <div style={{ marginBottom: '4px', fontWeight: '600' }}>{props.indexValue}</div>
+            <div>Atendimento{props.value !== 1 ? 's' : ''}: {props.value}</div>
           </div>
         )}
         theme={{
@@ -321,10 +376,10 @@ export const TipoClienteChart = ({ data = [] }) => {
   const isSmallScreen = window.innerWidth < 720;
 
   const margins = isSmallScreen 
-    ? { top: 15, right: 15, bottom: 60, left: 50 }
+    ? { top: 15, right: 15, bottom: 70, left: 50 }
     : isMobile
-    ? { top: 15, right: 20, bottom: 65, left: 60 }
-    : { top: 20, right: 30, bottom: 80, left: 90 };
+    ? { top: 15, right: 20, bottom: 75, left: 60 }
+    : { top: 20, right: 30, bottom: 85, left: 90 };
 
   const chartData = data.map((item) => ({
     tipo: item.tipo,
@@ -342,9 +397,25 @@ export const TipoClienteChart = ({ data = [] }) => {
         colors={["var(--color-accent)"]}
         borderColor={{ from: "color", modifiers: [["darker", 1.6]] }}
         axisBottom={{
-          tickRotation: -45,
-          tickPadding: 5,
+          tickRotation: -35,
+          tickPadding: 8,
           tickSize: 5,
+          renderTick: (tick) => (
+            <g transform={`translate(${tick.x},${tick.y})`}>
+              <text
+                transform={`rotate(-35)`}
+                textAnchor="end"
+                dominantBaseline="middle"
+                style={{
+                  fontSize: 11,
+                  fill: '#555',
+                }}
+                title={tick.value}
+              >
+                {tick.value}
+              </text>
+            </g>
+          ),
         }}
         axisLeft={{
           tickSize: 5,
@@ -398,9 +469,11 @@ export const TipoClienteChart = ({ data = [] }) => {
               color: "#FFFFFF",
               fontSize: "12px",
               border: "1px solid #555",
+              width: 'max-content',
             }}
           >
-            R$ {props.value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+            <p style={{fontWeight: '600'}}>{props.indexValue}</p>
+            <p>R$ {props.value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</p>
           </div>
         )}
       />
@@ -422,10 +495,10 @@ export const TipoClienteAtendimentosChart = ({ data = [] }) => {
   const isSmallScreen = window.innerWidth < 720;
 
   const margins = isSmallScreen 
-    ? { top: 15, right: 15, bottom: 60, left: 50 }
+    ? { top: 15, right: 15, bottom: 70, left: 50 }
     : isMobile
-    ? { top: 15, right: 20, bottom: 65, left: 60 }
-    : { top: 20, right: 30, bottom: 80, left: 90 };
+    ? { top: 15, right: 20, bottom: 75, left: 60 }
+    : { top: 20, right: 30, bottom: 85, left: 90 };
 
   const chartData = data.map((item) => ({
     tipo: item.tipo,
@@ -443,9 +516,25 @@ export const TipoClienteAtendimentosChart = ({ data = [] }) => {
         colors={["var(--color-accent)"]}
         borderColor={{ from: "color", modifiers: [["darker", 1.6]] }}
         axisBottom={{
-          tickRotation: -45,
-          tickPadding: 5,
+          tickRotation: -35,
+          tickPadding: 8,
           tickSize: 5,
+          renderTick: (tick) => (
+            <g transform={`translate(${tick.x},${tick.y})`}>
+              <text
+                transform={`rotate(-35)`}
+                textAnchor="end"
+                dominantBaseline="middle"
+                style={{
+                  fontSize: 11,
+                  fill: '#555',
+                }}
+                title={tick.value}
+              >
+                {tick.value}
+              </text>
+            </g>
+          ),
         }}
         axisLeft={{
           tickSize: 5,
@@ -500,7 +589,8 @@ export const TipoClienteAtendimentosChart = ({ data = [] }) => {
               border: "1px solid #555",
             }}
           >
-            {props.value}
+            <p style={{fontWeight: '600'}}>{props.indexValue}</p>
+            <p> {props.value}</p>
           </div>
         )}
       />
@@ -568,7 +658,8 @@ export const CanalOrigemChart = ({ data = [] }) => {
               border: "1px solid #555",
             }}
           >
-            {props.value}
+            <p style={{fontWeight: '600'}}>{props.indexValue}</p>
+            <p> {props.value}</p>
           </div>
         )}
         theme={{
