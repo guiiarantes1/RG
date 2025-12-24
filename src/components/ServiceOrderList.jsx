@@ -230,7 +230,6 @@ const ServiceOrderList = ({
     }
 
     try {
-      
       closeRefusalModal();
       await serviceOrderService.refuseServiceOrder(
         selectedOrder.id,
@@ -597,9 +596,6 @@ const ServiceOrderList = ({
           timer: 2000,
           showConfirmButton: false,
         });
-
-        // Recarrega a lista
-        fetchOrders();
       } catch (error) {
         console.error("Erro ao retornar ordem para pendente:", error);
         Swal.fire({
@@ -610,6 +606,9 @@ const ServiceOrderList = ({
           confirmButtonColor: "#d33",
           icon: "error",
         });
+      } finally {
+        // Recarrega a lista
+          fetchOrders(activeTab);
       }
     }
   };

@@ -17,12 +17,14 @@ export const TaxaConversaoChart = ({ data = [] }) => {
   const isMobile = window.innerWidth < 768;
   const isSmallScreen = window.innerWidth < 720;
 
-  const chartData = data.map((item) => ({
-    nome: item.nome,
-    "Taxa Conversão": item.taxa_conversao || 0,
-    Atendimentos: item.num_fechados || 0,
-    Fechados: item.num_fechados || 0,
-  }));
+  const chartData = data
+    .filter((item) => item.num_fechados > 0 || item.taxa_conversao > 0)
+    .map((item) => ({
+      nome: item.nome,
+      "Taxa Conversão": item.taxa_conversao || 0,
+      Atendimentos: item.num_fechados || 0,
+      Fechados: item.num_fechados || 0,
+    }));
 
   const margins = isSmallScreen 
     ? { top: 15, right: 15, bottom: 70, left: 50 }
@@ -38,7 +40,7 @@ export const TaxaConversaoChart = ({ data = [] }) => {
         indexBy="nome"
         margin={margins}
         padding={0.3}
-        colors={["var(--color-accent)"]}
+        colors={["#2C5F7E"]}
         borderColor={{ from: "color", modifiers: [["darker", 1.6]] }}
         axisBottom={{
           tickRotation: -35,
@@ -137,11 +139,13 @@ export const TotalVendidoChart = ({ data = [] }) => {
   const isMobile = window.innerWidth < 768;
   const isSmallScreen = window.innerWidth < 720;
 
-  const chartData = data.map((item) => ({
-    nome: item.nome,
-    "Total Vendido": item.total_vendido || 0,
-    Atendimentos: item.num_fechados || 0,
-  }));
+  const chartData = data
+    .filter((item) => item.total_vendido > 0)
+    .map((item) => ({
+      nome: item.nome,
+      "Total Vendido": item.total_vendido || 0,
+      Atendimentos: item.num_fechados || 0,
+    }));
 
   const margins = isSmallScreen 
     ? { top: 15, right: 15, bottom: 70, left: 50 }
@@ -157,7 +161,7 @@ export const TotalVendidoChart = ({ data = [] }) => {
         indexBy="nome"
         margin={margins}
         padding={0.3}
-        colors={["var(--color-accent)"]}
+        colors={["#1F3B4D"]}
         borderColor={{ from: "color", modifiers: [["darker", 1.6]] }}
         axisBottom={{
           tickRotation: -35,
@@ -257,10 +261,12 @@ export const NumAtendimentosChart = ({ data = [] }) => {
   const isMobile = window.innerWidth < 768;
   const isSmallScreen = window.innerWidth < 720;
 
-  const chartData = data.map((item) => ({
-    nome: item.nome,
-    "Atendimentos": item.num_fechados || 0,
-  }));
+  const chartData = data
+    .filter((item) => item.num_fechados > 0)
+    .map((item) => ({
+      nome: item.nome,
+      "Atendimentos": item.num_fechados || 0,
+    }));
 
   const margins = isSmallScreen 
     ? { top: 15, right: 15, bottom: 70, left: 50 }
@@ -276,7 +282,7 @@ export const NumAtendimentosChart = ({ data = [] }) => {
         indexBy="nome"
         margin={margins}
         padding={0.3}
-        colors={["var(--color-accent)"]}
+        colors={["#3A7CA5"]}
         borderColor={{ from: "color", modifiers: [["darker", 1.6]] }}
         axisBottom={{
           tickRotation: -35,
@@ -381,10 +387,12 @@ export const TipoClienteChart = ({ data = [] }) => {
     ? { top: 15, right: 20, bottom: 75, left: 60 }
     : { top: 20, right: 30, bottom: 85, left: 90 };
 
-  const chartData = data.map((item) => ({
-    tipo: item.tipo,
-    "Total Vendido": item.total_vendido || 0,
-  }));
+  const chartData = data
+    .filter((item) => item.total_vendido > 0)
+    .map((item) => ({
+      tipo: item.tipo,
+      "Total Vendido": item.total_vendido || 0,
+    }));
 
   return (
     <div className="chart-container">
@@ -394,7 +402,7 @@ export const TipoClienteChart = ({ data = [] }) => {
         indexBy="tipo"
         margin={margins}
         padding={0.3}
-        colors={["var(--color-accent)"]}
+        colors={["#4A90B8"]}
         borderColor={{ from: "color", modifiers: [["darker", 1.6]] }}
         axisBottom={{
           tickRotation: -35,
@@ -500,10 +508,12 @@ export const TipoClienteAtendimentosChart = ({ data = [] }) => {
     ? { top: 15, right: 20, bottom: 75, left: 60 }
     : { top: 20, right: 30, bottom: 85, left: 90 };
 
-  const chartData = data.map((item) => ({
-    tipo: item.tipo,
-    "Atendimentos Fechados": item.atendimentos_fechados || 0,
-  }));
+  const chartData = data
+    .filter((item) => item.atendimentos_fechados > 0)
+    .map((item) => ({
+      tipo: item.tipo,
+      "Atendimentos Fechados": item.atendimentos_fechados || 0,
+    }));
 
   return (
     <div className="chart-container">
@@ -513,7 +523,7 @@ export const TipoClienteAtendimentosChart = ({ data = [] }) => {
         indexBy="tipo"
         margin={margins}
         padding={0.3}
-        colors={["var(--color-accent)"]}
+        colors={["#5BA3C5"]}
         borderColor={{ from: "color", modifiers: [["darker", 1.6]] }}
         axisBottom={{
           tickRotation: -35,
@@ -617,10 +627,12 @@ export const CanalOrigemChart = ({ data = [] }) => {
     ? { top: 15, right: 20, bottom: 60, left: 60 }
     : { top: 20, right: 30, bottom: 70, left: 90 };
 
-  const chartData = data.map((item) => ({
-    canal: item.canal,
-    "Atendimentos fechados": item.atendimentos_fechados || 0,
-  }));
+  const chartData = data
+    .filter((item) => item.atendimentos_fechados > 0)
+    .map((item) => ({
+      canal: item.canal,
+      "Atendimentos fechados": item.atendimentos_fechados || 0,
+    }));
 
   return (
     <div className="chart-container">
@@ -630,7 +642,7 @@ export const CanalOrigemChart = ({ data = [] }) => {
         indexBy="canal"
         margin={margins}
         padding={0.3}
-        colors={["var(--color-accent)"]}
+        colors={["#476D84"]}
         borderColor={{ from: "color", modifiers: [["darker", 1.6]] }}
         axisBottom={{
           tickRotation: 0,
@@ -698,3 +710,360 @@ export const CanalOrigemChart = ({ data = [] }) => {
     </div>
   );
 };
+
+// Gráfico de Aluguel/Venda - Valor Total
+export const AluguelVendaValorChart = ({ data = [] }) => {
+  if (!data || data.length === 0) {
+    return (
+      <div className="chart-container empty-chart">
+        <p>Sem dados disponíveis</p>
+      </div>
+    );
+  }
+
+  const isMobile = window.innerWidth < 768;
+  const isSmallScreen = window.innerWidth < 720;
+
+  const margins = isSmallScreen 
+    ? { top: 15, right: 15, bottom: 70, left: 50 }
+    : isMobile
+    ? { top: 15, right: 20, bottom: 75, left: 60 }
+    : { top: 20, right: 30, bottom: 85, left: 90 };
+
+  const chartData = data.map((item) => ({
+    tipo: item.tipo,
+    "Valor Total": item.valor_total || 0,
+  }));
+
+  return (
+    <div className="chart-container">
+      <ResponsiveBar
+        data={chartData}
+        keys={["Valor Total"]}
+        indexBy="tipo"
+        margin={margins}
+        padding={0.3}
+        colors={["#1F3B4D"]}
+        borderColor={{ from: "color", modifiers: [["darker", 1.6]] }}
+        axisBottom={{
+          tickRotation: -35,
+          tickPadding: 8,
+          tickSize: 5,
+          renderTick: (tick) => (
+            <g transform={`translate(${tick.x},${tick.y})`}>
+              <text
+                transform={`rotate(-35)`}
+                textAnchor="end"
+                dominantBaseline="middle"
+                style={{
+                  fontSize: 11,
+                  fill: '#555',
+                }}
+                title={tick.value}
+              >
+                {tick.value}
+              </text>
+            </g>
+          ),
+        }}
+        axisLeft={{
+          tickSize: 5,
+          tickPadding: 5,
+          tickRotation: 0,
+          legend: "Valor Total (R$)",
+          legendPosition: "middle",
+          legendOffset: -70,
+          format: (value) => `R$ ${(value / 1000).toFixed(1)}k`,
+        }}
+        labelSkipWidth={12}
+        labelSkipHeight={12}
+        theme={{
+          axis: {
+            domain: {
+              line: {
+                stroke: "#e0e0e0",
+              },
+            },
+            ticks: {
+              line: {
+                stroke: "#e0e0e0",
+              },
+              text: {
+                fill: "#555",
+              },
+            },
+            legend: {
+              text: {
+                fill: "#555",
+              },
+            },
+          },
+          labels: {
+            text: {
+              fill: "#FFFFFF",
+            },
+          },
+          grid: {
+            line: {
+              stroke: "#f0f0f0",
+            },
+          },
+        }}
+        tooltip={(props) => (
+          <div
+            style={{
+              background: "#333",
+              padding: "8px 12px",
+              borderRadius: "4px",
+              color: "#FFFFFF",
+              fontSize: "12px",
+              border: "1px solid #555",
+              width: 'max-content',
+            }}
+          >
+            <p style={{fontWeight: '600', marginBottom: '4px'}}>{props.indexValue}</p>
+            <p>Valor Total: R$ {props.value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</p>
+          </div>
+        )}
+      />
+    </div>
+  );
+};
+
+// Gráfico de Aluguel/Venda - Quantidade de OS
+export const AluguelVendaQuantidadeChart = ({ data = [] }) => {
+  if (!data || data.length === 0) {
+    return (
+      <div className="chart-container empty-chart">
+        <p>Sem dados disponíveis</p>
+      </div>
+    );
+  }
+
+  const isMobile = window.innerWidth < 768;
+  const isSmallScreen = window.innerWidth < 720;
+
+  const margins = isSmallScreen 
+    ? { top: 15, right: 15, bottom: 70, left: 50 }
+    : isMobile
+    ? { top: 15, right: 20, bottom: 75, left: 60 }
+    : { top: 20, right: 30, bottom: 85, left: 70 };
+
+  const chartData = data.map((item) => ({
+    tipo: item.tipo,
+    "Quantidade OS": item.quantidade_os || 0,
+  }));
+
+  return (
+    <div className="chart-container">
+      <ResponsiveBar
+        data={chartData}
+        keys={["Quantidade OS"]}
+        indexBy="tipo"
+        margin={margins}
+        padding={0.3}
+        colors={["#3A7CA5"]}
+        borderColor={{ from: "color", modifiers: [["darker", 1.6]] }}
+        axisBottom={{
+          tickRotation: -35,
+          tickPadding: 8,
+          tickSize: 5,
+          renderTick: (tick) => (
+            <g transform={`translate(${tick.x},${tick.y})`}>
+              <text
+                transform={`rotate(-35)`}
+                textAnchor="end"
+                dominantBaseline="middle"
+                style={{
+                  fontSize: 11,
+                  fill: '#555',
+                }}
+                title={tick.value}
+              >
+                {tick.value}
+              </text>
+            </g>
+          ),
+        }}
+        axisLeft={{
+          tickSize: 5,
+          tickPadding: 5,
+          tickRotation: 0,
+          legend: "Quantidade",
+          legendPosition: "middle",
+          legendOffset: -50,
+        }}
+        labelSkipWidth={12}
+        labelSkipHeight={12}
+        theme={{
+          axis: {
+            domain: {
+              line: {
+                stroke: "#e0e0e0",
+              },
+            },
+            ticks: {
+              line: {
+                stroke: "#e0e0e0",
+              },
+              text: {
+                fill: "#555",
+              },
+            },
+            legend: {
+              text: {
+                fill: "#555",
+              },
+            },
+          },
+          labels: {
+            text: {
+              fill: "#FFFFFF",
+            },
+          },
+          grid: {
+            line: {
+              stroke: "#f0f0f0",
+            },
+          },
+        }}
+        tooltip={(props) => (
+          <div
+            style={{
+              background: "#333",
+              padding: "8px 12px",
+              borderRadius: "4px",
+              color: "#FFFFFF",
+              fontSize: "12px",
+              border: "1px solid #555",
+              width: 'max-content',
+            }}
+          >
+            <p style={{fontWeight: '600', marginBottom: '4px'}}>{props.indexValue}</p>
+            <p>Quantidade de OS: {props.value}</p>
+          </div>
+        )}
+      />
+    </div>
+  );
+};
+
+// Gráfico de Aluguel/Venda - Ticket Médio
+export const AluguelVendaTicketMedioChart = ({ data = [] }) => {
+  if (!data || data.length === 0) {
+    return (
+      <div className="chart-container empty-chart">
+        <p>Sem dados disponíveis</p>
+      </div>
+    );
+  }
+
+  const isMobile = window.innerWidth < 768;
+  const isSmallScreen = window.innerWidth < 720;
+
+  const margins = isSmallScreen 
+    ? { top: 15, right: 15, bottom: 70, left: 50 }
+    : isMobile
+    ? { top: 15, right: 20, bottom: 75, left: 60 }
+    : { top: 20, right: 30, bottom: 85, left: 90 };
+
+  const chartData = data.map((item) => ({
+    tipo: item.tipo,
+    "Ticket Médio": item.valor_medio || 0,
+  }));
+
+  return (
+    <div className="chart-container">
+      <ResponsiveBar
+        data={chartData}
+        keys={["Ticket Médio"]}
+        indexBy="tipo"
+        margin={margins}
+        padding={0.3}
+        colors={["#2C5F7E"]}
+        borderColor={{ from: "color", modifiers: [["darker", 1.6]] }}
+        axisBottom={{
+          tickRotation: -35,
+          tickPadding: 8,
+          tickSize: 5,
+          renderTick: (tick) => (
+            <g transform={`translate(${tick.x},${tick.y})`}>
+              <text
+                transform={`rotate(-35)`}
+                textAnchor="end"
+                dominantBaseline="middle"
+                style={{
+                  fontSize: 11,
+                  fill: '#555',
+                }}
+                title={tick.value}
+              >
+                {tick.value}
+              </text>
+            </g>
+          ),
+        }}
+        axisLeft={{
+          tickSize: 5,
+          tickPadding: 5,
+          tickRotation: 0,
+          legend: "Ticket Médio (R$)",
+          legendPosition: "middle",
+          legendOffset: -70,
+          format: (value) => `R$ ${(value / 1000).toFixed(1)}k`,
+        }}
+        labelSkipWidth={12}
+        labelSkipHeight={12}
+        theme={{
+          axis: {
+            domain: {
+              line: {
+                stroke: "#e0e0e0",
+              },
+            },
+            ticks: {
+              line: {
+                stroke: "#e0e0e0",
+              },
+              text: {
+                fill: "#555",
+              },
+            },
+            legend: {
+              text: {
+                fill: "#555",
+              },
+            },
+          },
+          labels: {
+            text: {
+              fill: "#FFFFFF",
+            },
+          },
+          grid: {
+            line: {
+              stroke: "#f0f0f0",
+            },
+          },
+        }}
+        tooltip={(props) => (
+          <div
+            style={{
+              background: "#333",
+              padding: "8px 12px",
+              borderRadius: "4px",
+              color: "#FFFFFF",
+              fontSize: "12px",
+              border: "1px solid #555",
+              width: 'max-content',
+            }}
+          >
+            <p style={{fontWeight: '600', marginBottom: '4px'}}>{props.indexValue}</p>
+            <p>Ticket Médio: R$ {props.value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</p>
+          </div>
+        )}
+      />
+    </div>
+  );
+};
+
