@@ -390,7 +390,7 @@ const Funcionarios = () => {
                   id="role"
                   name="role"
                   value={formData.role}
-                  onChange={handleInputChange}
+                  onChange={(value) => setFormData(prev => ({ ...prev, role: value }))}
                   required
                   disabled={isLoading}
                   options={[
