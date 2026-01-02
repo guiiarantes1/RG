@@ -3681,12 +3681,12 @@ const OrdemServico = () => {
             className="ordem-servico-content"
             style={{
               display: "grid",
-              gridTemplateColumns: selectedOrder?.data_finalizado
+              gridTemplateColumns: selectedOrder?.data_finalizado || selectedOrder?.data_recusa
                 ? "1fr"
                 : "50% 1fr",
             }}
           >
-            {!selectedOrder?.data_finalizado && (
+            {!selectedOrder?.data_finalizado && !selectedOrder?.data_recusa && (
               <div className="form-section">
                 {/* Steps Navigation */}
                 <div className="steps-navigation">
@@ -3719,7 +3719,7 @@ const OrdemServico = () => {
                         style={{ marginLeft: "auto" }}
                       />
                     ) : (
-                      !selectedOrder?.data_finalizado && (
+                      !selectedOrder?.data_finalizado && !selectedOrder?.data_recusa && (
                         <Button
                           text={loading ? "Salvando..." : "Finalizar OS"}
                           onClick={handleFinalizeOS}
@@ -4107,7 +4107,7 @@ const OrdemServico = () => {
                 </div>
 
                 {/* Contrato de Locação */}
-                {!selectedOrder?.data_finalizado && (
+                {!selectedOrder?.data_finalizado && !selectedOrder?.data_recusa && (
                   <div className="preview-section-group contract-section">
                     <h4
                       style={{

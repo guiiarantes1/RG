@@ -185,7 +185,7 @@ const Funcionarios = () => {
       Swal.fire({
         icon: "error",
         title: "Erro ao salvar funcionário",
-        text: error.message || "Ocorreu um erro ao salvar o funcionário.",
+        text: error.error || "Ocorreu um erro ao salvar o funcionário.",
         timer: 2000,
         showConfirmButton: false,
       });
