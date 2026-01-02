@@ -1387,9 +1387,7 @@ const OrdemServico = () => {
         return (
           inputValues.nome.trim() !== "" &&
           inputValues.telefone.trim() !== "" &&
-          inputValues.email.trim() !== "" &&
           inputValues.cpf.trim() !== "" &&
-          inputValues.cep.trim() !== "" &&
           inputValues.rua.trim() !== "" &&
           inputValues.numero.trim() !== "" &&
           inputValues.bairro.trim() !== "" &&
@@ -1510,9 +1508,7 @@ const OrdemServico = () => {
         if (!inputValues.nome.trim()) errors.nome = "Nome é obrigatório";
         if (!inputValues.telefone.trim())
           errors.telefone = "Telefone é obrigatório";
-        if (!inputValues.email.trim()) errors.email = "Email é obrigatório";
         if (!inputValues.cpf.trim()) errors.cpf = "CPF é obrigatório";
-        if (!inputValues.cep.trim()) errors.cep = "CEP é obrigatório";
         if (!inputValues.rua.trim()) errors.rua = "Endereço é obrigatório";
         if (!inputValues.numero.trim()) errors.numero = "Número é obrigatório";
         if (!inputValues.bairro.trim()) errors.bairro = "Bairro é obrigatório";
@@ -1742,7 +1738,7 @@ const OrdemServico = () => {
               </div>
               <div className="form-group">
                 <label>
-                  Email <span style={{ color: "red" }}>*</span>
+                  Email
                 </label>
                 <input
                   type="email"
@@ -1774,7 +1770,7 @@ const OrdemServico = () => {
               </div>
               <div className="form-group">
                 <label>
-                  CEP <span style={{ color: "red" }}>*</span>
+                  CEP
                 </label>
                 <input
                   type="text"
