@@ -36,10 +36,10 @@ const Clientes = () => {
   // Estados de paginação
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [pageSize] = useState(50);
+  const pageSize = 50;
   const [totalCount, setTotalCount] = useState(0);
 
-  const loadClientes = useCallback(async (page = 1, search = '') => {
+  const loadClientes = async (page = 1, search = '') => {
     setIsLoadingClientes(true);
     setError(null);
     try {
@@ -72,12 +72,7 @@ const Clientes = () => {
     } finally {
       setIsLoadingClientes(false);
     }
-  }, [pageSize]);
-
-  // Carregar clientes na montagem do componente
-  useEffect(() => {
-    loadClientes(1, '');
-  }, [loadClientes]);
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -321,14 +316,14 @@ const Clientes = () => {
     return parts.length > 0 ? parts.join(', ') : '-';
   };
 
-  // Debounce para busca
+  // Carregamento inicial e busca com debounce
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      setCurrentPage(1);
       loadClientes(1, searchTerm);
-    }, 500);
+    }, searchTerm === '' ? 0 : 500);
     
     return () => clearTimeout(timeoutId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm]);
 
   // Handler para mudança de página

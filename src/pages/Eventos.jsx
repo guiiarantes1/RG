@@ -19,10 +19,10 @@ const Eventos = () => {
     // Estados de paginação
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [pageSize] = useState(50);
+    const pageSize = 50;
     const [totalCount, setTotalCount] = useState(0);
 
-    const loadEventos = useCallback(async (page = 1, search = '') => {
+    const loadEventos = async (page = 1, search = '') => {
         setIsLoading(true);
         setError(null);
         try {
@@ -55,12 +55,7 @@ const Eventos = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [pageSize]);
-
-    // Carregar eventos na montagem do componente
-    useEffect(() => {
-        loadEventos(1, '');
-    }, [loadEventos]);
+    };
 
     const handleEventoClick = (eventoId) => {
         navigate(`/eventos/${eventoId}`);
@@ -121,14 +116,14 @@ const Eventos = () => {
         return statusMap[status] || 'unknown';
     };
 
-    // Debounce para busca
+    // Carregamento inicial e busca com debounce
     useEffect(() => {
         const timeoutId = setTimeout(() => {
-            setCurrentPage(1);
             loadEventos(1, searchTerm);
-        }, 500);
+        }, searchTerm === '' ? 0 : 500);
         
         return () => clearTimeout(timeoutId);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchTerm]);
 
     // Handler para mudança de página
@@ -168,10 +163,10 @@ const Eventos = () => {
                     </div>
 
                     {/* Lista de Eventos */}
-                    <div className="eventos-list">
+                    <div className={`eventos-list ${isLoading ? 'd-flex flex-wrap gap-3' : ''}`}>
                         {isLoading ? (
                             // Skeleton loading
-                            Array.from({ length: 6 }).map((_, index) => (
+                            Array.from({ length: 12 }).map((_, index) => (
                                 <div key={index} className="evento-skeleton">
                                     <div className="skeleton-content">
                                         <div className="skeleton-title"></div>

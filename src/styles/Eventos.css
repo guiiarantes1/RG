@@ -243,6 +243,8 @@
   border-radius: 12px;
   padding: 20px;
   animation: pulse 1.5s ease-in-out infinite;
+  width: 350px;
+  height: 200px;
 }
 
 .skeleton-content {
