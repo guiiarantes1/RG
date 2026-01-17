@@ -189,11 +189,6 @@ const Triagem = () => {
     const validarCampos = () => {
         const novosErros = {};
 
-        //cpf é obrigatório	
-        if (!formData.cpf.trim()) {
-            novosErros.cpf = 'CPF é obrigatório';
-        }
-
         // Nome do cliente é obrigatório
         if (!formData.nomeCliente.trim()) {
             novosErros.nomeCliente = 'Nome do cliente é obrigatório';
@@ -492,7 +487,7 @@ const Triagem = () => {
                             <div className="form-row">
                                 <div className="form-group">
                                     <label htmlFor="cpf" className="form-label">
-                                        CPF *
+                                        CPF
                                     </label>
                                     <div className="cpf-container">
                                         <input
